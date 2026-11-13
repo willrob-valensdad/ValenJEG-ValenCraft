@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": "jeg:gunmetal_grit",
+  "result": {
+    "id": "jeg:gunmetal_nugget"
+  },
+  "experience": 0.1,
+  "cookingtime": 50
+}

@@ -1,0 +1,19 @@
+{
+  "structures": [
+    {
+      "structure": "jeg:valen_helipads/forest_helipad",
+      "weight": 3
+    },
+    {
+      "structure": "jeg:valen_helipads/desert_helipad",
+      "weight": 2
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 40,
+    "separation": 16,
+    "salt": 1470101,
+    "frequency": 0.6
+  }
+}

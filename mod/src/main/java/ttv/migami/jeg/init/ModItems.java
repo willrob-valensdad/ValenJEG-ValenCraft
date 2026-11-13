@@ -1,0 +1,880 @@
+package ttv.migami.jeg.init;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.crafting.Recipe;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.BuildCreativeModeTabContentsEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.registries.DeferredHolder;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.registries.DeferredRegister;
+import ttv.migami.jeg.Reference;
+import ttv.migami.jeg.gun.GunDefinitions;
+import ttv.migami.jeg.gun.GunStats;
+import ttv.migami.jeg.event.RecipeUnlockHandler;
+import ttv.migami.jeg.item.AttachmentItem;
+import ttv.migami.jeg.item.attachment.AttachmentModifiers;
+import ttv.migami.jeg.item.attachment.AttachmentType;
+import ttv.migami.jeg.item.attachment.KillEffectItem;
+import ttv.migami.jeg.item.attachment.PaintJobCanItem;
+import ttv.migami.jeg.item.EnhancedCoolantItem;
+import ttv.migami.jeg.item.EnemyVehicleSpawnItem;
+import ttv.migami.jeg.item.FlashlightAttachmentItem;
+import ttv.migami.jeg.item.GrenadeItem;
+import ttv.migami.jeg.item.AnimatedGunItem;
+import ttv.migami.jeg.item.DescribedAmmoItem;
+import ttv.migami.jeg.item.GunItem;
+import ttv.migami.jeg.item.C4VestItem;
+import ttv.migami.jeg.item.DefuserItem;
+import ttv.migami.jeg.item.DetonatorItem;
+import ttv.migami.jeg.item.DroneItem;
+import ttv.migami.jeg.item.GuidedLauncherItem;
+import ttv.migami.jeg.item.MonitorItem;
+import ttv.migami.jeg.item.SpecialExplosiveItem;
+import ttv.migami.jeg.item.GunnerSpawnEggItem;
+import ttv.migami.jeg.item.MolotovCocktailItem;
+import ttv.migami.jeg.item.ModSpawnEggItem;
+import ttv.migami.jeg.item.ManualItem;
+import ttv.migami.jeg.item.ArmoredJoyHarnessItem;
+import ttv.migami.jeg.item.BulletproofArmorItem;
+import ttv.migami.jeg.item.MagazineItem;
+import ttv.migami.jeg.item.RepairKitItem;
+import ttv.migami.jeg.item.RepairToolItem;
+import ttv.migami.jeg.item.SmokeGrenadeItem;
+import ttv.migami.jeg.item.StunGrenadeItem;
+import ttv.migami.jeg.item.WaterBombItem;
+import ttv.migami.jeg.vehicle.item.VehicleAssemblingTableBlockItem;
+import ttv.migami.jeg.vehicle.item.VehicleContainerItem;
+
+public final class ModItems {
+    private ModItems() {}
+
+    public static final DeferredRegister<Item> REGISTER = DeferredRegister.create(Registries.ITEM, Reference.MOD_ID);
+
+    public static final Map<Identifier, DeferredHolder<Item, Item>> AMMO = new LinkedHashMap<>();
+    public static final DeferredHolder<Item, VehicleContainerItem> VEHICLE_CONTAINER = REGISTER.register(
+            "vehicle_container",
+            () -> new VehicleContainerItem(ModBlocks.VEHICLE_CONTAINER.get(), baseProperties(Reference.id("vehicle_container")).stacksTo(1))
+    );
+    public static final DeferredHolder<Item, VehicleAssemblingTableBlockItem> VEHICLE_ASSEMBLING_TABLE = REGISTER.register(
+            "vehicle_assembling_table",
+            () -> new VehicleAssemblingTableBlockItem(ModBlocks.VEHICLE_ASSEMBLING_TABLE.get(), baseProperties(Reference.id("vehicle_assembling_table")).stacksTo(64))
+    );
+    public static final DeferredHolder<Item, BlockItem> VEHICLE_CHARGING_STATION = REGISTER.register(
+            "vehicle_charging_station",
+            () -> new BlockItem(ModBlocks.VEHICLE_CHARGING_STATION.get(), baseProperties(Reference.id("vehicle_charging_station")).stacksTo(64))
+    );
+    public static final DeferredHolder<Item, BlockItem> MAGAZINE_LOADER = REGISTER.register(
+            "magazine_loader",
+            () -> new BlockItem(ModBlocks.MAGAZINE_LOADER.get(), baseProperties(Reference.id("magazine_loader")).stacksTo(64))
+    );
+    public static final Map<String, DeferredHolder<Item, Item>> STATION_MATERIALS = new LinkedHashMap<>();
+    public static final DeferredHolder<Item, BlockItem> SCRAP_WORKBENCH = REGISTER.register("scrap_workbench", () -> new BlockItem(ModBlocks.SCRAP_WORKBENCH.get(), baseProperties(Reference.id("scrap_workbench"))));
+    public static final DeferredHolder<Item, BlockItem> GUNMETAL_WORKBENCH = REGISTER.register("gunmetal_workbench", () -> new BlockItem(ModBlocks.GUNMETAL_WORKBENCH.get(), baseProperties(Reference.id("gunmetal_workbench"))));
+    public static final DeferredHolder<Item, BlockItem> GUNNITE_WORKBENCH = REGISTER.register("gunnite_workbench", () -> new BlockItem(ModBlocks.GUNNITE_WORKBENCH.get(), baseProperties(Reference.id("gunnite_workbench"))));
+    public static final DeferredHolder<Item, BlockItem> BLUEPRINT_WORKBENCH = REGISTER.register("blueprint_workbench", () -> new BlockItem(ModBlocks.BLUEPRINT_WORKBENCH.get(), baseProperties(Reference.id("blueprint_workbench"))));
+    public static final DeferredHolder<Item, BlockItem> SCHEMATIC_STATION = REGISTER.register("schematic_station", () -> new BlockItem(ModBlocks.SCHEMATIC_STATION.get(), baseProperties(Reference.id("schematic_station"))));
+    public static final DeferredHolder<Item, BlockItem> RECYCLER = REGISTER.register("recycler", () -> new BlockItem(ModBlocks.RECYCLER.get(), baseProperties(Reference.id("recycler"))));
+    public static final DeferredHolder<Item, BlockItem> SCRAP_BLOCK = REGISTER.register("scrap_block", () -> new BlockItem(ModBlocks.SCRAP_BLOCK.get(), baseProperties(Reference.id("scrap_block"))));
+    public static final DeferredHolder<Item, BlockItem> GUNMETAL_BLOCK = REGISTER.register("gunmetal_block", () -> new BlockItem(ModBlocks.GUNMETAL_BLOCK.get(), baseProperties(Reference.id("gunmetal_block"))));
+    public static final DeferredHolder<Item, BlockItem> GUNNITE_BLOCK = REGISTER.register("gunnite_block", () -> new BlockItem(ModBlocks.GUNNITE_BLOCK.get(), baseProperties(Reference.id("gunnite_block"))));
+    static {
+        STATION_MATERIALS.put("raw_brimstone", REGISTER.register("raw_brimstone", () -> new Item(baseProperties(Reference.id("raw_brimstone")))));
+        STATION_MATERIALS.put("scrap", REGISTER.register("scrap", () -> new Item(baseProperties(Reference.id("scrap")))));
+        STATION_MATERIALS.put("gunmetal_nugget", REGISTER.register("gunmetal_nugget", () -> new Item(baseProperties(Reference.id("gunmetal_nugget")))));
+        STATION_MATERIALS.put("gunmetal_grit", REGISTER.register("gunmetal_grit", () -> new Item(baseProperties(Reference.id("gunmetal_grit")))));
+        STATION_MATERIALS.put("gunmetal_ingot", REGISTER.register("gunmetal_ingot", () -> new Item(baseProperties(Reference.id("gunmetal_ingot")))));
+        STATION_MATERIALS.put("gunnite_ingot", REGISTER.register("gunnite_ingot", () -> new Item(baseProperties(Reference.id("gunnite_ingot")))));
+        STATION_MATERIALS.put("tech_trash", REGISTER.register("tech_trash", () -> new Item(baseProperties(Reference.id("tech_trash")))));
+        STATION_MATERIALS.put("circuit_board", REGISTER.register("circuit_board", () -> new Item(baseProperties(Reference.id("circuit_board")))));
+        STATION_MATERIALS.put("brimstone_crystal", REGISTER.register("brimstone_crystal", () -> new Item(baseProperties(Reference.id("brimstone_crystal")))));
+        STATION_MATERIALS.put("ectoplasm", REGISTER.register("ectoplasm", () -> new Item(baseProperties(Reference.id("ectoplasm")))));
+        STATION_MATERIALS.put("firearm_blueprint", REGISTER.register("firearm_blueprint", () -> new ttv.migami.jeg.station.BlueprintItem(baseProperties(Reference.id("firearm_blueprint")))));
+        STATION_MATERIALS.put("advanced_firearm_blueprint", REGISTER.register("advanced_firearm_blueprint", () -> new ttv.migami.jeg.station.BlueprintItem(baseProperties(Reference.id("advanced_firearm_blueprint")))));
+    }
+
+    public static final DeferredHolder<Item, BlockItem> SCRAP_ORE = REGISTER.register("scrap_ore", () -> new BlockItem(ModBlocks.SCRAP_ORE.get(), baseProperties(Reference.id("scrap_ore"))));
+    public static final DeferredHolder<Item, BlockItem> DEEPSLATE_SCRAP_ORE = REGISTER.register("deepslate_scrap_ore", () -> new BlockItem(ModBlocks.DEEPSLATE_SCRAP_ORE.get(), baseProperties(Reference.id("deepslate_scrap_ore"))));
+    public static final DeferredHolder<Item, BlockItem> BRIMSTONE_ORE = REGISTER.register("brimstone_ore", () -> new BlockItem(ModBlocks.BRIMSTONE_ORE.get(), baseProperties(Reference.id("brimstone_ore"))));
+    public static final DeferredHolder<Item, BlockItem> BLACKSTONE_BRIMSTONE_ORE = REGISTER.register("blackstone_brimstone_ore", () -> new BlockItem(ModBlocks.BLACKSTONE_BRIMSTONE_ORE.get(), baseProperties(Reference.id("blackstone_brimstone_ore"))));
+    public static final DeferredHolder<Item, BlockItem> BASALT_BRIMSTONE_ORE = REGISTER.register("basalt_brimstone_ore", () -> new BlockItem(ModBlocks.BASALT_BRIMSTONE_ORE.get(), baseProperties(Reference.id("basalt_brimstone_ore"))));
+
+    public static final DeferredHolder<Item, Item> CROWBAR = REGISTER.register(
+            "crowbar",
+            () -> new Item(baseProperties(Reference.id("crowbar")).stacksTo(1).durability(128))
+    );
+    public static final DeferredHolder<Item, Item> REPAIR_KIT = REGISTER.register(
+            "repair_kit",
+            () -> new RepairKitItem(baseProperties(Reference.id("repair_kit")).stacksTo(16))
+    );
+    public static final DeferredHolder<Item, RepairToolItem> REPAIR_TOOL = REGISTER.register(
+            "repair_tool",
+            () -> new RepairToolItem(baseProperties(Reference.id("repair_tool")))
+    );
+    public static final DeferredHolder<Item, Item> COOLANT = REGISTER.register("coolant", () -> new Item(baseProperties(Reference.id("coolant")).stacksTo(1)));
+    public static final DeferredHolder<Item, EnhancedCoolantItem> ENHANCED_COOLANT = REGISTER.register("enhanced_coolant", () -> new EnhancedCoolantItem(baseProperties(Reference.id("enhanced_coolant")).stacksTo(1)));
+    public static final DeferredHolder<Item, Item> MISSILE_ENGINE = REGISTER.register(
+            "missile_engine",
+            () -> new Item(baseProperties(Reference.id("missile_engine")).stacksTo(64))
+    );
+    public static final DeferredHolder<Item, MagazineItem> PISTOL_MAGAZINE = REGISTER.register(
+            "pistol_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("pistol_magazine")).stacksTo(1), MagazineItem.MagazineType.PISTOL)
+    );
+    public static final DeferredHolder<Item, MagazineItem> SMG_MAGAZINE = REGISTER.register(
+            "smg_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("smg_magazine")).stacksTo(1), MagazineItem.MagazineType.SMG)
+    );
+    public static final DeferredHolder<Item, MagazineItem> SMG_EXTENDED_MAGAZINE = REGISTER.register(
+            "smg_extended_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("smg_extended_magazine")).stacksTo(1), MagazineItem.MagazineType.SMG_EXTENDED)
+    );
+    public static final DeferredHolder<Item, MagazineItem> SMG_DRUM_MAGAZINE = REGISTER.register(
+            "smg_drum_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("smg_drum_magazine")).stacksTo(1), MagazineItem.MagazineType.SMG_DRUM)
+    );
+    public static final DeferredHolder<Item, MagazineItem> RIFLE_MAGAZINE = REGISTER.register(
+            "rifle_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("rifle_magazine")).stacksTo(1), MagazineItem.MagazineType.RIFLE)
+    );
+    public static final DeferredHolder<Item, MagazineItem> RIFLE_EXTENDED_MAGAZINE = REGISTER.register(
+            "rifle_extended_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("rifle_extended_magazine")).stacksTo(1), MagazineItem.MagazineType.RIFLE_EXTENDED)
+    );
+    public static final DeferredHolder<Item, MagazineItem> RIFLE_DRUM_MAGAZINE = REGISTER.register(
+            "rifle_drum_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("rifle_drum_magazine")).stacksTo(1), MagazineItem.MagazineType.RIFLE_DRUM)
+    );
+    public static final DeferredHolder<Item, MagazineItem> SHOTGUN_MAGAZINE = REGISTER.register(
+            "shotgun_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("shotgun_magazine")).stacksTo(1), MagazineItem.MagazineType.SHOTGUN)
+    );
+    public static final DeferredHolder<Item, MagazineItem> SHOTGUN_EXTENDED_MAGAZINE = REGISTER.register(
+            "shotgun_extended_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("shotgun_extended_magazine")).stacksTo(1), MagazineItem.MagazineType.SHOTGUN_EXTENDED)
+    );
+    public static final DeferredHolder<Item, MagazineItem> SHOTGUN_DRUM_MAGAZINE = REGISTER.register(
+            "shotgun_drum_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("shotgun_drum_magazine")).stacksTo(1), MagazineItem.MagazineType.SHOTGUN_DRUM)
+    );
+    public static final DeferredHolder<Item, MagazineItem> MACHINE_GUN_MAGAZINE = REGISTER.register(
+            "machine_gun_magazine",
+            () -> new MagazineItem(baseProperties(Reference.id("machine_gun_magazine")).stacksTo(1), MagazineItem.MagazineType.MACHINE_GUN)
+    );
+    public static final Map<Identifier, DeferredHolder<Item, AttachmentItem>> ATTACHMENTS = new LinkedHashMap<>();
+    public static final DeferredHolder<Item, AttachmentItem> REFLEX_SIGHT = registerAttachment(
+            "reflex_sight",
+            AttachmentType.SCOPE,
+            AttachmentModifiers.builder().aimFovModifier(0.7F).adsSpeedMultiplier(0.95D).adsViewOffset(0.0D, 0.65D, -1.2D).build(),
+            baseProperties(Reference.id("reflex_sight")).stacksTo(1).durability(800)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> MONOCLE_SIGHT = registerAttachment(
+            "monocle_sight",
+            AttachmentType.SCOPE,
+            AttachmentModifiers.builder().aimFovModifier(0.7F).adsSpeedMultiplier(0.95D).adsViewOffset(0.0D, 0.65D, -1.2D).build(),
+            baseProperties(Reference.id("monocle_sight")).stacksTo(1).durability(800)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> HOLOGRAPHIC_SIGHT = registerAttachment(
+            "holographic_sight",
+            AttachmentType.SCOPE,
+            AttachmentModifiers.builder().aimFovModifier(0.5F).adsSpeedMultiplier(0.95D).adsViewOffset(0.0D, 0.75D, -1.6D).build(),
+            baseProperties(Reference.id("holographic_sight")).stacksTo(1).durability(800).rarity(Rarity.UNCOMMON)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> COMBAT_SCOPE = registerAttachment("combat_scope", AttachmentType.SCOPE,
+        AttachmentModifiers.builder().aimFovModifier(0.3F).adsSpeedMultiplier(0.8D).build(),
+        baseProperties(Reference.id("combat_scope")).stacksTo(1).durability(800).rarity(Rarity.RARE));
+    public static final DeferredHolder<Item, AttachmentItem> TELESCOPIC_SIGHT = registerAttachment(
+            "telescopic_sight",
+            AttachmentType.SCOPE,
+            AttachmentModifiers.builder().aimFovModifier(0.2F).adsSpeedMultiplier(0.76D).adsViewOffset(0.0D, 1.0D, -3.15D).build(),
+            baseProperties(Reference.id("telescopic_sight")).stacksTo(1).durability(800).rarity(Rarity.EPIC)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> MAKESHIFT_STOCK = registerAttachment(
+            "makeshift_stock",
+            AttachmentType.STOCK,
+            AttachmentModifiers.builder().recoilMultiplier(0.7F).kickMultiplier(0.7F).build(),
+            baseProperties(Reference.id("makeshift_stock")).stacksTo(1).durability(300)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> LIGHT_STOCK = registerAttachment(
+            "light_stock",
+            AttachmentType.STOCK,
+            AttachmentModifiers.builder().recoilMultiplier(0.4F).kickMultiplier(0.9F).spreadMultiplier(0.75F).adsSpeedMultiplier(0.95D).build(),
+            baseProperties(Reference.id("light_stock")).stacksTo(1).durability(600)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> TACTICAL_STOCK = registerAttachment(
+            "tactical_stock",
+            AttachmentType.STOCK,
+            AttachmentModifiers.builder().recoilMultiplier(0.5F).kickMultiplier(0.4F).spreadMultiplier(0.5F).adsSpeedMultiplier(0.9D).build(),
+            baseProperties(Reference.id("tactical_stock")).stacksTo(1).durability(800)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> WEIGHTED_STOCK = registerAttachment(
+            "weighted_stock",
+            AttachmentType.STOCK,
+            AttachmentModifiers.builder().recoilMultiplier(0.4F).kickMultiplier(0.3F).spreadMultiplier(0.25F).adsSpeedMultiplier(0.9D).build(),
+            baseProperties(Reference.id("weighted_stock")).stacksTo(1).durability(1000)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> SILENCER = registerAttachment(
+            "silencer",
+            AttachmentType.BARREL,
+            AttachmentModifiers.builder().silenced().fireSoundRadiusMultiplier(0.25D).build(),
+            baseProperties(Reference.id("silencer")).stacksTo(1).durability(500)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> EXPLOSIVE_MUZZLE = registerAttachment(
+            "explosive_muzzle",
+            AttachmentType.BARREL,
+            AttachmentModifiers.builder().explosiveAmmo().increasedJamming().damageMultiplier(1.1F).recoilMultiplier(1.5F).kickMultiplier(1.35F).spreadMultiplier(1.3F).adsSpeedMultiplier(0.9D).build(),
+            baseProperties(Reference.id("explosive_muzzle")).stacksTo(1).durability(64).rarity(Rarity.UNCOMMON)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> TRUMPET = registerAttachment(
+            "trumpet",
+            AttachmentType.BARREL,
+            AttachmentModifiers.builder().annoying().build(),
+            baseProperties(Reference.id("trumpet")).stacksTo(1).durability(64).rarity(Rarity.RARE)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> LIGHT_GRIP = registerAttachment(
+            "light_grip",
+            AttachmentType.UNDER_BARREL,
+            AttachmentModifiers.builder().recoilMultiplier(0.75F).kickMultiplier(0.75F).spreadMultiplier(0.8F).adsSpeedMultiplier(1.2D).build(),
+            baseProperties(Reference.id("light_grip")).stacksTo(1).durability(600)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> VERTICAL_GRIP = registerAttachment(
+            "vertical_grip",
+            AttachmentType.UNDER_BARREL,
+            AttachmentModifiers.builder().recoilMultiplier(0.65F).kickMultiplier(0.65F).spreadMultiplier(0.5F).adsSpeedMultiplier(0.95D).build(),
+            baseProperties(Reference.id("vertical_grip")).stacksTo(1).durability(800)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> ANGLED_GRIP = registerAttachment(
+            "angled_grip",
+            AttachmentType.UNDER_BARREL,
+            AttachmentModifiers.builder().recoilMultiplier(0.65F).kickMultiplier(0.65F).spreadMultiplier(0.5F).adsSpeedMultiplier(0.95D).build(),
+            baseProperties(Reference.id("angled_grip")).stacksTo(1).durability(800)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> EXTENDED_MAG = registerAttachment(
+            "extended_mag",
+            AttachmentType.MAGAZINE,
+            AttachmentModifiers.builder().adsSpeedMultiplier(0.95D).magazineCapacityMultiplier(1.5D).build(),
+            baseProperties(Reference.id("extended_mag")).stacksTo(1)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> DRUM_MAG = registerAttachment(
+            "drum_mag",
+            AttachmentType.MAGAZINE,
+            AttachmentModifiers.builder().adsSpeedMultiplier(0.9D).magazineCapacityMultiplier(2.0D).build(),
+            baseProperties(Reference.id("drum_mag")).stacksTo(1)
+    );
+    public static final DeferredHolder<Item, AttachmentItem> FLASHLIGHT = registerAttachment(
+            "flashlight",
+            () -> new FlashlightAttachmentItem(
+                    AttachmentType.SPECIAL,
+                    AttachmentModifiers.builder().flashlight().adsSpeedMultiplier(0.95D).build(),
+                    baseProperties(Reference.id("flashlight")).stacksTo(1).rarity(Rarity.UNCOMMON)
+            )
+    );
+    public static final DeferredHolder<Item, AttachmentItem> LASER_POINTER = registerAttachment(
+            "laser_pointer",
+            AttachmentType.SPECIAL,
+            AttachmentModifiers.builder().laserPointer().recoilMultiplier(0.4F).kickMultiplier(0.9F).spreadMultiplier(0.75F).adsSpeedMultiplier(0.95D).build(),
+            baseProperties(Reference.id("laser_pointer")).stacksTo(1).rarity(Rarity.UNCOMMON)
+    );
+    public static final DeferredHolder<Item, PaintJobCanItem> CLASSIC_SPRAY_CAN = REGISTER.register(
+            "classic_spray_can",
+            () -> new PaintJobCanItem(baseProperties(Reference.id("classic_spray_can")).stacksTo(1).rarity(Rarity.UNCOMMON), "classic")
+    );
+    public static final DeferredHolder<Item, PaintJobCanItem> TOY_SPRAY_CAN = REGISTER.register(
+            "toy_spray_can",
+            () -> new PaintJobCanItem(baseProperties(Reference.id("toy_spray_can")).stacksTo(1).rarity(Rarity.RARE), "toy")
+    );
+    public static final DeferredHolder<Item, PaintJobCanItem> WHITEOUT_SPRAY_CAN = REGISTER.register(
+            "whiteout_spray_can",
+            () -> new PaintJobCanItem(baseProperties(Reference.id("whiteout_spray_can")).stacksTo(1).rarity(Rarity.RARE), "whiteout")
+    );
+    public static final DeferredHolder<Item, PaintJobCanItem> GOLDEN_SPRAY_CAN = REGISTER.register(
+            "golden_spray_can",
+            () -> new PaintJobCanItem(baseProperties(Reference.id("golden_spray_can")).stacksTo(1).rarity(Rarity.EPIC), "golden")
+    );
+    public static final DeferredHolder<Item, KillEffectItem> CREEPER_BIRTHDAY_PARTY_BADGE = REGISTER.register(
+            "creeper_birthday_party_badge",
+            () -> new KillEffectItem(baseProperties(Reference.id("creeper_birthday_party_badge")).stacksTo(1).rarity(Rarity.EPIC))
+    );
+    public static final DeferredHolder<Item, KillEffectItem> HEADPOPPER_BADGE = REGISTER.register(
+            "headpoppper_badge",
+            () -> new KillEffectItem(baseProperties(Reference.id("headpoppper_badge")).stacksTo(1).rarity(Rarity.EPIC))
+    );
+    public static final DeferredHolder<Item, KillEffectItem> TRICKSHOT_BADGE = REGISTER.register(
+            "trickshot_badge",
+            () -> new KillEffectItem(baseProperties(Reference.id("trickshot_badge")).stacksTo(1).rarity(Rarity.EPIC))
+    );
+    public static final Map<Identifier, DeferredHolder<Item, GunItem>> GUNS = new LinkedHashMap<>();
+    public static final DeferredHolder<Item, GunItem> JAVELIN = registerGuidedLauncher(
+            "javelin", "javelin_missile", 78, 20, 10.0D, false
+    );
+    public static final DeferredHolder<Item, GunItem> IGLA_9K38 = registerGuidedLauncher(
+            "igla_9k38", "medium_anti_air_missile", 88, 30, 20.0D, true
+    );
+    public static final DeferredHolder<Item, DroneItem> DRONE = REGISTER.register(
+            "drone", () -> new DroneItem(baseProperties(Reference.id("drone")).stacksTo(16))
+    );
+    public static final DeferredHolder<Item, MonitorItem> MONITOR = REGISTER.register(
+            "monitor", () -> new MonitorItem(baseProperties(Reference.id("monitor")).stacksTo(1))
+    );
+    public static final DeferredHolder<Item, SpecialExplosiveItem> C4_BOMB = REGISTER.register(
+            "c4_bomb", () -> new SpecialExplosiveItem(SpecialExplosiveItem.Kind.C4, baseProperties(Reference.id("c4_bomb")).stacksTo(16))
+    );
+    public static final DeferredHolder<Item, DetonatorItem> DETONATOR = REGISTER.register(
+            "detonator", () -> new DetonatorItem(baseProperties(Reference.id("detonator")).stacksTo(1))
+    );
+    public static final DeferredHolder<Item, DefuserItem> DEFUSER = REGISTER.register(
+            "defuser", () -> new DefuserItem(baseProperties(Reference.id("defuser")).stacksTo(1).durability(8))
+    );
+    public static final DeferredHolder<Item, C4VestItem> C4_VEST = REGISTER.register(
+            "c4_vest",
+            () -> new C4VestItem(baseProperties(Reference.id("c4_vest")))
+    );
+    public static final DeferredHolder<Item, SpecialExplosiveItem> CLAYMORE_MINE = REGISTER.register(
+            "claymore_mine", () -> new SpecialExplosiveItem(SpecialExplosiveItem.Kind.CLAYMORE, baseProperties(Reference.id("claymore_mine")).stacksTo(16))
+    );
+    public static final DeferredHolder<Item, SpecialExplosiveItem> TM_62 = REGISTER.register(
+            "tm_62", () -> new SpecialExplosiveItem(SpecialExplosiveItem.Kind.TM_62, baseProperties(Reference.id("tm_62")).stacksTo(16))
+    );
+    public static final Map<DyeColor, DeferredHolder<Item, ArmoredJoyHarnessItem>> ARMORED_JOY_HARNESSES = new LinkedHashMap<>();
+    public static final Map<DyeColor, DeferredHolder<Item, ArmoredJoyHarnessItem>> ARMORED_JOY_HARNESSES_DIAMOND = new LinkedHashMap<>();
+    public static final Map<DyeColor, DeferredHolder<Item, ArmoredJoyHarnessItem>> ARMORED_JOY_HARNESSES_NETHERITE = new LinkedHashMap<>();
+    public static final Map<BulletproofArmorItem.Tier, DeferredHolder<Item, BulletproofArmorItem>> BULLETPROOF_HELMETS = new LinkedHashMap<>();
+    public static final Map<BulletproofArmorItem.Tier, DeferredHolder<Item, BulletproofArmorItem>> BULLETPROOF_VESTS = new LinkedHashMap<>();
+    private static final List<ResourceKey<Recipe<?>>> MANUAL_RECIPES;
+    private static final Identifier PHANTOM_SMG_ID = Reference.id("phantom_smg");
+    private static final Set<Identifier> DISABLED_GUN_IDS = Set.of(
+            Reference.id("typhoonee")
+    );
+
+    private static final Set<String> AMMO_IDS = Set.of(
+            "pistol_ammo",
+            "rifle_ammo",
+            "small_shell",
+            "autocannon_shell",
+            "shotgun_shell",
+            "handmade_shell",
+            "spectre_round",
+            "blaze_round",
+            "rocket",
+            "small_rocket",
+            "medium_anti_air_missile",
+            "medium_anti_ground_missile",
+            "large_anti_ground_missile",
+            "javelin_missile",
+            "grenade",
+            "stun_grenade",
+            "smoke_grenade",
+            "molotov_cocktail",
+            "water_bomb",
+            "flare"
+    );
+
+    static {
+        registerAmmoItems();
+        registerGunItems();
+        registerArmoredHarnessItems();
+        registerBulletproofArmorItems();
+        MANUAL_RECIPES = buildManualRecipes();
+    }
+
+    public static final DeferredHolder<Item, ManualItem> GUNSMITH_MANUAL = REGISTER.register(
+            "gunsmith_manual",
+            () -> new ManualItem(baseProperties(Reference.id("gunsmith_manual")).stacksTo(1), MANUAL_RECIPES)
+    );
+
+    public static final DeferredHolder<Item, SpawnEggItem> PHANTOM_GUNNER_SPAWN_EGG = REGISTER.register(
+            "phantom_gunner_spawn_egg",
+            () -> new ModSpawnEggItem(ModEntities.PHANTOM_GUNNER.get(), baseProperties(Reference.id("phantom_gunner_spawn_egg")).stacksTo(64))
+    );
+
+    public static final DeferredHolder<Item, SpawnEggItem> TERROR_PHANTOM_SPAWN_EGG = REGISTER.register(
+            "terror_phantom_spawn_egg",
+            () -> new ModSpawnEggItem(ModEntities.TERROR_PHANTOM.get(), baseProperties(Reference.id("terror_phantom_spawn_egg")).stacksTo(64))
+    );
+
+    public static final DeferredHolder<Item, SpawnEggItem> TERROR_PHANTOM_GUARDIAN_SPAWN_EGG = REGISTER.register(
+            "terror_phantom_guardian_spawn_egg",
+            () -> new ModSpawnEggItem(ModEntities.TERROR_PHANTOM_GUARDIAN.get(), baseProperties(Reference.id("terror_phantom_guardian_spawn_egg")).stacksTo(64))
+    );
+
+    public static final DeferredHolder<Item, EnemyVehicleSpawnItem> ENEMY_LAV150_SPAWN_EGG = REGISTER.register(
+            "enemy_lav150_spawn_egg",
+            () -> new EnemyVehicleSpawnItem(ModEntities.LAV150::get, Reference.id("lav150"), baseProperties(Reference.id("enemy_lav150_spawn_egg")).stacksTo(64))
+    );
+
+    public static final DeferredHolder<Item, EnemyVehicleSpawnItem> ENEMY_BMP2_SPAWN_EGG = REGISTER.register(
+            "enemy_bmp2_spawn_egg",
+            () -> new EnemyVehicleSpawnItem(ModEntities.BMP2::get, Reference.id("bmp2"), baseProperties(Reference.id("enemy_bmp2_spawn_egg")).stacksTo(64))
+    );
+
+    public static final DeferredHolder<Item, EnemyVehicleSpawnItem> ENEMY_AH6_SPAWN_EGG = REGISTER.register(
+            "enemy_ah6_spawn_egg",
+            () -> new EnemyVehicleSpawnItem(ModEntities.AH6::get, Reference.id("ah6"), baseProperties(Reference.id("enemy_ah6_spawn_egg")).stacksTo(64))
+    );
+
+    public static final DeferredHolder<Item, EnemyVehicleSpawnItem> ENEMY_MI28_SPAWN_EGG = REGISTER.register(
+            "enemy_mi28_spawn_egg",
+            () -> new EnemyVehicleSpawnItem(ModEntities.MI28::get, Reference.id("mi28"), baseProperties(Reference.id("enemy_mi28_spawn_egg")).stacksTo(64))
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_SKELETON_SPAWN_EGG = REGISTER.register(
+            "gunner_skeleton_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.SKELETON,
+                    baseProperties(Reference.id("gunner_skeleton_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_ZOMBIE_SPAWN_EGG = REGISTER.register(
+            "gunner_zombie_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.ZOMBIE,
+                    baseProperties(Reference.id("gunner_zombie_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_ZOMBIFIED_PIGLIN_SPAWN_EGG = REGISTER.register(
+            "gunner_zombified_piglin_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.ZOMBIFIED_PIGLIN,
+                    baseProperties(Reference.id("gunner_zombified_piglin_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_PIGLIN_SPAWN_EGG = REGISTER.register(
+            "gunner_piglin_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.PIGLIN,
+                    baseProperties(Reference.id("gunner_piglin_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_HUSK_SPAWN_EGG = REGISTER.register(
+            "gunner_husk_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.HUSK,
+                    baseProperties(Reference.id("gunner_husk_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_PARCHED_SPAWN_EGG = REGISTER.register(
+            "gunner_parched_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.PARCHED,
+                    baseProperties(Reference.id("gunner_parched_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_WITHER_SKELETON_SPAWN_EGG = REGISTER.register(
+            "gunner_wither_skeleton_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.WITHER_SKELETON,
+                    baseProperties(Reference.id("gunner_wither_skeleton_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_DROWNED_SPAWN_EGG = REGISTER.register(
+            "gunner_drowned_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.DROWNED,
+                    baseProperties(Reference.id("gunner_drowned_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_ZOMBIE_VILLAGER_SPAWN_EGG = REGISTER.register(
+            "gunner_zombie_villager_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.ZOMBIE_VILLAGER,
+                    baseProperties(Reference.id("gunner_zombie_villager_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_STRAY_SPAWN_EGG = REGISTER.register(
+            "gunner_stray_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.STRAY,
+                    baseProperties(Reference.id("gunner_stray_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_PILLAGER_SPAWN_EGG = REGISTER.register(
+            "gunner_pillager_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.PILLAGER,
+                    baseProperties(Reference.id("gunner_pillager_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_VINDICATOR_SPAWN_EGG = REGISTER.register(
+            "gunner_vindicator_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.VINDICATOR,
+                    baseProperties(Reference.id("gunner_vindicator_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, GunnerSpawnEggItem> GUNNER_PIGLIN_BRUTE_SPAWN_EGG = REGISTER.register(
+            "gunner_piglin_brute_spawn_egg",
+            () -> new GunnerSpawnEggItem(
+                    EntityTypes.PIGLIN_BRUTE,
+                    baseProperties(Reference.id("gunner_piglin_brute_spawn_egg")).stacksTo(64)
+            )
+    );
+
+    public static final DeferredHolder<Item, SpawnEggItem> GUNNER_GHOUL_SPAWN_EGG = REGISTER.register(
+            "gunner_ghoul_spawn_egg",
+            () -> new ModSpawnEggItem(ModEntities.GHOUL.get(), baseProperties(Reference.id("gunner_ghoul_spawn_egg")).stacksTo(64))
+    );
+
+    private static void registerAmmoItems() {
+        for (String path : AMMO_IDS) {
+            Identifier id = Reference.id(path);
+            switch (path) {
+                case "grenade" -> AMMO.put(id, REGISTER.register(path, () -> new GrenadeItem(baseProperties(id).stacksTo(16))));
+                case "stun_grenade" -> AMMO.put(id, REGISTER.register(path, () -> new StunGrenadeItem(baseProperties(id).stacksTo(16))));
+                case "smoke_grenade" -> AMMO.put(id, REGISTER.register(path, () -> new SmokeGrenadeItem(baseProperties(id).stacksTo(16))));
+                case "molotov_cocktail" -> AMMO.put(id, REGISTER.register(path, () -> new MolotovCocktailItem(baseProperties(id).stacksTo(16))));
+                case "water_bomb" -> AMMO.put(id, REGISTER.register(path, () -> new WaterBombItem(baseProperties(id).stacksTo(16))));
+                case "medium_anti_air_missile", "medium_anti_ground_missile", "large_anti_ground_missile" ->
+                        AMMO.put(id, REGISTER.register(path, () -> new DescribedAmmoItem(baseProperties(id), "tooltip.jeg." + path)));
+                default -> AMMO.put(id, REGISTER.register(path, () -> new Item(baseProperties(id))));
+            }
+        }
+    }
+
+    private static void registerGunItems() {
+        for (Map.Entry<Identifier, GunStats> entry : GunDefinitions.ALL.entrySet()) {
+            Identifier id = entry.getKey();
+            if (!id.getNamespace().equals(Reference.MOD_ID)) continue;
+            GunStats stats = entry.getValue();
+            DeferredHolder<Item, GunItem> holder = REGISTER.register(id.getPath(), () -> ttv.migami.jeg.legacy.LegacyWeapons.create(id,defaultGunProperties(id,stats),stats));
+            GUNS.put(id, holder);
+        }
+    }
+
+    private static DeferredHolder<Item, GunItem> registerGuidedLauncher(
+            String path,
+            String ammo,
+            int reloadTicks,
+            int lockTicks,
+            double lockAngle,
+            boolean airOnly
+    ) {
+        Identifier id = Reference.id(path);
+        GunStats stats = new GunStats(
+                id, Reference.id(ammo), "jeg:manual", 1, reloadTicks, 0, 20,
+                0.0F, 1.25F, 240, false, true, 0.0F, 1,
+                Reference.id("item." + path + ".fire"), null, null,
+                Reference.id("item." + path + ".reload"), null, null, null, null,
+                GunStats.STANDARD_BULLET_PROJECTILE_SIZE, -1, 2.0F
+        );
+        DeferredHolder<Item, GunItem> holder = REGISTER.register(
+                path,
+                () -> new GuidedLauncherItem(defaultGunProperties(id, stats), stats, lockTicks, lockAngle, airOnly)
+        );
+        GUNS.put(id, holder);
+        return holder;
+    }
+
+    private static void registerArmoredHarnessItems() {
+        for (DyeColor color : DyeColor.values()) {
+            String colorName = color.getName();
+
+            Identifier baseId = Reference.id("armored_joy_harness_" + colorName);
+            DeferredHolder<Item, ArmoredJoyHarnessItem> baseHolder = REGISTER.register(
+                    "armored_joy_harness_" + colorName,
+                    () -> new ArmoredJoyHarnessItem(color,
+                            ArmoredJoyHarnessItem.buildProperties(baseProperties(baseId), color, ArmoredJoyHarnessItem.HarnessTier.BASE),
+                            100.0F,
+                            100.0F,
+                            null,
+                            ArmoredJoyHarnessItem.HarnessTier.BASE)
+            );
+            ARMORED_JOY_HARNESSES.put(color, baseHolder);
+
+            Identifier diamondId = Reference.id("armored_joy_harness_" + colorName + "_diamond");
+            DeferredHolder<Item, ArmoredJoyHarnessItem> diamondHolder = REGISTER.register(
+                    diamondId.getPath(),
+                    () -> new ArmoredJoyHarnessItem(color,
+                            ArmoredJoyHarnessItem.buildProperties(baseProperties(diamondId), color, ArmoredJoyHarnessItem.HarnessTier.DIAMOND),
+                            160.0F, 160.0F,
+                            Component.translatable("tooltip.jeg.harness_material.diamond"),
+                            ArmoredJoyHarnessItem.HarnessTier.DIAMOND)
+            );
+            ARMORED_JOY_HARNESSES_DIAMOND.put(color, diamondHolder);
+
+            Identifier netheriteId = Reference.id("armored_joy_harness_" + colorName + "_netherite");
+            DeferredHolder<Item, ArmoredJoyHarnessItem> netheriteHolder = REGISTER.register(
+                    netheriteId.getPath(),
+                    () -> new ArmoredJoyHarnessItem(color,
+                            ArmoredJoyHarnessItem.buildProperties(baseProperties(netheriteId), color, ArmoredJoyHarnessItem.HarnessTier.NETHERITE),
+                            250.0F, 250.0F,
+                            Component.translatable("tooltip.jeg.harness_material.netherite"),
+                            ArmoredJoyHarnessItem.HarnessTier.NETHERITE)
+            );
+            ARMORED_JOY_HARNESSES_NETHERITE.put(color, netheriteHolder);
+        }
+    }
+
+    private static void registerBulletproofArmorItems() {
+        for (BulletproofArmorItem.Tier tier : BulletproofArmorItem.Tier.values()) {
+            // Helmets
+            Identifier helmetId = Reference.id("bulletproof_helmet_" + tier.suffix());
+            DeferredHolder<Item, BulletproofArmorItem> helmet = REGISTER.register(
+                    helmetId.getPath(),
+                    () -> new BulletproofArmorItem(tier, EquipmentSlot.HEAD, baseProperties(helmetId))
+            );
+            BULLETPROOF_HELMETS.put(tier, helmet);
+
+            // Chests (Vests)
+            Identifier vestId = Reference.id("bulletproof_vest_" + tier.suffix());
+            DeferredHolder<Item, BulletproofArmorItem> vest = REGISTER.register(
+                    vestId.getPath(),
+                    () -> new BulletproofArmorItem(tier, EquipmentSlot.CHEST, baseProperties(vestId))
+            );
+            BULLETPROOF_VESTS.put(tier, vest);
+        }
+    }
+
+    private static List<ResourceKey<Recipe<?>>> buildManualRecipes() {
+        java.util.ArrayList<ResourceKey<Recipe<?>>> keys = new java.util.ArrayList<>();
+        for (String ammo : AMMO_IDS) {
+            if ("water_bomb".equals(ammo)) {
+                continue;
+            }
+            keys.add(ResourceKey.create(Registries.RECIPE, Reference.id(ammo)));
+        }
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("coolant")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("enhanced_coolant")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("missile_engine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("pistol_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("smg_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("smg_extended_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("smg_drum_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("rifle_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("rifle_extended_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("rifle_drum_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("shotgun_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("shotgun_extended_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("shotgun_drum_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("machine_gun_magazine")));
+        ATTACHMENTS.keySet().forEach(id -> keys.add(ResourceKey.create(Registries.RECIPE, id)));
+        addCosmeticAttachmentRecipes(keys);
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("vehicle_assembling_table")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("vehicle_charging_station")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("magazine_loader")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("crowbar")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("repair_kit")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("repair_tool")));
+        for (Identifier id : GunDefinitions.ALL.keySet()) {
+            if (!id.equals(PHANTOM_SMG_ID) && !isDisabledGunId(id)) {
+                keys.add(ResourceKey.create(Registries.RECIPE, id));
+            }
+        }
+        RecipeUnlockHandler.BULLETPROOF_RECIPES.forEach(keys::add);
+
+        // Add all colored harness recipes
+        for (DyeColor color : DyeColor.values()) {
+            String name = color.getName();
+            keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("armored_joy_harness_" + name)));
+            keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("armored_joy_harness_" + name + "_diamond")));
+            keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("armored_joy_harness_" + name + "_netherite")));
+        }
+        return List.copyOf(keys);
+    }
+
+    public static List<ResourceKey<Recipe<?>>> manualRecipes() {
+        return MANUAL_RECIPES;
+    }
+
+    public static List<ResourceKey<Recipe<?>>> unlockGunRecipeKeys() {
+        java.util.ArrayList<ResourceKey<Recipe<?>>> keys = new java.util.ArrayList<>();
+        for (Identifier id : GunDefinitions.ALL.keySet()) {
+            if (isDisabledGunId(id)) {
+                continue;
+            }
+            keys.add(ResourceKey.create(Registries.RECIPE, id));
+        }
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("coolant")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("enhanced_coolant")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("missile_engine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("pistol_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("smg_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("smg_extended_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("smg_drum_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("rifle_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("rifle_extended_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("rifle_drum_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("shotgun_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("shotgun_extended_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("shotgun_drum_magazine")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("machine_gun_magazine")));
+        ATTACHMENTS.keySet().forEach(id -> keys.add(ResourceKey.create(Registries.RECIPE, id)));
+        addCosmeticAttachmentRecipes(keys);
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("vehicle_assembling_table")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("vehicle_charging_station")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("magazine_loader")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("crowbar")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("repair_kit")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("repair_tool")));
+        return List.copyOf(keys);
+    }
+
+    private static void addCosmeticAttachmentRecipes(java.util.List<ResourceKey<Recipe<?>>> keys) {
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("classic_spray_can")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("toy_spray_can")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("whiteout_spray_can")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("golden_spray_can")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("creeper_birthday_party_badge")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("headpoppper_badge")));
+        keys.add(ResourceKey.create(Registries.RECIPE, Reference.id("trickshot_badge")));
+    }
+
+    public static boolean isDisabledGunId(Identifier id) {
+        return DISABLED_GUN_IDS.contains(id);
+    }
+
+    private static Item.Properties defaultGunProperties(Identifier id, GunStats stats) {
+        int baseDurability = switch (stats.reloadType()) {
+            case "jeg:inventory_fed" -> 1024;
+            case "jeg:manual" -> 256;
+            default -> 512;
+        };
+        int durability = Math.max(1, (int) Math.round(baseDurability * 3.75D));
+        return baseProperties(id).stacksTo(1).durability(durability).enchantable(10).repairable(REPAIR_KIT.get());
+    }
+
+    private static Item.Properties baseProperties(Identifier id) {
+        return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));
+    }
+
+    private static DeferredHolder<Item, AttachmentItem> registerAttachment(
+            String path,
+            AttachmentType type,
+            AttachmentModifiers modifiers,
+            Item.Properties properties
+    ) {
+        return registerAttachment(path, () -> new AttachmentItem(type, modifiers, properties));
+    }
+
+    private static DeferredHolder<Item, AttachmentItem> registerAttachment(
+            String path,
+            Supplier<AttachmentItem> supplier
+    ) {
+        Identifier id = Reference.id(path);
+        DeferredHolder<Item, AttachmentItem> holder = REGISTER.register(path, supplier);
+        ATTACHMENTS.put(id, holder);
+        return holder;
+    }
+
+    public static void addToTab(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().equals(CreativeModeTabs.COMBAT)) {
+            GUNS.forEach((id, holder) -> {
+                if (!id.equals(PHANTOM_SMG_ID) && !isDisabledGunId(id)) {
+                    event.accept(holder.get());
+                }
+            });
+            AMMO.values().forEach(holder -> event.accept(holder.get()));
+            event.accept(PISTOL_MAGAZINE.get());
+            event.accept(SMG_MAGAZINE.get());
+            event.accept(SMG_EXTENDED_MAGAZINE.get());
+            event.accept(SMG_DRUM_MAGAZINE.get());
+            event.accept(RIFLE_MAGAZINE.get());
+            event.accept(RIFLE_EXTENDED_MAGAZINE.get());
+            event.accept(RIFLE_DRUM_MAGAZINE.get());
+            event.accept(SHOTGUN_MAGAZINE.get());
+            event.accept(SHOTGUN_EXTENDED_MAGAZINE.get());
+            event.accept(SHOTGUN_DRUM_MAGAZINE.get());
+            event.accept(MACHINE_GUN_MAGAZINE.get());
+            ATTACHMENTS.values().forEach(holder -> event.accept(holder.get()));
+            event.accept(CLASSIC_SPRAY_CAN.get());
+            event.accept(TOY_SPRAY_CAN.get());
+            event.accept(WHITEOUT_SPRAY_CAN.get());
+            event.accept(GOLDEN_SPRAY_CAN.get());
+            event.accept(CREEPER_BIRTHDAY_PARTY_BADGE.get());
+            event.accept(HEADPOPPER_BADGE.get());
+            event.accept(TRICKSHOT_BADGE.get());
+            event.accept(DRONE.get());
+            event.accept(MONITOR.get());
+            event.accept(C4_BOMB.get());
+            event.accept(DETONATOR.get());
+            event.accept(DEFUSER.get());
+            event.accept(C4_VEST.get());
+            event.accept(CLAYMORE_MINE.get());
+            event.accept(TM_62.get());
+            event.accept(MISSILE_ENGINE.get());
+            BULLETPROOF_HELMETS.values().forEach(holder -> event.accept(holder.get()));
+            BULLETPROOF_VESTS.values().forEach(holder -> event.accept(holder.get()));
+            event.accept(PHANTOM_GUNNER_SPAWN_EGG.get());
+            event.accept(TERROR_PHANTOM_SPAWN_EGG.get());
+            event.accept(TERROR_PHANTOM_GUARDIAN_SPAWN_EGG.get());
+            event.accept(ENEMY_LAV150_SPAWN_EGG.get());
+            event.accept(ENEMY_BMP2_SPAWN_EGG.get());
+            event.accept(ENEMY_AH6_SPAWN_EGG.get());
+            event.accept(ENEMY_MI28_SPAWN_EGG.get());
+            event.accept(GUNNER_SKELETON_SPAWN_EGG.get());
+            event.accept(GUNNER_ZOMBIE_SPAWN_EGG.get());
+            event.accept(GUNNER_HUSK_SPAWN_EGG.get());
+            event.accept(GUNNER_PARCHED_SPAWN_EGG.get());
+            event.accept(GUNNER_ZOMBIFIED_PIGLIN_SPAWN_EGG.get());
+            event.accept(GUNNER_PIGLIN_SPAWN_EGG.get());
+            event.accept(GUNNER_WITHER_SKELETON_SPAWN_EGG.get());
+        }
+
+        if (event.getTabKey().equals(CreativeModeTabs.TOOLS_AND_UTILITIES)) {
+            event.accept(GUNSMITH_MANUAL.get());
+            event.accept(VEHICLE_ASSEMBLING_TABLE.get());
+            event.accept(VEHICLE_CHARGING_STATION.get());
+            event.accept(MAGAZINE_LOADER.get());
+            event.accept(VEHICLE_CONTAINER.get());
+            event.accept(VEHICLE_CONTAINER.get());
+            event.accept(CROWBAR.get());
+            event.accept(REPAIR_KIT.get());
+            event.accept(REPAIR_TOOL.get());
+            event.accept(COOLANT.get());
+            event.accept(ENHANCED_COOLANT.get());
+            ARMORED_JOY_HARNESSES.values().forEach(holder -> event.accept(holder.get()));
+            ARMORED_JOY_HARNESSES_DIAMOND.values().forEach(holder -> event.accept(holder.get()));
+            ARMORED_JOY_HARNESSES_NETHERITE.values().forEach(holder -> event.accept(holder.get()));
+        }
+
+        if (event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)) {
+            event.accept(PHANTOM_GUNNER_SPAWN_EGG.get());
+            event.accept(TERROR_PHANTOM_SPAWN_EGG.get());
+            event.accept(TERROR_PHANTOM_GUARDIAN_SPAWN_EGG.get());
+            event.accept(ENEMY_LAV150_SPAWN_EGG.get());
+            event.accept(ENEMY_BMP2_SPAWN_EGG.get());
+            event.accept(ENEMY_AH6_SPAWN_EGG.get());
+            event.accept(ENEMY_MI28_SPAWN_EGG.get());
+            event.accept(GUNNER_SKELETON_SPAWN_EGG.get());
+            event.accept(GUNNER_ZOMBIE_SPAWN_EGG.get());
+            event.accept(GUNNER_HUSK_SPAWN_EGG.get());
+            event.accept(GUNNER_PARCHED_SPAWN_EGG.get());
+            event.accept(GUNNER_ZOMBIFIED_PIGLIN_SPAWN_EGG.get());
+            event.accept(GUNNER_PIGLIN_SPAWN_EGG.get());
+            event.accept(GUNNER_WITHER_SKELETON_SPAWN_EGG.get());
+            event.accept(GUNNER_DROWNED_SPAWN_EGG.get());
+            event.accept(GUNNER_ZOMBIE_VILLAGER_SPAWN_EGG.get());
+            event.accept(GUNNER_STRAY_SPAWN_EGG.get());
+            event.accept(GUNNER_PILLAGER_SPAWN_EGG.get());
+            event.accept(GUNNER_VINDICATOR_SPAWN_EGG.get());
+            event.accept(GUNNER_PIGLIN_BRUTE_SPAWN_EGG.get());
+            event.accept(GUNNER_GHOUL_SPAWN_EGG.get());
+        }
+    }
+
+}

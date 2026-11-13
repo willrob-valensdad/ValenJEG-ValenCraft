@@ -1,0 +1,9 @@
+{
+  "type": "jeg:hbm_authored",
+  "biomes": "#jeg:has_structure/valen/beached_patrol",
+  "start_pool": "jeg:valen/beached_patrol",
+  "source_profile": "beached_patrol",
+  "step": "surface_structures",
+  "terrain_adaptation": "none",
+  "spawn_overrides": {}
+}

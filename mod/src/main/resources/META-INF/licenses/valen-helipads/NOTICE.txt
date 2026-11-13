@@ -1,0 +1,30 @@
+Source-authored hangars and helipads; external adaptation draft for private ValenJEG.
+
+Create: Hangars (Aeronautics), Igor-Gaming (Modrinth FYkAr5Co), CC-BY-4.0.
+Official project https://modrinth.com/datapack/create-hangars ; project en3HEaOT.
+Official datapack V1.0.0 / version3p9hEGp8, Create-Hangars.zip.
+Original author notes inspiration from Askidelta https://guns.lol/aski .
+All eight biome layouts,25NBT pieces and source vanilla-jigsaw graph/placement/
+weights/rule processors retained. State/item schema and unavailable component
+bindings are adapted explicitly; no original source machine system is claimed.
+
+SBW: Combined Arms, NeoAlive, GPL-3.0 per actual gradle.properties and official
+Modrinth project F5gjlN5D GPL-3.0-only declaration.
+Source https://github.com/NeoAlive/tacz-simple-enemies-vehicular-warfare
+Revision662f28a92896e02a3aec336edd94ea4eb3f5d0fd.
+Exact original desert/forest helipad geometry,3x3H model/texture and9part marker
+retained. Marker is inert: no source BE/GUI/traffic/NPC/vehicle behavior ported.
+Eight original spawn_probe cells are air, with original payloads retained only
+as source evidence. Missing source items use explicit material-salvage bindings
+without altering table pools/weights/roll/count functions. Two helipads retain
+original3/2weights and placement fields; omitted watchtower/sniper members mean
+the complete source-set selection probabilities/density are not reproduced.
+README's external dependency asset licenses remain separate: no Superb Warfare
+or Simple Enemy dependency models/textures/mobs/vehicle code are copied.
+
+The source repository LICENSE.txt/CREDITS.txt are old Forge template notices;
+they are preserved alongside explicit official project/source GPL declarations.
+No whole-mod release archive, source mob, gear, technology system or new custom
+world-generation algorithm is installed by this adaptation.
+Source geometry/native generation/access/loot/visual gates are separate from
+deferred technology/NPC/gear functionality. No airfield/runway/launch-site claim.

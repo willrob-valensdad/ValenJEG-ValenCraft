@@ -1,0 +1,2877 @@
+{
+  "akm": {
+    "models": [
+      "mteg:special/akm/main",
+      "mteg:special/akm/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "akm_custom": {
+    "models": [
+      "mteg:special/akm_custom/main",
+      "mteg:special/akm_custom/stock_light",
+      "mteg:special/akm_custom/stock_tactical",
+      "mteg:special/akm_custom/stock_heavy",
+      "mteg:special/akm_custom/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "as_val": {
+    "models": [
+      "mteg:special/as_val/main",
+      "mteg:special/as_val/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -1
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "awp": {
+    "models": [
+      "mteg:special/awp/main",
+      "mteg:special/awp/bolt",
+      "mteg:special/awp/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -1
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "baker_rifle": {
+    "models": [
+      "mteg:special/gun/baker_rifle"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "benelli_m4": {
+    "models": [
+      "mteg:special/benelli_m4/main",
+      "mteg:special/benelli_m4/stock_light",
+      "mteg:special/benelli_m4/stock_tactical",
+      "mteg:special/benelli_m4/stock_heavy",
+      "mteg:special/benelli_m4/pump"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -1
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "blue_heat": {
+    "models": [
+      "mteg:special/blue_heat/main",
+      "mteg:special/blue_heat/stock_light",
+      "mteg:special/blue_heat/stock_tactical",
+      "mteg:special/blue_heat/stock_heavy",
+      "mteg:special/blue_heat/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "double_barrel": {
+    "models": [
+      "mteg:special/double_barrel/main",
+      "mteg:special/double_barrel/barrels"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "famas": {
+    "models": [
+      "mteg:special/famas/main",
+      "mteg:special/famas/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "flamer": {
+    "models": [
+      "mteg:special/gun/flamer"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          75,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          9.75,
+          2.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          0.25,
+          5.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          0.25
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          -0.25,
+          3.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          0.5,
+          12,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "flare_gun": {
+    "models": [
+      "mteg:special/gun/flare_gun"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          22.5,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          10,
+          -4
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -5.75
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          7.5,
+          5,
+          0
+        ],
+        "scale": [
+          1.8,
+          1.8,
+          1.8
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -11.5,
+          12.5,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "g36c": {
+    "models": [
+      "mteg:special/g36c/main",
+      "mteg:special/g36c/stock_light",
+      "mteg:special/g36c/stock_tactical",
+      "mteg:special/g36c/stock_heavy",
+      "mteg:special/g36c/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "glock_17": {
+    "models": [
+      "mteg:special/glock_17/main",
+      "mteg:special/glock_17/slide"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          22.5,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          10,
+          -4
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -5.75
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          7.5,
+          5,
+          0
+        ],
+        "scale": [
+          1.8,
+          1.8,
+          1.8
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -11.5,
+          12.5,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "hellfire": {
+    "models": [
+      "mteg:special/hellfire/main",
+      "mteg:special/hellfire/stock_light",
+      "mteg:special/hellfire/stock_tactical",
+      "mteg:special/hellfire/stock_heavy",
+      "mteg:special/hellfire/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "hog_bonker": {
+    "models": [
+      "mteg:special/hog_bonker/main",
+      "mteg:special/hog_bonker/barrels"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "lanchester": {
+    "models": [
+      "mteg:special/lanchester/main",
+      "mteg:special/lanchester/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "m14": {
+    "models": [
+      "mteg:special/m14/main",
+      "mteg:special/m14/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "m14_ebr": {
+    "models": [
+      "mteg:special/m14_ebr/main",
+      "mteg:special/m14_ebr/stock_light",
+      "mteg:special/m14_ebr/stock_tactical",
+      "mteg:special/m14_ebr/stock_heavy",
+      "mteg:special/m14_ebr/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "m16a1": {
+    "models": [
+      "mteg:special/gun/m16a1"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "m1911": {
+    "models": [
+      "mteg:special/m1911/main",
+      "mteg:special/m1911/slide"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          22.5,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          10,
+          -4
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -5.75
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          7.5,
+          5,
+          0
+        ],
+        "scale": [
+          1.8,
+          1.8,
+          1.8
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -11.5,
+          12.5,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "m1_garand": {
+    "models": [
+      "mteg:special/m1_garand/main",
+      "mteg:special/m1_garand/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "m2_flamethrower": {
+    "models": [
+      "mteg:special/gun/m2_flamethrower"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8,
+          2
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -1.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -0.25,
+          12,
+          1
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "micro_uzi": {
+    "models": [
+      "mteg:special/gun/micro_uzi"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          22.5,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          10,
+          -4
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -5.75
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          7.5,
+          5,
+          0
+        ],
+        "scale": [
+          1.8,
+          1.8,
+          1.8
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -11.5,
+          12.5,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "mossberg_590": {
+    "models": [
+      "mteg:special/mossberg_590/main",
+      "mteg:special/mossberg_590/pump"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6,
+          -7.5
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -3.25
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          2,
+          2.5,
+          0
+        ],
+        "scale": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -6.25,
+          12,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "mp5": {
+    "models": [
+      "mteg:special/gun/mp5"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "ppsh_41": {
+    "models": [
+      "mteg:special/ppsh_41/main",
+      "mteg:special/ppsh_41/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "remington_870": {
+    "models": [
+      "mteg:special/remington_870/main",
+      "mteg:special/remington_870/pump"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6,
+          -7.5
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -3.25
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          2,
+          2.5,
+          0
+        ],
+        "scale": [
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -6.25,
+          12,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "scar_h": {
+    "models": [
+      "mteg:special/scar_h/main",
+      "mteg:special/scar_h/stock_light",
+      "mteg:special/scar_h/stock_tactical",
+      "mteg:special/scar_h/stock_heavy",
+      "mteg:special/scar_h/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "scar_l": {
+    "models": [
+      "mteg:special/scar_l/main",
+      "mteg:special/scar_l/stock_light",
+      "mteg:special/scar_l/stock_tactical",
+      "mteg:special/scar_l/stock_heavy",
+      "mteg:special/scar_l/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "thompson": {
+    "models": [
+      "mteg:special/thompson/main",
+      "mteg:special/thompson/grip_light",
+      "mteg:special/thompson/grip_specialised",
+      "mteg:special/thompson/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "uzi": {
+    "models": [
+      "mteg:special/gun/uzi"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -5.75
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          7.5,
+          5,
+          0
+        ],
+        "scale": [
+          1.8,
+          1.8,
+          1.8
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -11.5,
+          12.5,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "vss_vintorez": {
+    "models": [
+      "mteg:special/vss_vintorez/main",
+      "mteg:special/vss_vintorez/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -1
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "walther_ppk": {
+    "models": [
+      "mteg:special/walther_ppk/main",
+      "mteg:special/walther_ppk/slide"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          22.5,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          10,
+          -4
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -5.75
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          7.5,
+          5,
+          0
+        ],
+        "scale": [
+          1.8,
+          1.8,
+          1.8
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -11.5,
+          12.5,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  },
+  "welrod": {
+    "models": [
+      "mteg:special/welrod/main",
+      "mteg:special/welrod/bolt"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          22.5,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          10,
+          -4
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -5.75
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          7.5,
+          5,
+          0
+        ],
+        "scale": [
+          1.8,
+          1.8,
+          1.8
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -11.5,
+          12.5,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": false
+  },
+  "wrapped_rifle": {
+    "models": [
+      "mteg:special/wrapped_rifle/main",
+      "mteg:special/wrapped_rifle/ejector"
+    ],
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          6.5,
+          -6.75
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          -3.5,
+          8.5,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          3.75,
+          -3.25,
+          0
+        ]
+      },
+      "ground": {
+        "translation": [
+          0,
+          5,
+          -1
+        ]
+      },
+      "gui": {
+        "rotation": [
+          30,
+          225,
+          0
+        ],
+        "translation": [
+          1.25,
+          4.5,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          -3.25,
+          11.25,
+          -2
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "gui_light": "side",
+    "tinted": true
+  }
+}

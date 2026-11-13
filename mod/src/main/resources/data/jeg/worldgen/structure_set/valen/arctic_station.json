@@ -1,0 +1,21 @@
+{
+  "structures": [
+    {
+      "structure": "jeg:valen/arctic_station",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 128,
+    "separation": 42,
+    "spread_type": "linear",
+    "salt": 1728100102,
+    "frequency_reduction_method": "default",
+    "frequency": 1,
+    "exclusion_zone": {
+      "chunk_count": 6,
+      "other_set": "minecraft:villages"
+    }
+  }
+}

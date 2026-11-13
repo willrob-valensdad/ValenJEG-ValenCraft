@@ -1,0 +1,131 @@
+package ttv.migami.jeg.faction;
+
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import ttv.migami.jeg.Config;
+import ttv.migami.jeg.init.ModItems;
+import ttv.migami.jeg.item.BulletproofArmorItem;
+
+import java.util.EnumSet;
+
+/**
+ * Utility class for equipping gunners with appropriate bulletproof armor
+ * based on spawn situation and probability distributions.
+ */
+public class GunnerArmorEquiper {
+
+    /**
+     * Equips a gunner with armor based on the spawn situation.
+     * HELMET PRIORITY: Always attempts to equip helmet first, then body armor.
+     *
+     * @param random Random source for probability calculations
+     * @param context Armor context containing mob and situation information
+     */
+    public static void equipGunnerArmor(RandomSource random, GunnerArmorContext context) {
+        // HELMET FIRST: Equip helmet with highest priority
+        if (random.nextFloat() < getHelmetEquipChance(context)) {
+            BulletproofArmorItem.Tier helmetTier = determineHelmetTier(random, context);
+            if (helmetTier != null) {
+                ItemStack helmet = new ItemStack(ModItems.BULLETPROOF_HELMETS.get(helmetTier).get());
+                equipArmor(context, EquipmentSlot.HEAD, helmet);
+            }
+        }
+
+        // BODY ARMOR SECOND: Only equip body armor after helmet attempt
+        if (random.nextFloat() < getBodyArmorEquipChance(context)) {
+            BulletproofArmorItem.Tier bodyTier = determineBodyArmorTier(random, context);
+            if (bodyTier != null) {
+                ItemStack vest = new ItemStack(ModItems.BULLETPROOF_VESTS.get(bodyTier).get());
+                equipArmor(context, EquipmentSlot.CHEST, vest);
+            }
+        }
+
+        // Elite gunners and special situations get only helmet and chest armor
+        // No leggings or boots will be equipped
+    }
+
+    private static void equipArmor(GunnerArmorContext context, EquipmentSlot slot, ItemStack stack) {
+        if (NaturalGunnerDifficulty.applies(context.mob)
+                && context.mob.getItemBySlot(slot).getItem() instanceof BulletproofArmorItem old
+                && stack.getItem() instanceof BulletproofArmorItem next && old.tier().tierNumber() >= next.tier().tierNumber()) return;
+        context.mob.setItemSlot(slot, stack);
+    }
+
+    private static BulletproofArmorItem.Tier determineHelmetTier(RandomSource random, GunnerArmorContext context) {
+        return randomTier(random, context, context.isElite ? 2 : 1);
+    }
+
+    private static BulletproofArmorItem.Tier determineBodyArmorTier(RandomSource random, GunnerArmorContext context) {
+        return randomTier(random, context, context.isElite ? 2 : 1);
+    }
+
+    private static float getHelmetEquipChance(GunnerArmorContext context) {
+        if (context.isElite) return 1.0f;                             // 100% for elites
+        int maxTier = maximumTier(context);
+        if (maxTier <= 0) return 0.0F;
+        if (context.isSpecialSituation) return Math.min(0.95F, 0.45F + 0.08F * maxTier);
+        return Math.min(0.65F, 0.06F + 0.07F * maxTier);
+    }
+
+    private static float getBodyArmorEquipChance(GunnerArmorContext context) {
+        if (context.isElite) return 1.0f;                             // 100% for elites
+        int maxTier = maximumTier(context);
+        if (maxTier <= 0) return 0.0F;
+        if (context.isSpecialSituation) return Math.min(0.90F, 0.30F + 0.08F * maxTier);
+        return Math.min(0.45F, 0.02F + 0.055F * maxTier);
+    }
+
+    private static int maximumTier(GunnerArmorContext context) {
+        var natural = NaturalGunnerDifficulty.applies(context.mob) ? NaturalGunnerDifficulty.profile(context.mob) : null;
+        if (natural != null) return natural.armorTier();
+        var difficulty = ttv.migami.jeg.faction.raid.RaidDifficulty.forMob(context.mob);
+        return difficulty == null ? Config.gunnerArmorMaxTier(context.mob.level(), GunnerType.keyFor(context.mob)) : difficulty.armorTier();
+    }
+
+    private static BulletproofArmorItem.Tier randomTier(RandomSource random, GunnerArmorContext context, int minimumTier) {
+        int maximumTier = maximumTier(context);
+        if (ttv.migami.jeg.faction.raid.RaidDifficulty.forMob(context.mob) == null && !NaturalGunnerDifficulty.applies(context.mob) && context.isElite) {
+            maximumTier = Math.max(maximumTier, 4);
+        } else if (ttv.migami.jeg.faction.raid.RaidDifficulty.forMob(context.mob) == null && !NaturalGunnerDifficulty.applies(context.mob) && context.isSpecialSituation) {
+            maximumTier = Math.max(maximumTier, 3);
+        }
+        minimumTier = Math.min(minimumTier, maximumTier);
+        maximumTier = Math.max(minimumTier, Math.min(6, maximumTier));
+        int count = maximumTier - minimumTier + 1;
+        float biased = (float) Math.pow(random.nextFloat(), 1.25D);
+        int tierNumber = minimumTier + Math.min(count - 1, (int) (biased * count));
+        return BulletproofArmorItem.Tier.values()[tierNumber - 1];
+    }
+
+    /**
+     * Context class for armor equipping decisions
+     */
+    public static class GunnerArmorContext {
+        public final net.minecraft.world.entity.PathfinderMob mob;
+        public final boolean isSpecialSituation;
+        public final boolean isElite;
+
+        public GunnerArmorContext(net.minecraft.world.entity.PathfinderMob mob, boolean isSpecialSituation, boolean isElite) {
+            this.mob = mob;
+            this.isSpecialSituation = isSpecialSituation;
+            this.isElite = isElite;
+        }
+
+        public static GunnerArmorContext normal(net.minecraft.world.entity.PathfinderMob mob) {
+            return new GunnerArmorContext(mob, false, false);
+        }
+
+        public static GunnerArmorContext special(net.minecraft.world.entity.PathfinderMob mob) {
+            return new GunnerArmorContext(mob, true, false);
+        }
+
+        public static GunnerArmorContext elite(net.minecraft.world.entity.PathfinderMob mob) {
+            return new GunnerArmorContext(mob, false, true);
+        }
+
+        public static GunnerArmorContext eliteSpecial(net.minecraft.world.entity.PathfinderMob mob) {
+            return new GunnerArmorContext(mob, true, true);
+        }
+    }
+}

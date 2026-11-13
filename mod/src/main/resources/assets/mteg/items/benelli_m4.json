@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/benelli_m4/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/benelli_m4/stock_light"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/benelli_m4/stock_tactical"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/benelli_m4/stock_heavy"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/benelli_m4/pump"
+      }
+    ]
+  }
+}

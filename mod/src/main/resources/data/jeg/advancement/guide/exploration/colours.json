@@ -1,0 +1,103 @@
+{
+  "criteria": {
+    "black": {
+      "trigger": "minecraft:impossible"
+    },
+    "blue": {
+      "trigger": "minecraft:impossible"
+    },
+    "brown": {
+      "trigger": "minecraft:impossible"
+    },
+    "cyan": {
+      "trigger": "minecraft:impossible"
+    },
+    "gray": {
+      "trigger": "minecraft:impossible"
+    },
+    "green": {
+      "trigger": "minecraft:impossible"
+    },
+    "light_blue": {
+      "trigger": "minecraft:impossible"
+    },
+    "light_gray": {
+      "trigger": "minecraft:impossible"
+    },
+    "lime": {
+      "trigger": "minecraft:impossible"
+    },
+    "magenta": {
+      "trigger": "minecraft:impossible"
+    },
+    "orange": {
+      "trigger": "minecraft:impossible"
+    },
+    "pink": {
+      "trigger": "minecraft:impossible"
+    },
+    "purple": {
+      "trigger": "minecraft:impossible"
+    },
+    "red": {
+      "trigger": "minecraft:impossible"
+    },
+    "white": {
+      "trigger": "minecraft:impossible"
+    },
+    "yellow": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "white"
+    ],
+    [
+      "orange"
+    ],
+    [
+      "magenta"
+    ],
+    [
+      "light_blue"
+    ],
+    [
+      "yellow"
+    ],
+    [
+      "lime"
+    ],
+    [
+      "pink"
+    ],
+    [
+      "gray"
+    ],
+    [
+      "light_gray"
+    ],
+    [
+      "cyan"
+    ],
+    [
+      "purple"
+    ],
+    [
+      "blue"
+    ],
+    [
+      "brown"
+    ],
+    [
+      "green"
+    ],
+    [
+      "red"
+    ],
+    [
+      "black"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "jeg:flare_gun"
+    },
+    "title": {
+      "translate": "advancement.jeg.guide.arsenal.use_flare_gun.title"
+    },
+    "description": {
+      "translate": "advancement.jeg.guide.arsenal.use_flare_gun.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "conditions": {
+        "action": "signal",
+        "subject": "jeg:flare_gun"
+      },
+      "trigger": "jeg:gameplay_action"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "sends_telemetry_event": false,
+  "parent": "jeg:guide/special/smoke",
+  "rewards": {
+    "experience": 100
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "reason": "Original removed recipe IDs for workstation shortcut validation; operational acceptance records are separate",
+  "recipes": [
+    {
+      "vanilla_recipe": "jeg:assault_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:blossom_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:bolt_action_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:burst_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:combat_pistol"
+    },
+    {
+      "vanilla_recipe": "jeg:combat_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:custom_smg"
+    },
+    {
+      "vanilla_recipe": "jeg:double_barrel_shotgun"
+    },
+    {
+      "vanilla_recipe": "jeg:flamethrower"
+    },
+    {
+      "vanilla_recipe": "jeg:flare_gun"
+    },
+    {
+      "vanilla_recipe": "jeg:grenade_launcher"
+    },
+    {
+      "vanilla_recipe": "jeg:hollenfire_mk2"
+    },
+    {
+      "vanilla_recipe": "jeg:holy_shotgun"
+    },
+    {
+      "vanilla_recipe": "jeg:hypersonic_cannon"
+    },
+    {
+      "vanilla_recipe": "jeg:infantry_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:light_machine_gun"
+    },
+    {
+      "vanilla_recipe": "jeg:pump_shotgun"
+    },
+    {
+      "vanilla_recipe": "jeg:repeating_shotgun"
+    },
+    {
+      "vanilla_recipe": "jeg:revolver"
+    },
+    {
+      "vanilla_recipe": "jeg:rocket_launcher"
+    },
+    {
+      "vanilla_recipe": "jeg:semi_auto_pistol"
+    },
+    {
+      "vanilla_recipe": "jeg:semi_auto_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:service_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:soulhunter_mk2"
+    },
+    {
+      "vanilla_recipe": "jeg:subsonic_rifle"
+    },
+    {
+      "vanilla_recipe": "jeg:supersonic_shotgun"
+    },
+    {
+      "vanilla_recipe": "jeg:waterpipe_shotgun"
+    },
+    {
+      "vanilla_recipe": "jeg:angled_grip"
+    },
+    {
+      "vanilla_recipe": "jeg:drum_mag"
+    },
+    {
+      "vanilla_recipe": "jeg:explosive_muzzle"
+    },
+    {
+      "vanilla_recipe": "jeg:extended_mag"
+    },
+    {
+      "vanilla_recipe": "jeg:flare"
+    },
+    {
+      "vanilla_recipe": "jeg:flashlight"
+    },
+    {
+      "vanilla_recipe": "jeg:grenade"
+    },
+    {
+      "vanilla_recipe": "jeg:handmade_shell"
+    },
+    {
+      "vanilla_recipe": "jeg:holographic_sight"
+    },
+    {
+      "vanilla_recipe": "jeg:laser_pointer"
+    },
+    {
+      "vanilla_recipe": "jeg:light_grip"
+    },
+    {
+      "vanilla_recipe": "jeg:light_stock"
+    },
+    {
+      "vanilla_recipe": "jeg:makeshift_stock"
+    },
+    {
+      "vanilla_recipe": "jeg:molotov_cocktail"
+    },
+    {
+      "vanilla_recipe": "jeg:monocle_sight"
+    },
+    {
+      "vanilla_recipe": "jeg:pistol_ammo"
+    },
+    {
+      "vanilla_recipe": "jeg:reflex_sight"
+    },
+    {
+      "vanilla_recipe": "jeg:repair_kit"
+    },
+    {
+      "vanilla_recipe": "jeg:rifle_ammo"
+    },
+    {
+      "vanilla_recipe": "jeg:rocket"
+    },
+    {
+      "vanilla_recipe": "jeg:shotgun_shell"
+    },
+    {
+      "vanilla_recipe": "jeg:silencer"
+    },
+    {
+      "vanilla_recipe": "jeg:smoke_grenade"
+    },
+    {
+      "vanilla_recipe": "jeg:spectre_round"
+    },
+    {
+      "vanilla_recipe": "jeg:stun_grenade"
+    },
+    {
+      "vanilla_recipe": "jeg:tactical_stock"
+    },
+    {
+      "vanilla_recipe": "jeg:telescopic_sight"
+    },
+    {
+      "vanilla_recipe": "jeg:vertical_grip"
+    },
+    {
+      "vanilla_recipe": "jeg:weighted_stock"
+    }
+  ]
+}

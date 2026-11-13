@@ -1,0 +1,125 @@
+package ttv.migami.jeg.client;
+
+import com.mojang.blaze3d.platform.InputConstants;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import ttv.migami.jeg.Reference;
+
+public final class KeyBindings {
+    private KeyBindings() {}
+
+    private static boolean initialised;
+    private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Reference.id("jeg"));
+
+    public static final KeyMapping RELOAD = new KeyMapping(
+            "key.jeg.reload",
+            InputConstants.KEY_R,
+            CATEGORY
+    );
+
+    public static final KeyMapping ATTACHMENTS = new KeyMapping(
+            "key.jeg.attachments",
+            InputConstants.KEY_Z,
+            CATEGORY
+    );
+
+    public static final KeyMapping MELEE = new KeyMapping(
+            "key.jeg.melee",
+            InputConstants.KEY_V,
+            CATEGORY
+    );
+
+    public static final KeyMapping INSPECT = new KeyMapping(
+            "key.jeg.inspect",
+            InputConstants.KEY_Y,
+            CATEGORY
+    );
+
+    public static final KeyMapping LAUNCHER_MODE = new KeyMapping(
+            "key.jeg.launcher_mode",
+            InputConstants.KEY_N,
+            CATEGORY
+    );
+
+    public static final KeyMapping DRONE_INTERACT = new KeyMapping(
+            "key.jeg.drone_interact",
+            InputConstants.KEY_X,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_FREE_LOOK = new KeyMapping(
+            "key.jeg.vehicle_free_look",
+            InputConstants.KEY_C,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_SWITCH_WEAPON = new KeyMapping(
+            "key.jeg.vehicle_switch_weapon",
+            InputConstants.KEY_X,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_PREVIOUS_WEAPON = new KeyMapping(
+            "key.jeg.vehicle_previous_weapon",
+            InputConstants.KEY_Z,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_DEPLOY_DECOY = new KeyMapping(
+            "key.jeg.vehicle_deploy_decoy",
+            InputConstants.KEY_G,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_SEEK = new KeyMapping(
+            "key.jeg.vehicle_seek",
+            InputConstants.KEY_V,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_BRAKE_DESCEND = new KeyMapping(
+            "key.jeg.vehicle_brake_descend",
+            InputConstants.KEY_LCONTROL,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_CHANGE_SEAT = new KeyMapping(
+            "key.jeg.vehicle_change_seat",
+            InputConstants.KEY_B,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_DISMOUNT = new KeyMapping(
+            "key.jeg.vehicle_dismount",
+            InputConstants.KEY_LALT,
+            CATEGORY
+    );
+
+    public static final KeyMapping VEHICLE_PLAYER_INVENTORY = new KeyMapping(
+            "key.jeg.vehicle_player_inventory",
+            InputConstants.KEY_H,
+            CATEGORY
+    );
+
+    public static void init() {
+        if (initialised) {
+            return;
+        }
+        initialised = true;
+        KeyMappingHelper.registerKeyMapping(RELOAD);
+        KeyMappingHelper.registerKeyMapping(ATTACHMENTS);
+        KeyMappingHelper.registerKeyMapping(MELEE);
+        KeyMappingHelper.registerKeyMapping(INSPECT);
+        KeyMappingHelper.registerKeyMapping(LAUNCHER_MODE);
+        KeyMappingHelper.registerKeyMapping(DRONE_INTERACT);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_FREE_LOOK);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_SWITCH_WEAPON);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_PREVIOUS_WEAPON);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_DEPLOY_DECOY);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_SEEK);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_BRAKE_DESCEND);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_CHANGE_SEAT);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_DISMOUNT);
+        KeyMappingHelper.registerKeyMapping(VEHICLE_PLAYER_INVENTORY);
+    }
+}

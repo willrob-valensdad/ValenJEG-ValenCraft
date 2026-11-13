@@ -1,0 +1,25 @@
+{
+  "structures": [
+    {
+      "structure": "jeg:valen/civil_defense_shelter",
+      "weight": 1
+    },
+    {
+      "structure": "jeg:valen_minipurge/underground_shelter",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 140,
+    "separation": 46,
+    "spread_type": "linear",
+    "salt": 1728100200,
+    "frequency_reduction_method": "default",
+    "frequency": 1,
+    "exclusion_zone": {
+      "chunk_count": 6,
+      "other_set": "minecraft:villages"
+    }
+  }
+}

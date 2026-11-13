@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/g36c/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/g36c/stock_light"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/g36c/stock_tactical"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/g36c/stock_heavy"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/g36c/ejector"
+      }
+    ]
+  }
+}

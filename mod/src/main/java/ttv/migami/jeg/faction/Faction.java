@@ -1,0 +1,95 @@
+package ttv.migami.jeg.faction;
+
+import net.minecraft.world.item.Item;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class Faction {
+    private final String name;
+    private final int aiLevel;
+    private final List<String> mobs;
+    private final List<Item> closeGuns;
+    private final List<Item> longGuns;
+    private final List<Item> eliteGuns;
+
+    public Faction(String name, int aiLevel, List<String> mobs, List<Item> closeGuns, List<Item> longGuns, List<Item> eliteGuns) {
+        this.name = name;
+        this.aiLevel = aiLevel;
+        this.mobs = mobs;
+        this.closeGuns = closeGuns;
+        this.longGuns = longGuns;
+        this.eliteGuns = eliteGuns;
+    }
+
+    public Item getRaidGun(boolean closeRange, boolean elite, ttv.migami.jeg.faction.raid.RaidDifficulty difficulty, RandomSource random, String gunnerType) {
+        List<Item> pool = elite ? eliteGuns : closeRange ? closeGuns : longGuns;
+        return GunnerProgression.selectRaidGun(pool, random, difficulty.weaponTier(), ttv.migami.jeg.Config.gunnerWeaponAggression(gunnerType));
+    }
+
+    public Item getNaturalGun(boolean closeRange, boolean elite, net.minecraft.world.entity.PathfinderMob mob, boolean upgrading) {
+        List<Item> pool = upgrading ? java.util.stream.Stream.of(closeGuns, longGuns, eliteGuns).flatMap(List::stream).distinct().toList()
+                : elite ? eliteGuns : closeRange ? closeGuns : longGuns;
+        return GunnerProgression.selectNaturalGun(pool, mob, upgrading);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAiLevel() {
+        return aiLevel;
+    }
+
+    public List<String> getMobs() {
+        return mobs;
+    }
+
+    public Item getRandomGun(boolean isCloseRange) {
+        return getRandomGun(isCloseRange, null, null);
+    }
+
+    public Item getRandomGun(boolean isCloseRange, Level level, RandomSource random) {
+        return getRandomGun(isCloseRange, level, random, "generic");
+    }
+
+    public Item getRandomGun(boolean isCloseRange, Level level, RandomSource random, String gunnerType) {
+        return getRandomGun(isCloseRange, level, random, gunnerType, true);
+    }
+
+    public Item getRandomGun(boolean isCloseRange, Level level, RandomSource random, String gunnerType, boolean allowRocket) {
+        List<Item> pool = isCloseRange ? closeGuns : longGuns;
+        if (pool.isEmpty()) {
+            return null;
+        }
+        if (level != null && random != null) {
+            return GunnerProgression.selectGun(pool, level, random, gunnerType, allowRocket);
+        }
+        return pool.get(ThreadLocalRandom.current().nextInt(pool.size()));
+    }
+
+    public Item getEliteGun() {
+        return getEliteGun(null, null);
+    }
+
+    public Item getEliteGun(Level level, RandomSource random) {
+        return getEliteGun(level, random, "generic");
+    }
+
+    public Item getEliteGun(Level level, RandomSource random, String gunnerType) {
+        return getEliteGun(level, random, gunnerType, true);
+    }
+
+    public Item getEliteGun(Level level, RandomSource random, String gunnerType, boolean allowRocket) {
+        List<Item> pool = eliteGuns;
+        if (pool.isEmpty()) {
+            return null;
+        }
+        if (level != null && random != null) {
+            return GunnerProgression.selectGun(pool, level, random, gunnerType, allowRocket);
+        }
+        return pool.get(ThreadLocalRandom.current().nextInt(pool.size()));
+    }
+}

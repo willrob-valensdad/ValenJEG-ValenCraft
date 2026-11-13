@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "id": "jeg:molotov_cocktail"
+    },
+    "title": {
+      "translate": "advancement.jeg.guide.special.molotov.title"
+    },
+    "description": {
+      "translate": "advancement.jeg.guide.special.molotov.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "conditions": {
+        "action": "hit",
+        "subject": "jeg:molotov_cocktail"
+      },
+      "trigger": "jeg:gameplay_action"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "sends_telemetry_event": false,
+  "parent": "jeg:guide/special/fuse",
+  "rewards": {
+    "experience": 5
+  }
+}

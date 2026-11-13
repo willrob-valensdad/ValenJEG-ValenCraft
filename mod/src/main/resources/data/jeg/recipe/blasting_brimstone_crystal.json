@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:blasting",
+  "ingredient": "jeg:raw_brimstone",
+  "result": {
+    "id": "jeg:brimstone_crystal"
+  },
+  "experience": 0.1,
+  "cookingtime": 100
+}

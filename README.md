@@ -1,3 +1,11 @@
+<p align="center"><img src="mod/src/main/resources/assets/jeg/branding/valenjeg-logo.png" width="520" alt="ValenJEG logo"></p>
+
+# ValenJEG - ValenCraft
+
+[Source and build instructions](docs/BUILDING.md) · [Development status](docs/STATUS.md) · [Valen Craft structure](docs/VALENCRAFT.md)
+
+> `main` contains development source. Structure-fidelity repairs and full donor compatibility work are in progress; this import does not publish a release artifact.
+
 ValenJEG — Version 0.1.0
 
 The first release in the Valen Craft series.
@@ -86,3 +94,12 @@ Original authors retain their respective rights. Required dependencies, componen
 Developed by Valen Systems as part of Valen Craft.
 
 Valen JEG - ValenCraft Team
+
+
+## Repository layout
+
+- `mod/`: the ValenJEG Minecraft 26.3 / Fabric fork, with its own GPL code license and separate asset terms.
+- `compatibility/`: supporting-mod identity and pack-label information.
+- `docs/`: build instructions, current status and the Valen Craft project relationship.
+
+The root MIT license covers the original pack-level material. Inherited mod code and third-party assets retain the licenses and credits stated in `mod/`.

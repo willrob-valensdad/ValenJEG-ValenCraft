@@ -1,0 +1,21 @@
+{
+  "type": "jeg:gunmetal_workbench",
+  "materials": [
+    {
+      "item": "jeg:gunmetal_ingot",
+      "count": 1
+    },
+    {
+      "tag": "c:nuggets/iron",
+      "count": 18
+    },
+    {
+      "tag": "c:gunpowders",
+      "count": 4
+    }
+  ],
+  "result": {
+    "item": "jeg:shotgun_shell",
+    "count": 14
+  }
+}

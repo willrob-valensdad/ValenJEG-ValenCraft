@@ -1,0 +1,61 @@
+package ttv.migami.jeg.vehicle.event;
+
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.LivingEntity;
+import ttv.migami.jeg.fabric.compat.neoforge.bus.api.SubscribeEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.fml.common.EventBusSubscriber;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import ttv.migami.jeg.Reference;
+import ttv.migami.jeg.vehicle.entity.base.VehicleEntity;
+
+@EventBusSubscriber(modid = Reference.MOD_ID)
+public final class VehiclePassengerDamageEvents {
+    private static final ThreadLocal<Boolean> REDIRECTING_TO_VEHICLE = ThreadLocal.withInitial(() -> false);
+
+    private VehiclePassengerDamageEvents() {}
+
+    @SubscribeEvent
+    public static void onPassengerDamage(LivingIncomingDamageEvent event) {
+        LivingEntity passenger = event.getEntity();
+        if (!(passenger.getVehicle() instanceof VehicleEntity vehicle)) {
+            return;
+        }
+        DamageSource source = event.getSource();
+        if (source == null) {
+            return;
+        }
+        if (source.is(DamageTypeTags.IS_FALL)) {
+            passenger.fallDistance = 0.0F;
+            event.setCanceled(true);
+            return;
+        }
+        if (!vehicle.shouldProtectPassenger(passenger)) {
+            return;
+        }
+        if (REDIRECTING_TO_VEHICLE.get()) {
+            return;
+        }
+        if (!shouldBypassVehicle(source)) {
+            REDIRECTING_TO_VEHICLE.set(true);
+            try {
+                vehicle.hurt(source, event.getAmount());
+            } finally {
+                REDIRECTING_TO_VEHICLE.set(false);
+            }
+            event.setCanceled(true);
+        }
+    }
+
+    private static boolean shouldBypassVehicle(DamageSource source) {
+        return source.is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.DAMAGE_TYPE, net.minecraft.resources.Identifier.parse("jeg:bypasses_vehicle")))
+                || source.is(DamageTypeTags.IS_DROWNING)
+                || source.is(DamageTypeTags.IS_FREEZING)
+                || source.is(DamageTypes.IN_WALL)
+                || source.is(DamageTypes.CRAMMING)
+                || source.is(DamageTypes.STARVE)
+                || source.is(DamageTypes.FELL_OUT_OF_WORLD)
+                || source.is(DamageTypes.OUTSIDE_BORDER);
+    }
+}

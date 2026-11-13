@@ -1,0 +1,31 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "team_reborn_energy",
+        "nerospace",
+        "nerolandcore",
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "#c:plates/steel",
+    "F": "create:propeller",
+    "G": "nerolandcore:gas_tank",
+    "|": "minecraft:lightning_rod",
+    "R": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "#F#",
+    "G|G",
+    "#R#"
+  ],
+  "result": {
+    "count": 1,
+    "id": "jeg:valen_oxygen_loader"
+  }
+}

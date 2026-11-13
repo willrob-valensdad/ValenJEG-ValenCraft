@@ -1,0 +1,291 @@
+{
+  "schema": 1,
+  "scope": "Support/material/routing/compatibility dependency labels for ValenJEG",
+  "status": "staged; game qualification and installation pending",
+  "label_does_not_establish_compatibility": true,
+  "preserve": [
+    "registry IDs",
+    "versions",
+    "authors",
+    "licenses",
+    "code",
+    "assets"
+  ],
+  "mods": [
+    {
+      "id": "aerialhell",
+      "upstream_name": "Aerial Hell",
+      "pack_label": "Aerial Hell [ValenJEG Pack]",
+      "version": "1.0.0",
+      "authors": [
+        "nicochart"
+      ]
+    },
+    {
+      "id": "architectury",
+      "upstream_name": "Architectury",
+      "pack_label": "Architectury [ValenJEG Pack]",
+      "version": "22.0.5",
+      "authors": [
+        "shedaniel"
+      ]
+    },
+    {
+      "id": "bclib",
+      "upstream_name": "BCLib",
+      "pack_label": "BCLib [ValenJEG Pack]",
+      "version": "26.301.2",
+      "authors": [
+        "Quiqueck",
+        "paulevs",
+        "Bulldog83"
+      ]
+    },
+    {
+      "id": "betterend",
+      "upstream_name": "Better End",
+      "pack_label": "Better End [ValenJEG Pack]",
+      "version": "26.301.2",
+      "authors": [
+        "Quiqueck (code)",
+        "paulevs (code & art)",
+        "Bulldog83 (code & art)",
+        "Edos (building)",
+        "Yuki (art)",
+        "Seaward (art)",
+        "Firel (music)"
+      ]
+    },
+    {
+      "id": "computercraft",
+      "upstream_name": "CC: Tweaked",
+      "pack_label": "CC: Tweaked [ValenJEG Pack]",
+      "version": "1.120.3",
+      "authors": [
+        "Daniel Ratcliffe",
+        "Aaron Mills",
+        "SquidDev"
+      ]
+    },
+    {
+      "id": "create",
+      "upstream_name": "Create Fly",
+      "pack_label": "Create Fly [ValenJEG Pack]",
+      "version": "6.0.9-2-valen26.3.1",
+      "authors": [
+        "ZurrTum"
+      ]
+    },
+    {
+      "id": "fabric-api",
+      "upstream_name": "Fabric API",
+      "pack_label": "Fabric API [ValenJEG Pack]",
+      "version": "0.165.0+26.3",
+      "authors": [
+        "FabricMC"
+      ]
+    },
+    {
+      "id": "fabric-api-base",
+      "upstream_name": "Fabric API Base",
+      "pack_label": "Fabric API Base [ValenJEG Pack]",
+      "version": "2.0.6+fcdff87f5d",
+      "authors": [
+        "FabricMC"
+      ]
+    },
+    {
+      "id": "fabric-api-lookup-api-v1",
+      "upstream_name": "Fabric API Lookup API (v1)",
+      "pack_label": "Fabric API Lookup API (v1) [ValenJEG Pack]",
+      "version": "2.0.24+3434d6d95d",
+      "authors": [
+        "FabricMC"
+      ]
+    },
+    {
+      "id": "fabric-lifecycle-events-v1",
+      "upstream_name": "Fabric Lifecycle Events (v1)",
+      "pack_label": "Fabric Lifecycle Events (v1) [ValenJEG Pack]",
+      "version": "4.1.9+ffef5f675d",
+      "authors": [
+        "FabricMC"
+      ]
+    },
+    {
+      "id": "fabric-rendering-fluids-v1",
+      "upstream_name": "Fabric Rendering Fluids (v1)",
+      "pack_label": "Fabric Rendering Fluids (v1) [ValenJEG Pack]",
+      "version": "6.0.6+3434d6d95d",
+      "authors": [
+        "FabricMC"
+      ]
+    },
+    {
+      "id": "fabric-transfer-api-v1",
+      "upstream_name": "Fabric Transfer API (v1)",
+      "pack_label": "Fabric Transfer API (v1) [ValenJEG Pack]",
+      "version": "8.0.25+fcdff87f5d",
+      "authors": [
+        "FabricMC"
+      ]
+    },
+    {
+      "id": "geckolib",
+      "upstream_name": "GeckoLib 5",
+      "pack_label": "GeckoLib 5 [ValenJEG Pack]",
+      "version": "5.5.7",
+      "authors": [
+        "Tslat"
+      ]
+    },
+    {
+      "id": "jade",
+      "upstream_name": "Jade",
+      "pack_label": "Jade [ValenJEG Pack]",
+      "version": "26.3.5+fabric",
+      "authors": [
+        "Snownee"
+      ]
+    },
+    {
+      "id": "nerolandcore",
+      "upstream_name": "Neroland Core",
+      "pack_label": "Neroland Core [ValenJEG Pack]",
+      "version": "1.15.0",
+      "authors": [
+        "Neroland"
+      ]
+    },
+    {
+      "id": "nerospace",
+      "upstream_name": "NeroSpace",
+      "pack_label": "NeroSpace [ValenJEG Pack]",
+      "version": "1.6.0",
+      "authors": [
+        "Neroland"
+      ]
+    },
+    {
+      "id": "orbital",
+      "upstream_name": "Orbital+",
+      "pack_label": "Orbital+ [ValenJEG Pack]",
+      "version": "fabric-1.4-mc26.3",
+      "authors": [
+        "Jhiro"
+      ]
+    },
+    {
+      "id": "reborncore",
+      "upstream_name": "Reborn Core",
+      "pack_label": "Reborn Core [ValenJEG Pack]",
+      "version": "6.2.1",
+      "authors": [
+        "Team Reborn",
+        "modmuss50",
+        "drcrazy"
+      ]
+    },
+    {
+      "id": "roughlyenoughitems",
+      "upstream_name": "Roughly Enough Items",
+      "pack_label": "Roughly Enough Items [ValenJEG Pack]",
+      "version": "26.3.824",
+      "authors": [
+        "shedaniel"
+      ]
+    },
+    {
+      "id": "spacereloaded",
+      "upstream_name": "SpaceReloaded",
+      "pack_label": "SpaceReloaded [ValenJEG Pack]",
+      "version": "1.0.2-valen26.3.1",
+      "authors": [
+        "Alex Melan"
+      ]
+    },
+    {
+      "id": "team_reborn_energy",
+      "upstream_name": "Energy",
+      "pack_label": "Energy [ValenJEG Pack]",
+      "version": "5.0.0",
+      "authors": [
+        "Team Reborn",
+        "modmuss50"
+      ]
+    },
+    {
+      "id": "techreborn",
+      "upstream_name": "Tech Reborn",
+      "pack_label": "Tech Reborn [ValenJEG Pack]",
+      "version": "6.2.1",
+      "authors": [
+        "Team Reborn",
+        "modmuss50",
+        "drcrazy"
+      ]
+    },
+    {
+      "id": "tiny_flowers",
+      "upstream_name": "Tiny Flowers",
+      "pack_label": "Tiny Flowers [ValenJEG Pack]",
+      "version": "2.1.0+26.3",
+      "authors": [
+        {
+          "name": "secret_online",
+          "contact": {
+            "homepage": "https://secretonline.co"
+          }
+        }
+      ]
+    },
+    {
+      "id": "toms_storage",
+      "upstream_name": "Tom's Simple Storage Mod",
+      "pack_label": "Tom's Simple Storage Mod [ValenJEG Pack]",
+      "version": "2.12.2",
+      "authors": [
+        "tom5454"
+      ]
+    },
+    {
+      "id": "valen_decor_compat",
+      "upstream_name": "Valen Decor Recipe Compatibility",
+      "pack_label": "Valen Decor Recipe Compatibility [ValenJEG Pack]",
+      "version": "0.1.0",
+      "authors": []
+    },
+    {
+      "id": "valen_nero_energy",
+      "upstream_name": "Valen Nero Energy Compatibility",
+      "pack_label": "Valen Nero Energy Compatibility [ValenJEG Pack]",
+      "version": "0.1.0",
+      "authors": []
+    },
+    {
+      "id": "valen_nerospace_rei",
+      "upstream_name": "Valen Pack Recipe Compatibility",
+      "pack_label": "Valen Pack Recipe Compatibility [ValenJEG Pack]",
+      "version": "0.1.0",
+      "authors": []
+    },
+    {
+      "id": "wover",
+      "upstream_name": "WorldWeaver",
+      "pack_label": "WorldWeaver [ValenJEG Pack]",
+      "version": "26.301.2",
+      "authors": [
+        "Quiqueck"
+      ]
+    },
+    {
+      "id": "wunderlib",
+      "upstream_name": "WunderLib",
+      "pack_label": "WunderLib [ValenJEG Pack]",
+      "version": "26.301.2",
+      "authors": [
+        "Quiqueck"
+      ]
+    }
+  ]
+}

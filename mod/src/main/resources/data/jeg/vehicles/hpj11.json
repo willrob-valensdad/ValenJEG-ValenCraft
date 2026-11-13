@@ -1,0 +1,121 @@
+{
+  "entity_type": "jeg:hpj11",
+  "vehicle_type": "artillery",
+  "max_health": 350,
+  "auto_repair_per_tick": 0.05,
+  "auto_repair_cooldown_ticks": 200,
+  "max_energy": 220,
+  "allow_free_cam": true,
+  "container_type": "mini",
+  "seats": [
+    {
+      "index": 0,
+      "x": 0.0,
+      "y": 0.95,
+      "z": 0.0,
+      "driver": true,
+      "enclosed": true
+    }
+  ],
+  "engine": {
+    "type": "static",
+    "acceleration": 0.0,
+    "max_forward_speed": 0.0,
+    "max_reverse_speed": 0.0,
+    "friction": 1.0
+  },
+  "third_person_camera": {
+    "x": 0.0,
+    "y": 3.0,
+    "z": -5.5
+  },
+  "dismount": {
+    "x": 1.25,
+    "y": 0.1,
+    "z": 0.0
+  },
+  "collision_level": "heavy",
+  "obb": [],
+  "weapons": [
+    {
+      "weapon": "jeg:minigun",
+      "ammo": "jeg:pistol_ammo",
+      "energy_cost": 2,
+      "guided": false
+    },
+    {
+      "weapon": "jeg:rocket_launcher",
+      "ammo": "jeg:rocket",
+      "energy_cost": 3,
+      "guided": true
+    }
+  ],
+  "destroy": {
+    "explodes": true,
+    "explosion_power": 7,
+    "explosion_damage": 100,
+    "explode_blocks": true,
+    "explode_passengers": true,
+    "crash_passengers": false,
+    "particle_type": "medium"
+  },
+  "seek": {
+    "range": 88.0,
+    "angle": 16.0,
+    "warns_target": true
+  },
+  "armor": {
+    "fallback": {
+      "rating": 10.0,
+      "undermatch_multiplier": 0.48,
+      "overmatch_multiplier": 0.88,
+      "passenger_leak_multiplier": 0.12,
+      "part_damage_multiplier": 0.9
+    },
+    "parts": {
+      "turret": {
+        "rating": 4.8,
+        "undermatch_multiplier": 0.14,
+        "overmatch_multiplier": 0.78,
+        "passenger_leak_multiplier": 0.1,
+        "part_damage_multiplier": 0.8
+      }
+    }
+  },
+  "damage_modifiers": [
+    "minecraft:lava - -8",
+    "minecraft:lava * 6.66",
+    "@minecraft:tnt * 3",
+    "@minecraft:tnt_minecart * 3",
+    "All * 0.3",
+    "minecraft:arrow * 1.5",
+    "minecraft:trident * 1.5",
+    "minecraft:mob_attack * 2.5",
+    "minecraft:mob_attack_no_aggro * 2",
+    "minecraft:mob_projectile * 1.5",
+    "minecraft:explosion * 6",
+    "minecraft:player_explosion * 6",
+    "superbwarfare:custom_explosion * 2.0",
+    "superbwarfare:projectile_explosion * 2",
+    "superbwarfare:mine * 0.75",
+    "superbwarfare:projectile_hit * 1.25",
+    "superbwarfare:grapeshot_hit * 0.3",
+    "superbwarfare:laser * 1.25",
+    "@#superbwarfare:aerial_bomb * 3",
+    "#superbwarfare:projectile * 0.25",
+    "#superbwarfare:projectile_absolute * 0.85",
+    "superbwarfare:vehicle_strike * 4",
+    "@superbwarfare:mortar_shell * 1.25",
+    "@superbwarfare:gun_grenade * 1.5",
+    "@superbwarfare:javelin_missile * 0.8",
+    "@superbwarfare:igla_9k38_missile * 0.75",
+    "All - 8"
+  ],
+  "superb_warfare_damage": true,
+  "self_hurt_percent": 0.1,
+  "self_hurt_amount": 0.1,
+  "directional_armor": 0.5,
+  "apply_default_damage_modifiers": true,
+  "has_low_health_warning": true,
+  "mass": 30
+}

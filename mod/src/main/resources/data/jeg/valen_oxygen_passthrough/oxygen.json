@@ -1,0 +1,15 @@
+{
+  "cookingtime": 1,
+  "energy": 30,
+  "input": {
+    "type": "common_storage_lib_resources:base",
+    "amount": 25,
+    "values": {
+      "tag": "nerospace:oxygen"
+    }
+  },
+  "result": {
+    "amount": 25,
+    "id": "nerospace:oxygen"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "jeg:assault_rifle"
+    },
+    "title": {
+      "translate": "advancement.jeg.guide.battle.raid.title"
+    },
+    "description": {
+      "translate": "advancement.jeg.guide.battle.raid.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "conditions": {
+        "action": "raid_win"
+      },
+      "trigger": "jeg:gameplay_action"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "sends_telemetry_event": false,
+  "parent": "jeg:guide/battle/home_raid",
+  "rewards": {
+    "experience": 25
+  }
+}

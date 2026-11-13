@@ -1,0 +1,171 @@
+package ttv.migami.jeg;
+
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.world.entity.player.Player;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.entity.EntityJoinLevelEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.entity.living.LivingEquipmentChangeEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.entity.player.PlayerEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.server.ServerStartedEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.tick.EntityTickEvent;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.event.tick.ServerTickEvent;
+import ttv.migami.jeg.event.AttachmentRuntimeEvents;
+import ttv.migami.jeg.event.FactionEventTicker;
+import ttv.migami.jeg.event.GunEvents;
+import ttv.migami.jeg.fabric.FabricCreativeTabs;
+import ttv.migami.jeg.fabric.FabricEntityInit;
+import ttv.migami.jeg.fabric.FabricRecipeUnlock;
+import ttv.migami.jeg.faction.GunMobValues;
+import ttv.migami.jeg.faction.GunnerFriendlyFireEvents;
+import ttv.migami.jeg.faction.GunnerMobSpawner;
+import ttv.migami.jeg.item.HappyGhastArmorEvents;
+import ttv.migami.jeg.init.ModBlockEntities;
+import ttv.migami.jeg.init.ModBlocks;
+import ttv.migami.jeg.init.ModDataComponents;
+import ttv.migami.jeg.init.ModCommands;
+import ttv.migami.jeg.init.ModEntities;
+import ttv.migami.jeg.init.ModEffects;
+import ttv.migami.jeg.init.ModItems;
+import ttv.migami.jeg.init.ModMenuTypes;
+import ttv.migami.jeg.init.ModParticleTypes;
+import ttv.migami.jeg.init.ModStructures;
+import ttv.migami.jeg.init.ModSounds;
+import ttv.migami.jeg.init.SpecialEquipmentDispenseBehaviors;
+import ttv.migami.jeg.network.NetworkHandler;
+import ttv.migami.jeg.vehicle.ai.EnemyVehicleController;
+import ttv.migami.jeg.vehicle.data.VehicleDataManager;
+import ttv.migami.jeg.vehicle.event.VehiclePassengerDamageEvents;
+import ttv.migami.jeg.vehicle.recipe.VehicleAssemblyRecipeManager;
+import ttv.migami.jeg.fabric.compat.neoforge.neoforge.common.NeoForge;
+
+public final class FabricEntrypoint implements ModInitializer {
+    private static final ttv.migami.jeg.util.EntityTickIndex<ServerLevel,net.minecraft.world.entity.Entity> ENTITY_TICKS = new ttv.migami.jeg.util.EntityTickIndex<>();
+    @Override
+    public void onInitialize() {
+        Config.load();
+
+        // Mod resource order otherwise lets SpaceReloaded's empty override list
+        // disable all orbit structures. A native mandatory pack wins that order.
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("spacereloaded")) {
+            var container = net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("jeg").orElseThrow();
+            if (!ResourceManagerHelper.registerBuiltinResourcePack(
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath("jeg", "space_routing"),
+                    container, net.minecraft.network.chat.Component.literal("Valen space structure routing"),
+                    net.fabricmc.fabric.api.resource.ResourcePackActivationType.ALWAYS_ENABLED)) {
+                throw new IllegalStateException("Missing built-in Valen space routing data pack");
+            }
+        }
+
+        // Core content registration (the Fabric project reuses small NeoForge-style shims).
+        ModEntities.REGISTER.register(NeoForge.EVENT_BUS);
+        ModDataComponents.REGISTER.register(NeoForge.EVENT_BUS);
+        ModSounds.REGISTER.register(NeoForge.EVENT_BUS);
+        ModParticleTypes.REGISTER.register(NeoForge.EVENT_BUS);
+        ModEffects.REGISTER.register(NeoForge.EVENT_BUS);
+        ModStructures.STRUCTURES.register(NeoForge.EVENT_BUS);
+        ModStructures.PIECES.register(NeoForge.EVENT_BUS);
+        ModBlocks.REGISTER.register(NeoForge.EVENT_BUS);
+        ttv.migami.jeg.mteg.MtegContent.registerBlocks();
+        ModBlockEntities.REGISTER.register(NeoForge.EVENT_BUS);
+        ModMenuTypes.REGISTER.register(NeoForge.EVENT_BUS);
+        // ModItems initializes spawn eggs which reference EntityTypes; register entities first.
+        ModItems.REGISTER.register(NeoForge.EVENT_BUS);
+        ttv.migami.jeg.legacy.LegacyContent.register();
+        ttv.migami.jeg.mteg.MtegContent.registerItems();
+        ttv.migami.jeg.tech.astra.AstraTech.init();
+        ttv.migami.jeg.tech.astra.oxygen.AstraOxygen.init();
+        ttv.migami.jeg.advancement.GameplayActions.REGISTER.register(NeoForge.EVENT_BUS);
+
+        // Fabric-specific hooks.
+        NetworkHandler.initCommon();
+        ttv.migami.jeg.legacy.LegacyContent.registerNetworking();
+        ttv.migami.jeg.mteg.MtegContent.init();
+        ttv.migami.jeg.enchantment.LegacyGunEnchantments.register();
+        SpecialEquipmentDispenseBehaviors.register();
+        FabricCreativeTabs.init();
+        FabricRecipeUnlock.init();
+        FabricEntityInit.init();
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(VehicleDataManager.reloadListener());
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(VehicleAssemblyRecipeManager.reloadListener());
+
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(ttv.migami.jeg.station.StationRecipes.reloadListener());
+
+        ttv.migami.jeg.station.StationOres.init();
+        ttv.migami.jeg.station.BlueprintLoot.init();
+
+        // Runtime values.
+        GunMobValues.init();
+
+        // Commands and server lifecycle bridges.
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ModCommands.register(dispatcher));
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> GunEvents.onServerStarted(new ServerStartedEvent(server)));
+        ServerTickEvents.END_SERVER_TICK.register(server -> FactionEventTicker.onServerTick(new ServerTickEvent.Post(server)));
+
+        // Bridge commonly used event-style handlers used by shared code.
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            GunEvents.onPlayerLogin(new PlayerEvent.PlayerLoggedInEvent(handler.player));
+            server.execute(() -> ttv.migami.jeg.advancement.GameplayActions.login(handler.player));
+            NetworkHandler.sendUiConfig(handler.player);
+            NetworkHandler.sendVehicleData(handler.player);
+        });
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            GunEvents.onPlayerLogout(new PlayerEvent.PlayerLoggedOutEvent(handler.player));
+        });
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+            LivingIncomingDamageEvent event = new LivingIncomingDamageEvent(entity, source, amount);
+            GunnerFriendlyFireEvents.onIncomingDamage(event);
+            VehiclePassengerDamageEvents.onPassengerDamage(event);
+            if (amount > 0.0F && !event.isCanceled()) {
+                ttv.migami.jeg.item.DefuserItem.interruptIfDefusing(entity);
+                // 26.x Free the End / MOB_KILLS need lastHurtByPlayer before die(); AFTER_DEATH is too late.
+                if (source != null && source.getEntity() instanceof net.minecraft.world.entity.player.Player player) {
+                    ttv.migami.jeg.init.ModDamageTypes.attributePlayerKillCredit(entity, player);
+                }
+            }
+            return !event.isCanceled();
+        });
+        ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
+            ttv.migami.jeg.advancement.GameplayActions.died(entity, damageSource);
+            if (ttv.migami.jeg.faction.BomberGunnerHelper.isArmed(entity)
+                    && !ttv.migami.jeg.faction.BomberGunnerHelper.hasDetonated(entity)) {
+                ttv.migami.jeg.faction.BomberGunnerHelper.explodeVest(entity);
+            }
+        });
+        ServerEntityEvents.EQUIPMENT_CHANGE.register((entity, slot, from, to) -> {
+            LivingEquipmentChangeEvent event = new LivingEquipmentChangeEvent(entity, slot, from, to);
+            GunnerMobSpawner.onLivingEquipmentChange(event);
+            HappyGhastArmorEvents.onEquipmentChanged(event);
+        });
+        ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            ENTITY_TICKS.loaded(level,entity.getId(),entity);
+            GunEvents.onPlayerJoinWorld(new EntityJoinLevelEvent(entity, level));
+            GunnerMobSpawner.onEntityJoinWorld(new EntityJoinLevelEvent(entity, level));
+        });
+        ServerEntityEvents.ENTITY_UNLOAD.register((entity,level) -> ENTITY_TICKS.unloaded(level,entity.getId(),entity));
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> ENTITY_TICKS.clear());
+        ServerTickEvents.END_LEVEL_TICK.register(level -> {
+            if (!(level instanceof ServerLevel serverLevel)) {
+                return;
+            }
+            for (var entity : ENTITY_TICKS.snapshot(serverLevel)) {
+                if (entity.isRemoved() || entity.level()!=serverLevel) continue;
+                if (entity instanceof Player player) {
+                    AttachmentRuntimeEvents.tickPlayer(player);
+                }
+                EntityTickEvent.Post event = new EntityTickEvent.Post(entity);
+                GunnerMobSpawner.onLivingUpdate(event);
+                HappyGhastArmorEvents.onEntityTick(event);
+                EnemyVehicleController.tickEntity(entity);
+            }
+        });
+    }
+}

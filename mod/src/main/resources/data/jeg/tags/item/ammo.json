@@ -1,0 +1,28 @@
+{
+  "values": [
+    "jeg:handmade_shell",
+    "jeg:pistol_ammo",
+    "jeg:rifle_ammo",
+    "jeg:shotgun_shell",
+    "jeg:blaze_round",
+    "jeg:spectre_round",
+    "jeg:flare",
+    "jeg:grenade",
+    "jeg:rocket_launcher",
+    "jeg:explosive_charge",
+    {
+      "id": "jeg:pocket_bubble",
+      "required": false
+    },
+    "jeg:stun_grenade",
+    "jeg:water_bomb",
+    "minecraft:arrow",
+    "minecraft:tipped_arrow",
+    "minecraft:spectral_arrow",
+    "minecraft:echo_shard",
+    "minecraft:sculk_catalyst",
+    "minecraft:water_bucket",
+    "minecraft:lava_bucket",
+    "minecraft:bucket"
+  ]
+}

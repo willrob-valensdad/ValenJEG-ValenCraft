@@ -1,0 +1,22 @@
+{
+  "description": {
+    "translate": "enchantment.jeg.puncturing"
+  },
+  "supported_items": "#jeg:enchantable/gun",
+  "weight": 2,
+  "max_level": 4,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 10
+  },
+  "max_cost": {
+    "base": 11,
+    "per_level_above_first": 10
+  },
+  "anvil_cost": 4,
+  "slots": [
+    "mainhand"
+  ],
+  "exclusive_set": "#jeg:exclusive_set/projectile",
+  "effects": {}
+}

@@ -1,0 +1,16 @@
+{
+  "structures": [{ "structure": "jeg:bunker_rooms", "weight": 1 }],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 128,
+    "separation": 42,
+    "salt": 1728102406,
+    "spread_type": "linear",
+    "frequency_reduction_method": "default",
+    "frequency": 1.0,
+    "exclusion_zone": {
+      "chunk_count": 3,
+      "other_set": "buildcraftenergy:water_spring"
+    }
+  }
+}

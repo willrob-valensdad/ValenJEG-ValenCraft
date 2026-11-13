@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:blasting",
+  "ingredient": "jeg:scrap_ore",
+  "result": {
+    "id": "jeg:scrap"
+  },
+  "experience": 0.1,
+  "cookingtime": 100
+}

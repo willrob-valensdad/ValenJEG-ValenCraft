@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "jeg:headpoppper_badge"
+    },
+    "title": {
+      "translate": "advancement.jeg.guide.gunsmith.kill_effect.title"
+    },
+    "description": {
+      "translate": "advancement.jeg.guide.gunsmith.kill_effect.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "conditions": {
+        "action": "kill_effect"
+      },
+      "trigger": "jeg:gameplay_action"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "sends_telemetry_event": false,
+  "parent": "jeg:guide/training/signature",
+  "rewards": {
+    "experience": 100
+  }
+}

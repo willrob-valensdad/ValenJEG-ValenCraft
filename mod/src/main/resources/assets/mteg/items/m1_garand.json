@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/m1_garand/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/m1_garand/ejector"
+      }
+    ]
+  }
+}

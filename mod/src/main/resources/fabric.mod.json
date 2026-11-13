@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "jeg",
+  "version": "${version}",
+  "name": "ValenJEG",
+  "description": "Unofficial Fabric port of MigaMi's Just Enough Guns. Firearms, faction raids, vehicles, special equipment, and a four-chapter survival combat career. JEG code is GPL-3.0; original JEG assets are ARR and used with author authorization. SBW/SW-derived vehicles and special-equipment assets (Javelin, Igla, drone, C4, Claymore, smoke/lock UI, etc.) require attribution to the SBW development team under CC BY-NC-SA 3.0. Private Valen fork restoring original workstations and source-backed structure integrations.",
+  "authors": [
+    "Rui Mao",
+    "MigaMi",
+    "Leander",
+    "Valen Systems (private fork)"
+  ],
+  "license": "GPL-3.0",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ttv.migami.jeg.FabricEntrypoint"
+    ],
+    "client": [
+      "ttv.migami.jeg.FabricClientEntrypoint"
+    ],
+    "rei_common": [
+      "ttv.migami.jeg.station.rei.StationCommonPlugin",
+      "ttv.migami.jeg.tech.astra.oxygen.ui.OxygenReiCommonPlugin"
+    ],
+    "rei_client": [
+      "ttv.migami.jeg.station.rei.StationClientPlugin",
+      "ttv.migami.jeg.tech.astra.oxygen.ui.OxygenReiClientPlugin"
+    ]
+  },
+  "mixins": [
+    "jeg.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "${minecraft_version_range}",
+    "java": ">=25",
+    "fabric-api": "*",
+    "geckolib": ">=5.5",
+    "team_reborn_energy": ">=5.0.0",
+    "hbm": "*"
+  },
+  "icon": "assets/jeg/branding/valenjeg-logo.png"
+}

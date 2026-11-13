@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LLL",
+    "ISI",
+    "I I"
+  ],
+  "key": {
+    "L": "minecraft:light_gray_concrete",
+    "I": "minecraft:iron_ingot",
+    "S": "jeg:scrap_block"
+  },
+  "result": {
+    "id": "mteg:mo_workbench"
+  }
+}

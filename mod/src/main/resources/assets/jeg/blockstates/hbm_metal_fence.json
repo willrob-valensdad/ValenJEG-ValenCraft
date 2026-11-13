@@ -1,0 +1,324 @@
+{
+  "variants": {
+    "east=false,north=false,south=false,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=false,south=false,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=false,south=false,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": false,
+      "west": true
+    },
+    "east=false,north=false,south=false,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": false,
+      "west": true
+    },
+    "east=true,north=false,south=false,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=false,south=false,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=false,south=false,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": true,
+      "west": true
+    },
+    "east=true,north=false,south=false,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": false,
+      "east": true,
+      "west": true
+    },
+    "east=false,north=false,south=true,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=false,south=true,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=false,south=true,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": false,
+      "west": true
+    },
+    "east=false,north=false,south=true,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": false,
+      "west": true
+    },
+    "east=true,north=false,south=true,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=false,south=true,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=false,south=true,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": true,
+      "west": true
+    },
+    "east=true,north=false,south=true,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": false,
+      "south": true,
+      "east": true,
+      "west": true
+    },
+    "east=false,north=true,south=false,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=true,south=false,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=true,south=false,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": false,
+      "west": true
+    },
+    "east=false,north=true,south=false,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": false,
+      "west": true
+    },
+    "east=true,north=true,south=false,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=true,south=false,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=true,south=false,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": true,
+      "west": true
+    },
+    "east=true,north=true,south=false,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": false,
+      "east": true,
+      "west": true
+    },
+    "east=false,north=true,south=true,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=true,south=true,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": false,
+      "west": false
+    },
+    "east=false,north=true,south=true,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": false,
+      "west": true
+    },
+    "east=false,north=true,south=true,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": false,
+      "west": true
+    },
+    "east=true,north=true,south=true,waterlogged=false,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=true,south=true,waterlogged=true,west=false": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": true,
+      "west": false
+    },
+    "east=true,north=true,south=true,waterlogged=false,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": true,
+      "west": true
+    },
+    "east=true,north=true,south=true,waterlogged=true,west=true": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "fence",
+      "mesh": "jeg:models/hbm/fence-plane",
+      "particle": "jeg:block/hbm_metal_fence_particle",
+      "north": true,
+      "south": true,
+      "east": true,
+      "west": true
+    }
+  }
+}

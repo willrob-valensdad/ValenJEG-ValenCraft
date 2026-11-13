@@ -1,0 +1,22 @@
+{
+  "description": {
+    "translate": "enchantment.jeg.fire_starter"
+  },
+  "supported_items": "#jeg:enchantable/gun_fire_starter",
+  "weight": 1,
+  "max_level": 1,
+  "min_cost": {
+    "base": 15,
+    "per_level_above_first": 0
+  },
+  "max_cost": {
+    "base": 41,
+    "per_level_above_first": 0
+  },
+  "anvil_cost": 8,
+  "slots": [
+    "mainhand"
+  ],
+  "exclusive_set": "#jeg:exclusive_set/projectile",
+  "effects": {}
+}

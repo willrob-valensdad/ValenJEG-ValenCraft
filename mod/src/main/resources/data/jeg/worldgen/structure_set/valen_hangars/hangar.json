@@ -1,0 +1,43 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 10387312,
+    "separation": 18,
+    "spacing": 32,
+    "frequency": 0.7
+  },
+  "structures": [
+    {
+      "structure": "jeg:valen_hangars/plains_hangar",
+      "weight": 2
+    },
+    {
+      "structure": "jeg:valen_hangars/birch_hangar",
+      "weight": 1
+    },
+    {
+      "structure": "jeg:valen_hangars/taiga_hangar",
+      "weight": 1
+    },
+    {
+      "structure": "jeg:valen_hangars/dark_oak_hangar",
+      "weight": 1
+    },
+    {
+      "structure": "jeg:valen_hangars/cherry_hangar",
+      "weight": 1
+    },
+    {
+      "structure": "jeg:valen_hangars/jungle_hangar",
+      "weight": 3
+    },
+    {
+      "structure": "jeg:valen_hangars/bamboo_hangar",
+      "weight": 1
+    },
+    {
+      "structure": "jeg:valen_hangars/savannah_hangar",
+      "weight": 1
+    }
+  ]
+}

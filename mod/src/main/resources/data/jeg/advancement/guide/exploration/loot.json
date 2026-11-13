@@ -1,0 +1,44 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:chest"
+    },
+    "title": {
+      "translate": "advancement.jeg.guide.exploration.loot.title"
+    },
+    "description": {
+      "translate": "advancement.jeg.guide.exploration.loot.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "conditions": {
+        "action": "open_container",
+        "player": {
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "jeg:sky_ship_armada"
+            }
+          },
+          "type": "minecraft:entity_properties"
+        }
+      },
+      "trigger": "jeg:gameplay_action"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "sends_telemetry_event": false,
+  "parent": "jeg:guide/exploration/armada",
+  "rewards": {
+    "experience": 5
+  }
+}

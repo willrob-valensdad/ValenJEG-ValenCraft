@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/gun/micro_uzi"
+      }
+    ]
+  }
+}

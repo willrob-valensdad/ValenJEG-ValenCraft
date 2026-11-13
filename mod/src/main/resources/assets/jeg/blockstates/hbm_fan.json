@@ -1,0 +1,580 @@
+{
+  "variants": {
+    "meta=0,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 180,
+      "worldRotation": 0
+    },
+    "meta=0,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 180,
+      "worldRotation": 1
+    },
+    "meta=0,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 180,
+      "worldRotation": 2
+    },
+    "meta=0,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 180,
+      "worldRotation": 3
+    },
+    "meta=1,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=1,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=1,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=1,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=2,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": -90,
+      "worldRotation": 0
+    },
+    "meta=2,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": -90,
+      "worldRotation": 1
+    },
+    "meta=2,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": -90,
+      "worldRotation": 2
+    },
+    "meta=2,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": -90,
+      "worldRotation": 3
+    },
+    "meta=3,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 90,
+      "worldRotation": 0
+    },
+    "meta=3,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 90,
+      "worldRotation": 1
+    },
+    "meta=3,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 90,
+      "worldRotation": 2
+    },
+    "meta=3,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 90,
+      "worldRotation": 3
+    },
+    "meta=4,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": 90,
+      "worldRotation": 0
+    },
+    "meta=4,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": 90,
+      "worldRotation": 1
+    },
+    "meta=4,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": 90,
+      "worldRotation": 2
+    },
+    "meta=4,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": 90,
+      "worldRotation": 3
+    },
+    "meta=5,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": -90,
+      "worldRotation": 0
+    },
+    "meta=5,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": -90,
+      "worldRotation": 1
+    },
+    "meta=5,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": -90,
+      "worldRotation": 2
+    },
+    "meta=5,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "z",
+      "sourceDegrees": -90,
+      "worldRotation": 3
+    },
+    "meta=6,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=6,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=6,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=6,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=7,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=7,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=7,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=7,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=8,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=8,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=8,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=8,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=9,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=9,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=9,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=9,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=10,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=10,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=10,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=10,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=11,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=11,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=11,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=11,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=12,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=12,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=12,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=12,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=13,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=13,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=13,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=13,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=14,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=14,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=14,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=14,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    },
+    "meta=15,rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 0
+    },
+    "meta=15,rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 1
+    },
+    "meta=15,rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 2
+    },
+    "meta=15,rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "wavefront",
+      "mesh": "jeg:models/hbm/fan.obj",
+      "particle": "jeg:block/hbm_fan_particle",
+      "sourceAxis": "x",
+      "sourceDegrees": 0,
+      "worldRotation": 3
+    }
+  }
+}

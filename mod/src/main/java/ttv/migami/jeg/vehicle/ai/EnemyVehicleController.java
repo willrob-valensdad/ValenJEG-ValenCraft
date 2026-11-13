@@ -1,0 +1,866 @@
+package ttv.migami.jeg.vehicle.ai;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import ttv.migami.jeg.vehicle.entity.base.VehicleEntity;
+import ttv.migami.jeg.vehicle.entity.base.VehicleInput;
+import ttv.migami.jeg.vehicle.data.subdata.VehicleType;
+
+public final class EnemyVehicleController {
+    public static final String ENEMY_VEHICLE_TAG = "JEGEnemyVehicle";
+    public static final String ENEMY_VEHICLE_CREW_TAG = "JEGEnemyVehicleCrew";
+    public static final String VEHICLE_KIND_TAG = "JEGEnemyVehicleKind";
+    public static final String CREW_ID_TAG = "JEGEnemyVehicleCrewId";
+    private static final String ANCHOR_TAG = "JEGEnemyVehicleAnchor";
+    private static final String ANCHOR_X_TAG = "X";
+    private static final String ANCHOR_Y_TAG = "Y";
+    private static final String ANCHOR_Z_TAG = "Z";
+    private static final String TARGET_ID_TAG = "JEGEnemyVehicleTarget";
+    private static final String TARGET_MEMORY_TAG = "JEGEnemyVehicleTargetMemory";
+    private static final String CREW_ID_BY_SEAT_TAG = "JEGEnemyVehicleCrewIdSeat";
+    private static final int TARGET_MEMORY_TICKS = 100;
+    private static final int MISSING_CREW_GRACE_TICKS = 80;
+    private static final Map<UUID, Brain> BRAINS = new HashMap<>();
+
+    private EnemyVehicleController() {}
+
+    public static EnemyVehicleCombat.Cycle combatCycle(VehicleEntity vehicle) {
+        return BRAINS.computeIfAbsent(vehicle.getUUID(), ignored -> new Brain()).combat;
+    }
+
+    public static void tickEntity(Entity entity) {
+        if (!(entity instanceof VehicleEntity vehicle) || vehicle.level().isClientSide() || !vehicle.entityTags().contains(ENEMY_VEHICLE_TAG)) {
+            return;
+        }
+        if (!(vehicle.level() instanceof ServerLevel level)) {
+            return;
+        }
+        Brain brain = BRAINS.computeIfAbsent(vehicle.getUUID(), ignored -> new Brain());
+        tickVehicle(level, vehicle, brain);
+    }
+
+    public static void setAnchor(VehicleEntity vehicle, Vec3 anchor) {
+        CompoundTag tag = new CompoundTag();
+        tag.putDouble(ANCHOR_X_TAG, anchor.x);
+        tag.putDouble(ANCHOR_Y_TAG, anchor.y);
+        tag.putDouble(ANCHOR_Z_TAG, anchor.z);
+        vehicle.getPersistentData().put(ANCHOR_TAG, tag);
+    }
+
+    public static void configureCrew(LivingEntity crew) {
+        crew.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        crew.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+        crew.setInvisible(false);
+        crew.noPhysics = true;
+        if (crew instanceof net.minecraft.world.entity.Mob mob) {
+            mob.setNoAi(true);
+            mob.setCanPickUpLoot(false);
+            mob.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
+            mob.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
+        }
+    }
+
+    public static void rememberTarget(VehicleEntity vehicle, LivingEntity target, int ticks) {
+        if (!(target instanceof Player player) || player.isCreative() || player.isSpectator()) {
+            return;
+        }
+        Brain brain = BRAINS.computeIfAbsent(vehicle.getUUID(), ignored -> new Brain());
+        brain.targetId = player.getUUID();
+        brain.targetMemory = Math.max(brain.targetMemory, ticks);
+        putUuid(vehicle.getPersistentData(), TARGET_ID_TAG, brain.targetId);
+        vehicle.getPersistentData().putInt(TARGET_MEMORY_TAG, brain.targetMemory);
+    }
+
+    private static boolean hasUuid(CompoundTag tag, String key) {
+        return tag.getString(key).isPresent();
+    }
+
+    private static UUID getUuid(CompoundTag tag, String key) {
+        return UUID.fromString(tag.getString(key).orElseThrow());
+    }
+
+    private static void putUuid(CompoundTag tag, String key, UUID value) {
+        tag.putString(key, value.toString());
+    }
+
+    private static void tickVehicle(ServerLevel level, VehicleEntity vehicle, Brain brain) {
+        String kind = vehicleKind(vehicle);
+        restoreBrainFromPersistentData(vehicle, brain);
+        Vec3 anchor = anchor(vehicle);
+        LivingEntity[] crews = crews(vehicle, requiredCrew(kind));
+        if (missingRequiredCrew(crews)) {
+            crews = recoverCrews(level, vehicle, crews);
+        }
+        if (crews[0] == null || missingRequiredCrew(crews)) {
+            if (hasAnySavedCrew(vehicle, crews.length) && ++brain.missingCrewTicks >= MISSING_CREW_GRACE_TICKS) {
+                vehicle.destroyFromEnemyCrewLoss();
+                BRAINS.remove(vehicle.getUUID());
+                return;
+            }
+            stopVehicle(vehicle);
+            return;
+        }
+        brain.missingCrewTicks = 0;
+        saveCrewIds(vehicle, crews);
+        for (LivingEntity crew : crews) {
+            configureCrew(crew);
+        }
+
+        if (isAirVehicle(kind)) {
+            tickAirVehicle(level, vehicle, brain, kind, crews);
+            return;
+        }
+
+        Player target = updateTarget(level, vehicle, brain, kind);
+        if (target == null) {
+            brain.combat.cancel();
+            patrol(vehicle, brain, anchor);
+            vehicle.setAiWeaponControl(crews[0], false, false);
+            return;
+        }
+
+        double distance = vehicle.distanceTo(target);
+        boolean visible = canSee(vehicle, target);
+        if (ttv.migami.jeg.Config.enemyVehicleAdaptiveCombatEnabled()) {
+            EnemyVehicleCombat.control(vehicle, crews, target, visible, distance, brain.combat);
+        } else {
+            int weaponSlot = weaponSlot(kind, distance);
+            vehicle.selectAiWeaponForSeat(0, weaponSlot);
+            Aim aim = aimAt(vehicle, target);
+            vehicle.setAiTurretAim(aim.turretYaw(), aim.pitch());
+
+            boolean fire = visible && weaponAligned(vehicle, crews[0], target.getEyePosition(), aimTolerance(weaponSlot));
+            aimCrewAt(crews[0], aim);
+            vehicle.setAiWeaponControl(crews[0], fire, false);
+        }
+        engage(vehicle, brain, target, kind, distance);
+    }
+
+    private static void restoreBrainFromPersistentData(VehicleEntity vehicle, Brain brain) {
+        if (brain.targetId == null && hasUuid(vehicle.getPersistentData(), TARGET_ID_TAG)) {
+            brain.targetId = getUuid(vehicle.getPersistentData(), TARGET_ID_TAG);
+            brain.targetMemory = vehicle.getPersistentData().getInt(TARGET_MEMORY_TAG).orElse(0);
+        }
+    }
+
+    private static LivingEntity[] recoverCrews(ServerLevel level, VehicleEntity vehicle, LivingEntity[] crews) {
+        for (Entity passenger : vehicle.getPassengers()) {
+            if (passenger instanceof LivingEntity living && living.isAlive() && living.entityTags().contains(ENEMY_VEHICLE_CREW_TAG) && !containsCrew(crews, living)) {
+                int seat = firstMissingSeat(crews);
+                if (seat >= 0) {
+                    vehicle.rememberSeatAssignment(living, seat);
+                    crews[seat] = living;
+                }
+            }
+        }
+        for (int seat = 0; seat < crews.length; seat++) {
+            if (crews[seat] != null) {
+                continue;
+            }
+            UUID savedCrewId = savedCrewId(vehicle, seat);
+            if (savedCrewId == null) {
+                continue;
+            }
+            Entity saved = level.getEntity(savedCrewId);
+            if (saved instanceof LivingEntity living && living.isAlive() && living.entityTags().contains(ENEMY_VEHICLE_CREW_TAG)) {
+                vehicle.rememberSeatAssignment(living, seat);
+                if (living.getVehicle() != vehicle) {
+                    living.startRiding(vehicle, true, true);
+                }
+                crews[seat] = living;
+            }
+        }
+        return crews;
+    }
+
+    private static boolean containsCrew(LivingEntity[] crews, LivingEntity candidate) {
+        for (LivingEntity crew : crews) {
+            if (crew == candidate) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int firstMissingSeat(LivingEntity[] crews) {
+        for (int seat = 0; seat < crews.length; seat++) {
+            if (crews[seat] == null) {
+                return seat;
+            }
+        }
+        return -1;
+    }
+
+    private static void saveCrewIds(VehicleEntity vehicle, LivingEntity[] crews) {
+        for (int seat = 0; seat < crews.length; seat++) {
+            putUuid(vehicle.getPersistentData(), crewIdTag(seat), crews[seat].getUUID());
+        }
+        putUuid(vehicle.getPersistentData(), CREW_ID_TAG, crews[0].getUUID());
+    }
+
+    private static boolean hasAnySavedCrew(VehicleEntity vehicle, int count) {
+        if (hasUuid(vehicle.getPersistentData(), CREW_ID_TAG)) {
+            return true;
+        }
+        for (int seat = 0; seat < count; seat++) {
+            if (hasUuid(vehicle.getPersistentData(), crewIdTag(seat))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static UUID savedCrewId(VehicleEntity vehicle, int seat) {
+        String tag = crewIdTag(seat);
+        if (hasUuid(vehicle.getPersistentData(), tag)) {
+            return getUuid(vehicle.getPersistentData(), tag);
+        }
+        if (seat == 0 && hasUuid(vehicle.getPersistentData(), CREW_ID_TAG)) {
+            return getUuid(vehicle.getPersistentData(), CREW_ID_TAG);
+        }
+        return null;
+    }
+
+    private static String crewIdTag(int seat) {
+        return CREW_ID_BY_SEAT_TAG + seat;
+    }
+
+    private static LivingEntity[] crews(VehicleEntity vehicle, int count) {
+        LivingEntity[] crews = new LivingEntity[count];
+        for (int seat = 0; seat < count; seat++) {
+            crews[seat] = crew(vehicle, seat);
+        }
+        return crews;
+    }
+
+    private static LivingEntity crew(VehicleEntity vehicle, int seatIndex) {
+        Entity passenger = vehicle.passengerForSeat(seatIndex);
+        if (passenger instanceof LivingEntity living && living.isAlive() && living.entityTags().contains(ENEMY_VEHICLE_CREW_TAG)) {
+            return living;
+        }
+        return null;
+    }
+
+    private static boolean missingRequiredCrew(LivingEntity[] crews) {
+        for (LivingEntity crew : crews) {
+            if (crew == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int requiredCrew(String kind) {
+        return "mi28".equals(kind) ? 2 : 1;
+    }
+
+    private static boolean isAirVehicle(String kind) {
+        return "ah6".equals(kind) || "mi28".equals(kind);
+    }
+
+    private static String vehicleKind(VehicleEntity vehicle) {
+        String saved = vehicle.getPersistentData().getString(VEHICLE_KIND_TAG).orElse("");
+        if (!saved.isBlank()) {
+            var parsed = net.minecraft.resources.Identifier.tryParse(saved);
+            if (parsed != null) {
+                return parsed.getPath();
+            }
+        }
+        return vehicle.vehicleDataId().getPath();
+    }
+
+    private static Vec3 anchor(VehicleEntity vehicle) {
+        CompoundTag tag = vehicle.getPersistentData().getCompound(ANCHOR_TAG).orElse(null);
+        if (tag != null && !tag.isEmpty()) {
+            return new Vec3(tag.getDouble(ANCHOR_X_TAG).orElse(0.0D), tag.getDouble(ANCHOR_Y_TAG).orElse(0.0D), tag.getDouble(ANCHOR_Z_TAG).orElse(0.0D));
+        }
+        Vec3 anchor = vehicle.position();
+        setAnchor(vehicle, anchor);
+        return anchor;
+    }
+
+    private static Player updateTarget(ServerLevel level, VehicleEntity vehicle, Brain brain, String kind) {
+        if (brain.targetId == null && hasUuid(vehicle.getPersistentData(), TARGET_ID_TAG)) {
+            brain.targetId = getUuid(vehicle.getPersistentData(), TARGET_ID_TAG);
+            brain.targetMemory = vehicle.getPersistentData().getInt(TARGET_MEMORY_TAG).orElse(0);
+        }
+        double range = detectionRange(kind);
+        Player nearest = null;
+        double nearestDistance = range * range;
+        double highestThreat = -1;
+        for (Player player : level.players()) {
+            if (player.isCreative() || player.isSpectator() || !player.isAlive() || player.isInvisible()) {
+                continue;
+            }
+            double distance = player.distanceToSqr(vehicle);
+            if (distance <= range * range && canSee(vehicle, player)) {
+                double threat = ttv.migami.jeg.Config.enemyVehicleAdaptiveCombatEnabled()
+                        ? ttv.migami.jeg.faction.raid.RaidDifficulty.threatPriority(player, isAirVehicle(kind)) : 0;
+                if (threat > highestThreat || threat == highestThreat && distance <= nearestDistance) {
+                    highestThreat = threat;
+                    nearestDistance = distance;
+                    nearest = player;
+                }
+            }
+        }
+        if (nearest != null) {
+            brain.targetId = nearest.getUUID();
+            brain.targetMemory = TARGET_MEMORY_TICKS;
+            putUuid(vehicle.getPersistentData(), TARGET_ID_TAG, brain.targetId);
+            vehicle.getPersistentData().putInt(TARGET_MEMORY_TAG, brain.targetMemory);
+            return nearest;
+        }
+        if (brain.targetId != null && brain.targetMemory-- > 0) {
+            Entity remembered = level.getEntity(brain.targetId);
+            if (remembered instanceof Player player && player.isAlive() && !player.isCreative() && !player.isSpectator() && !player.isInvisible() && player.distanceTo(vehicle) <= targetRetentionRange(kind)) {
+                vehicle.getPersistentData().putInt(TARGET_MEMORY_TAG, brain.targetMemory);
+                return player;
+            }
+        }
+        brain.targetId = null;
+        brain.targetMemory = 0;
+        vehicle.getPersistentData().remove(TARGET_ID_TAG);
+        vehicle.getPersistentData().remove(TARGET_MEMORY_TAG);
+        return null;
+    }
+
+    private static double detectionRange(String kind) {
+        return switch (kind) {
+            case "mi28" -> 140.0D;
+            case "ah6" -> 90.0D;
+            case "bmp2" -> 76.0D;
+            default -> 72.0D;
+        };
+    }
+
+    private static double targetRetentionRange(String kind) {
+        return switch (kind) {
+            case "mi28" -> 220.0D;
+            case "ah6" -> 150.0D;
+            default -> detectionRange(kind) + 16.0D;
+        };
+    }
+
+    private static void tickAirVehicle(ServerLevel level, VehicleEntity vehicle, Brain brain, String kind, LivingEntity[] crews) {
+        Vec3 anchor = anchor(vehicle);
+        Player target = updateTarget(level, vehicle, brain, kind);
+        if (target == null) {
+            brain.combat.cancel();
+            airPatrol(vehicle, brain, anchor, kind);
+            vehicle.setAiWeaponControlForSeat(0, crews[0], false, false);
+            if (crews.length > 1) {
+                vehicle.setAiWeaponControlForSeat(1, crews[1], false, false);
+            }
+            vehicle.setAiWeaponControl(null, false, false);
+            return;
+        }
+
+        double distance = vehicle.distanceTo(target);
+        Aim aim = airAimAt(vehicle, target.getEyePosition(), kind);
+        boolean visible = canSee(vehicle, target);
+        if (ttv.migami.jeg.Config.enemyVehicleAdaptiveCombatEnabled()) {
+            EnemyVehicleCombat.control(vehicle, crews, target, visible, distance, brain.combat);
+        } else {
+            aimCrewAt(crews[0], aim);
+            if ("mi28".equals(kind)) {
+                tickMi28Weapons(vehicle, crews, target, aim, distance, visible);
+            } else {
+                tickAh6Weapons(vehicle, crews[0], target, aim, distance, visible);
+            }
+        }
+        airEngage(vehicle, brain, target, kind, distance);
+    }
+
+    private static void tickAh6Weapons(VehicleEntity vehicle, LivingEntity pilot, Player target, Aim aim, double distance, boolean visible) {
+        double noseError = Math.abs(Mth.wrapDegrees(aim.worldYaw() - vehicle.getYRot()));
+        boolean stable = Math.abs(vehicle.roll()) < 35.0F && Math.abs(vehicle.getXRot()) < 42.0F;
+        boolean useRocket = distance >= 42.0D && distance <= 82.0D && noseError < 7.0D && stable
+                && weaponAligned(vehicle, pilot, target.getEyePosition(), 7);
+        int slot = useRocket ? 1 : 0;
+        vehicle.selectAiWeaponForSeat(0, slot);
+        boolean fire = visible && weaponAligned(vehicle, pilot, target.getEyePosition(), slot == 0 ? 12 : 7)
+                && (slot == 0 ? distance <= 70.0D : useRocket);
+        vehicle.setAiWeaponControlForSeat(0, pilot, fire, false);
+    }
+
+    private static void tickMi28Weapons(VehicleEntity vehicle, LivingEntity[] crews, Player target, Aim aim, double distance, boolean visible) {
+        LivingEntity pilot = crews[0];
+        LivingEntity gunner = crews[1];
+        double noseError = Math.abs(Mth.wrapDegrees(aim.worldYaw() - vehicle.getYRot()));
+        boolean stable = Math.abs(vehicle.roll()) < 30.0F && Math.abs(vehicle.getXRot()) < 42.0F;
+        TargetVehicleClass targetVehicle = targetVehicleClass(target);
+
+        int pilotSlot = switch (targetVehicle) {
+            case SURFACE -> 1;
+            case AIR -> 2;
+            case NONE -> 0;
+        };
+        vehicle.selectAiWeaponForSeat(0, pilotSlot);
+        boolean pilotMissile = pilotSlot == 1 || pilotSlot == 2;
+        boolean pilotFire = visible && stable && noseError < (pilotMissile ? 5.0D : 7.0D)
+                && weaponAligned(vehicle, pilot, target.getEyePosition(), pilotMissile ? 5 : 7)
+                && distance >= 55.0D && distance <= 150.0D;
+        vehicle.setAiWeaponControlForSeat(0, pilot, pilotFire, pilotMissile);
+
+        int gunnerSlot = targetVehicle == TargetVehicleClass.SURFACE && distance >= 85.0D ? 4 : 3;
+        vehicle.selectAiWeaponForSeat(1, gunnerSlot);
+        Aim gunnerAim = gunnerSlot == 3
+                ? airAimAt(vehicle, mi28GunnerSweepTarget(vehicle, target), "mi28", vehicle.aiWeaponMuzzlePosition(gunnerSlot))
+                : airAimAt(vehicle, target.getEyePosition(), "mi28", vehicle.aiWeaponMuzzlePosition(gunnerSlot));
+        vehicle.setAiTurretAim(gunnerAim.turretYaw(), gunnerAim.pitch());
+        aimCrewAt(gunner, gunnerAim);
+        boolean gunnerFire = visible && weaponAligned(vehicle, gunner, target.getEyePosition(), gunnerSlot == 3 ? 8 : 5)
+                && (gunnerSlot != 3 || distance <= 110.0D);
+        vehicle.setAiWeaponControlForSeat(1, gunner, gunnerFire, gunnerSlot == 4);
+    }
+
+    private static Vec3 mi28GunnerSweepTarget(VehicleEntity vehicle, Player target) {
+        Vec3 toTarget = target.position().subtract(vehicle.position());
+        Vec3 horizontal = new Vec3(toTarget.x, 0.0D, toTarget.z);
+        Vec3 side = horizontal.lengthSqr() < 1.0E-4D ? new Vec3(1.0D, 0.0D, 0.0D) : new Vec3(horizontal.z, 0.0D, -horizontal.x).normalize();
+        double phase = vehicle.tickCount * 0.22D;
+        double lateral = Math.sin(phase) * 2.4D;
+        double vertical = Math.cos(phase * 0.5D) * 0.45D;
+        return target.getEyePosition().add(side.scale(lateral)).add(0.0D, vertical, 0.0D);
+    }
+
+    private static TargetVehicleClass targetVehicleClass(Player target) {
+        if (!(target.getVehicle() instanceof VehicleEntity targetVehicle)) {
+            return TargetVehicleClass.NONE;
+        }
+        VehicleType type = targetVehicle.vehicleData().defaults().vehicleType();
+        if (type == VehicleType.LAND || type == VehicleType.BOAT || type == VehicleType.ARTILLERY) {
+            return TargetVehicleClass.SURFACE;
+        }
+        return TargetVehicleClass.AIR;
+    }
+
+    private static void airPatrol(VehicleEntity vehicle, Brain brain, Vec3 anchor, String kind) {
+        double desiredAltitude = "mi28".equals(kind) ? 38.0D : 24.0D;
+        if (brain.patrolTarget == null || vehicle.position().distanceToSqr(brain.patrolTarget) < 64.0D || vehicle.tickCount % 180 == 0) {
+            double angle = vehicle.getRandom().nextDouble() * Math.PI * 2.0D;
+            double radius = ("mi28".equals(kind) ? 55.0D : 38.0D) + vehicle.getRandom().nextDouble() * 24.0D;
+            brain.patrolTarget = anchor.add(Math.cos(angle) * radius, desiredAltitude, Math.sin(angle) * radius);
+        }
+        flyToward(vehicle, brain, brain.patrolTarget, null, desiredAltitude, true, kind);
+    }
+
+    private static void airEngage(VehicleEntity vehicle, Brain brain, Player target, String kind, double distance) {
+        double minRange = "mi28".equals(kind) ? 60.0D : 34.0D;
+        double maxRange = "mi28".equals(kind) ? 120.0D : 66.0D;
+        double orbitRange = "mi28".equals(kind) ? 78.0D : 44.0D;
+        double desiredAltitude = "mi28".equals(kind) ? 48.0D : 30.0D;
+        Vec3 toTarget = target.position().subtract(vehicle.position());
+        Vec3 horizontal = new Vec3(toTarget.x, 0.0D, toTarget.z);
+        Vec3 direction = horizontal.lengthSqr() < 1.0E-4D ? vehicleForward(vehicle) : horizontal.normalize();
+        Vec3 destination;
+        double horizontalDistance = horizontal.length();
+        if (horizontalDistance > maxRange) {
+            destination = target.position().subtract(direction.scale(orbitRange));
+        } else if (horizontalDistance < minRange) {
+            destination = vehicle.position().subtract(direction.scale(40.0D));
+            if (!vehicle.usesSwControls()) brain.airEvasionTicks = Math.max(brain.airEvasionTicks, 18);
+        } else {
+            if (vehicle.tickCount % 120 == 0) {
+                brain.orbitDirection = -brain.orbitDirection;
+            }
+            Vec3 strafe = new Vec3(direction.z, 0.0D, -direction.x).scale(orbitRange * brain.orbitDirection);
+            destination = target.position().subtract(direction.scale(orbitRange * 0.55D)).add(strafe);
+        }
+        Vec3 attackFaceTarget = horizontalDistance >= minRange && horizontalDistance <= maxRange
+                && shouldFaceTargetForNoseWeapon(kind, target, distance) ? target.getEyePosition() : null;
+        flyToward(vehicle, brain, destination, attackFaceTarget, desiredAltitude, distance <= maxRange, kind);
+    }
+
+    private static boolean shouldFaceTargetForNoseWeapon(String kind, Player target, double distance) {
+        if ("ah6".equals(kind)) {
+            return distance >= 42.0D && distance <= 82.0D;
+        }
+        if ("mi28".equals(kind)) {
+            return distance >= 55.0D && distance <= 150.0D;
+        }
+        return false;
+    }
+
+    private static void flyToward(VehicleEntity vehicle, Brain brain, Vec3 destination, Vec3 faceTarget, double desiredAltitude, boolean allowBrake, String kind) {
+        if (vehicle.usesSwControls()) {
+            flySwToward(vehicle, brain, destination, faceTarget, desiredAltitude, kind);
+            return;
+        }
+        if (brain.airEvasionTicks > 0) {
+            brain.airEvasionTicks--;
+        }
+        double altitude = altitudeAboveTerrain(vehicle);
+        boolean climbingOut = altitude < Math.min(desiredAltitude - 4.0D, 18.0D);
+        if (climbingOut) {
+            float levelPitch = Mth.clamp(-vehicle.getXRot() / 24.0F, -0.45F, 0.45F);
+            vehicle.setAiVehicleInput(airInput(false, false, false, false, false, true, false, 0.0F, levelPitch));
+            brain.airEvasionTicks = 0;
+            return;
+        }
+        if (isAirForwardUnsafe(vehicle)) {
+            brain.airEvasionTicks = Math.max(brain.airEvasionTicks, 28);
+        }
+
+        Vec3 toTarget = destination.subtract(vehicle.position());
+        double horizontalDistance = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z);
+        Vec3 yawTarget = faceTarget == null ? destination : faceTarget;
+        Vec3 toYawTarget = yawTarget.subtract(vehicle.position());
+        double yawDistance = Math.sqrt(toYawTarget.x * toYawTarget.x + toYawTarget.z * toYawTarget.z);
+        float desiredYaw = yawDistance < 1.0D ? vehicle.getYRot() : (float) -Math.toDegrees(Math.atan2(toYawTarget.x, toYawTarget.z));
+        float yawDiff = Mth.wrapDegrees(desiredYaw - vehicle.getYRot());
+        if (faceTarget != null) {
+            yawDiff = vehicle.turnAiVehicleYawToward(desiredYaw, aiAirNoseTurnStep(kind));
+        }
+        float yawInputScale = faceTarget == null ? 42.0F : 3.33F;
+        float mouseX = Mth.clamp(yawDiff / yawInputScale, -1.0F, 1.0F);
+        double altitudeError = desiredAltitude - altitude;
+        boolean ascend = altitudeError > 3.0D || brain.airEvasionTicks > 0;
+        boolean descend = altitudeError < -10.0D && brain.airEvasionTicks <= 0;
+        boolean holdingForNoseAim = faceTarget != null && Math.abs(yawDiff) > 4.0F;
+        boolean forward = horizontalDistance > 14.0D && Math.abs(yawDiff) < 80.0F && brain.airEvasionTicks <= 0 && !holdingForNoseAim;
+        boolean brake = allowBrake && horizontalDistance < 22.0D && Math.abs(yawDiff) < 35.0F;
+        float desiredPitch = forward ? 10.0F : 0.0F;
+        if (brain.airEvasionTicks > 0) {
+            desiredPitch = -8.0F;
+        }
+        float mouseY = Mth.clamp((desiredPitch - vehicle.getXRot()) / 24.0F, -0.7F, 0.7F);
+        vehicle.setAiVehicleInput(airInput(forward, brain.airEvasionTicks > 0, false, false, brake, ascend, descend, mouseX, mouseY));
+    }
+
+    private static float aiAirNoseTurnStep(String kind) {
+        return "mi28".equals(kind) ? 2.4F : 3.2F;
+    }
+
+    private static void flySwToward(VehicleEntity vehicle, Brain brain, Vec3 destination, Vec3 faceTarget, double desiredAltitude, String kind) {
+        var engine = vehicle.vehicleData().defaults().engine();
+        Vec3 velocity = vehicle.getDeltaMovement();
+        double altitude = altitudeAboveTerrain(vehicle);
+        boolean climbing = altitude < Math.min(desiredAltitude - 4, 18);
+        if (isAirForwardUnsafe(vehicle)) brain.airEvasionTicks = 28;
+        else if (brain.airEvasionTicks > 0) brain.airEvasionTicks--;
+        boolean evading = brain.airEvasionTicks > 0;
+        Vec3 offset = destination.subtract(vehicle.position()).multiply(1, 0, 1);
+        Vec3 heading = (faceTarget == null ? destination : faceTarget).subtract(vehicle.position());
+        float yaw = heading.horizontalDistance() < 1 ? vehicle.getYRot() : (float) -Math.toDegrees(Math.atan2(heading.x, heading.z));
+        float yawError = Mth.wrapDegrees(yaw - vehicle.getYRot());
+        float rotor = Math.max(vehicle.propellerSpeed(), 0.025F);
+        float mouseX = climbing ? 0 : Mth.clamp(yawError * 0.15F, -aiAirNoseTurnStep(kind), aiAirNoseTurnStep(kind))
+                / ((float) engine.yawSpeed() * rotor * (vehicle.onGround() ? 0.1F : 2));
+
+        // SW forward raises collective; translation comes from tilt. Backward invokes auto landing.
+        double speed = climbing || evading || Math.abs(yawError) > 60 ? 0 : Math.min(0.45D, offset.length() * 0.025D);
+        Vec3 desiredVelocity = offset.lengthSqr() < 1.0E-4 ? Vec3.ZERO : offset.normalize().scale(speed);
+        Vec3 correction = desiredVelocity.subtract(velocity.multiply(1, 0, 1));
+        Vec3 forward = vehicleForward(vehicle);
+        Vec3 right = new Vec3(forward.z, 0, -forward.x);
+        float desiredPitch = (float) Mth.clamp(correction.dot(forward) * 45, -18, 18);
+        if (faceTarget != null && !climbing && !evading && Math.abs(yawError) < 12) {
+            float attackPitch = Mth.clamp((float) -Math.toDegrees(Math.atan2(heading.y, heading.horizontalDistance())), -18, 40);
+            desiredPitch = Mth.lerp((float) Mth.clamp((0.85 - velocity.horizontalDistance()) / 0.25, 0, 1), desiredPitch, attackPitch);
+        }
+        float mouseY = Mth.clamp((desiredPitch - vehicle.getXRot()) * 0.12F, -1.5F, 1.5F)
+                / (1.5F * (float) engine.pitchSpeed() * rotor);
+        float desiredRoll = (float) Mth.clamp(-correction.dot(right) * 45, -15, 15);
+        double predictedRoll = vehicle.roll() * 0.99F - engine.rollSpeed()
+                * (vehicle.steeringPower() + 0.25F * mouseX * rotor);
+        float rollError = (float) (desiredRoll - predictedRoll);
+        double desiredVerticalSpeed = evading ? 0.25 : Mth.clamp((desiredAltitude - altitude) * 0.04, -0.25, 0.25);
+        double liftAngle = Math.max(0.5, Math.cos(Math.toRadians(vehicle.getXRot())) * Math.cos(Math.toRadians(vehicle.roll())));
+        double desiredPower = Mth.clamp((0.06 + desiredVerticalSpeed * 0.15 - velocity.y * 0.10) / (engine.liftSpeed() * liftAngle), 0.025 / engine.liftSpeed(), 0.12);
+        boolean ascend = vehicle.enginePower() < desiredPower - 0.001;
+        boolean descend = vehicle.enginePower() > desiredPower + 0.001;
+        vehicle.setAiVehicleInput(airInput(false, false, rollError < -0.75F, rollError > 0.75F,
+                false, ascend, descend, mouseX, mouseY));
+    }
+
+    private static void patrol(VehicleEntity vehicle, Brain brain, Vec3 anchor) {
+        if (brain.patrolTarget == null || vehicle.position().distanceToSqr(brain.patrolTarget) < 144.0D || vehicle.tickCount % 160 == 0) {
+            brain.patrolTarget = nextDryPatrolTarget(vehicle, anchor);
+        }
+        driveToward(vehicle, brain, brain.patrolTarget, 12.0D, 8.0D, false);
+    }
+
+    private static Vec3 nextDryPatrolTarget(VehicleEntity vehicle, Vec3 anchor) {
+        for (int attempt = 0; attempt < 8; attempt++) {
+            double angle = (vehicle.getRandom().nextDouble() * Math.PI * 2.0D);
+            double radius = 24.0D + vehicle.getRandom().nextDouble() * 24.0D;
+            Vec3 candidate = anchor.add(Math.cos(angle) * radius, 0.0D, Math.sin(angle) * radius);
+            if (isWaterAt(vehicle, candidate) == (vehicle.vehicleData().defaults().vehicleType() == VehicleType.BOAT)) {
+                return candidate;
+            }
+        }
+        return anchor;
+    }
+
+    private static void engage(VehicleEntity vehicle, Brain brain, Player target, String kind, double distance) {
+        double approach = "bmp2".equals(kind) ? 52.0D : 42.0D;
+        double retreat = "bmp2".equals(kind) ? 22.0D : 18.0D;
+        double hold = "bmp2".equals(kind) ? 30.0D : 24.0D;
+        if (distance > approach) {
+            driveToward(vehicle, brain, target.position(), 7.0D, 5.0D, false);
+        } else if (distance < retreat) {
+            driveToward(vehicle, brain, target.position(), 0.0D, 5.0D, true);
+        } else {
+            boolean side = ((vehicle.tickCount / 80) & 1) == 0;
+            Vec3 offset = target.position().subtract(vehicle.position()).normalize();
+            Vec3 strafe = new Vec3(offset.z, 0.0D, -offset.x).scale(side ? hold : -hold);
+            driveToward(vehicle, brain, target.position().add(strafe), 18.0D, 7.0D, false);
+        }
+    }
+
+    private static void driveToward(VehicleEntity vehicle, Brain brain, Vec3 target, double stopDistance, double yawDeadZone, boolean reverse) {
+        Vec3 toTarget = target.subtract(vehicle.position());
+        double horizontalDistance = toTarget.horizontalDistance();
+        if ((!reverse && horizontalDistance < stopDistance) || vehicle.maxVehicleEnergy() > 0 && vehicle.vehicleEnergy() <= 0) {
+            brain.stuckTicks = brain.reverseTicks = 0;
+            brain.lastPosition = vehicle.position();
+            vehicle.setAiVehicleInput(input(false, false, false, false, true));
+            return;
+        }
+        updateStuckState(vehicle, brain);
+        if (brain.reverseTicks > 0) {
+            brain.reverseTicks--;
+            vehicle.setAiVehicleInput(input(false, true, brain.reverseLeft, !brain.reverseLeft, false));
+            return;
+        }
+        float desiredYaw = (float) -Math.toDegrees(Math.atan2(toTarget.x, toTarget.z));
+        float yawDiff = Mth.wrapDegrees(desiredYaw - vehicle.getYRot());
+        float steeringError = reverse ? -yawDiff : yawDiff;
+        boolean left = steeringError < -yawDeadZone;
+        boolean right = steeringError > yawDeadZone;
+        if (Math.abs(yawDiff) < 35.0F && isForwardUnsafe(vehicle, reverse)) {
+            if (reverse) {
+                vehicle.setAiVehicleInput(input(false, false, false, false, true));
+                return;
+            }
+            startReverseManeuver(vehicle, brain, 28);
+            vehicle.setAiVehicleInput(input(false, true, brain.reverseLeft, !brain.reverseLeft, false));
+            return;
+        }
+        boolean sharpTurn = Math.abs(yawDiff) > 55;
+        boolean track = vehicle.vehicleData().defaults().engine().type() == ttv.migami.jeg.vehicle.data.subdata.EngineType.TRACK;
+        boolean slow = !reverse && (sharpTurn && (track || Math.abs(vehicle.enginePower()) > 0.35)
+                || horizontalDistance < stopDistance + 6 && vehicle.getDeltaMovement().horizontalDistance() > 0.15);
+        vehicle.setAiVehicleInput(input(!reverse && !slow, reverse, left, right, slow));
+    }
+
+    private static void updateStuckState(VehicleEntity vehicle, Brain brain) {
+        Vec3 current = vehicle.position();
+        if (brain.lastPosition != null && vehicle.tickCount % 20 == 0) {
+            if (current.distanceToSqr(brain.lastPosition) < 0.25D
+                    && (vehicle.horizontalCollision || Math.abs(vehicle.enginePower()) > 0.2D)) {
+                brain.stuckTicks += 20;
+                if (brain.stuckTicks >= 40) {
+                    startReverseManeuver(vehicle, brain, 36);
+                    brain.stuckTicks = 0;
+                    if (++brain.escapeFailures >= 3) {
+                        brain.patrolTarget = null;
+                        brain.escapeFailures = 0;
+                    }
+                }
+            } else {
+                brain.stuckTicks = 0;
+                brain.escapeFailures = 0;
+            }
+            brain.lastPosition = current;
+        } else if (brain.lastPosition == null) {
+            brain.lastPosition = current;
+        }
+    }
+
+    private static void startReverseManeuver(VehicleEntity vehicle, Brain brain, int ticks) {
+        brain.reverseTicks = Math.max(brain.reverseTicks, ticks);
+        long seed = vehicle.getUUID().getLeastSignificantBits() + brain.reverseAttempts++;
+        brain.reverseLeft = (seed & 1L) == 0L;
+    }
+
+    private static boolean isForwardUnsafe(VehicleEntity vehicle, boolean reverse) {
+        Vec3 start = vehicle.position().add(0.0D, 1.0D, 0.0D);
+        double yaw = Math.toRadians(vehicle.getYRot());
+        Vec3 forward = new Vec3(-Math.sin(yaw), 0.0D, Math.cos(yaw)).scale(reverse ? -1 : 1);
+        Vec3 end = start.add(forward.scale(4.0D));
+        HitResult hit = vehicle.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, vehicle));
+        if (hit.getType() != HitResult.Type.MISS) {
+            return true;
+        }
+        if (isVehicleAhead(vehicle, forward)) {
+            return true;
+        }
+        Vec3 low = vehicle.position().add(0.0D, 0.1D, 0.0D);
+        boolean boat = vehicle.vehicleData().defaults().vehicleType() == VehicleType.BOAT;
+        for (int step = 3; step <= 8; step++) {
+            Vec3 sample = low.add(forward.scale(step));
+            if (isWaterAt(vehicle, sample) != boat) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isVehicleAhead(VehicleEntity vehicle, Vec3 forward) {
+        AABB search = vehicle.getBoundingBox().inflate(6.0D, 2.0D, 6.0D);
+        for (VehicleEntity other : vehicle.level().getEntitiesOfClass(VehicleEntity.class, search)) {
+            if (other == vehicle || other.isRemoved()) {
+                continue;
+            }
+            Vec3 offset = other.position().subtract(vehicle.position());
+            double ahead = offset.x * forward.x + offset.z * forward.z;
+            if (ahead < 0.75D || ahead > 7.0D || Math.abs(offset.y) > 3.0D) {
+                continue;
+            }
+            double lateralX = offset.x - forward.x * ahead;
+            double lateralZ = offset.z - forward.z * ahead;
+            if (lateralX * lateralX + lateralZ * lateralZ <= 6.25D) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isWaterAt(VehicleEntity vehicle, Vec3 position) {
+        BlockPos pos = BlockPos.containing(position);
+        return vehicle.level().getFluidState(pos).is(FluidTags.WATER)
+                || vehicle.level().getFluidState(pos.below()).is(FluidTags.WATER);
+    }
+
+    private static VehicleInput input(boolean forward, boolean backward, boolean left, boolean right, boolean brake) {
+        return new VehicleInput(forward, backward, left, right, brake, false, false, false, false, false, false, false, -1, false, false, 0.0F, 0.0F);
+    }
+
+    private static VehicleInput airInput(boolean forward, boolean backward, boolean left, boolean right, boolean brake, boolean ascend, boolean descend, float mouseX, float mouseY) {
+        return new VehicleInput(forward, backward, left, right, brake, ascend, descend, false, false, false, false, false, -1, false, false, mouseX, mouseY);
+    }
+
+    private static Aim aimAt(VehicleEntity vehicle, LivingEntity target) {
+        Vec3 muzzle = vehicle.aiWeaponMuzzlePosition(vehicle.selectedVehicleWeaponIndex(vehicle.passengerForSeat(0)));
+        Vec3 targetPos = target.getEyePosition();
+        Vec3 delta = targetPos.subtract(muzzle);
+        double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+        float worldYaw = (float) -Math.toDegrees(Math.atan2(delta.x, delta.z));
+        float turretYaw = Mth.wrapDegrees(vehicle.getYRot() - worldYaw);
+        var turret = vehicle.vehicleData().defaults().turret();
+        float pitch = Mth.clamp((float) -Math.toDegrees(Math.atan2(delta.y, horizontal)), -turret.maxPitch(), -turret.minPitch());
+        return new Aim(worldYaw, turretYaw, pitch);
+    }
+
+    private static Aim airAimAt(VehicleEntity vehicle, Vec3 targetPos, String kind) {
+        return airAimAt(vehicle, targetPos, kind, null);
+    }
+
+    private static Aim airAimAt(VehicleEntity vehicle, Vec3 targetPos, String kind, Vec3 origin) {
+        Vec3 muzzle = origin == null ? vehicle.position().add(0.0D, "mi28".equals(kind) ? 1.8D : 1.2D, 0.0D) : origin;
+        Vec3 delta = targetPos.subtract(muzzle);
+        double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+        float worldYaw = (float) -Math.toDegrees(Math.atan2(delta.x, delta.z));
+        float turretYaw = Mth.wrapDegrees(vehicle.getYRot() - worldYaw);
+        var turret = vehicle.vehicleData().defaults().turret();
+        float minPitch = origin != null && turret.enabled() ? -turret.maxPitch() : -80;
+        float maxPitch = origin != null && turret.enabled() ? -turret.minPitch() : 80;
+        float pitch = Mth.clamp((float) -Math.toDegrees(Math.atan2(delta.y, horizontal)), minPitch, maxPitch);
+        return new Aim(worldYaw, turretYaw, pitch);
+    }
+
+    private static double altitudeAboveTerrain(VehicleEntity vehicle) {
+        return vehicle.getY() - terrainHeight(vehicle, vehicle.position());
+    }
+
+    private static int terrainHeight(VehicleEntity vehicle, Vec3 position) {
+        return vehicle.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mth.floor(position.x), Mth.floor(position.z));
+    }
+
+    private static boolean isAirForwardUnsafe(VehicleEntity vehicle) {
+        Vec3 forward = vehicleForward(vehicle);
+        Vec3 start = vehicle.position().add(0.0D, 1.4D, 0.0D);
+        Vec3 end = start.add(forward.scale(18.0D));
+        HitResult hit = vehicle.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, vehicle));
+        if (hit.getType() != HitResult.Type.MISS) {
+            return true;
+        }
+        Vec3 sample = vehicle.position().add(forward.scale(16.0D));
+        return sample.y - terrainHeight(vehicle, sample) < 8.0D;
+    }
+
+    private static Vec3 vehicleForward(VehicleEntity vehicle) {
+        double yaw = Math.toRadians(vehicle.getYRot());
+        return new Vec3(-Math.sin(yaw), 0.0D, Math.cos(yaw));
+    }
+
+    private static int weaponSlot(String kind, double distance) {
+        if ("speedboat".equals(kind) || "truck".equals(kind)) return 0;
+        if ("bmp2".equals(kind)) {
+            return distance < 28.0D ? 1 : 0;
+        }
+        return distance < 24.0D ? 1 : 0;
+    }
+
+    private static double aimTolerance(int weaponSlot) {
+        return weaponSlot == 1 ? 8.0D : 5.0D;
+    }
+
+    private static boolean weaponAligned(VehicleEntity vehicle, LivingEntity crew, Vec3 target, double tolerance) {
+        if (!vehicle.canPassengerUseSelectedVehicleWeapon(crew)) return false;
+        Vec3 delta = target.subtract(vehicle.aiWeaponMuzzlePosition(vehicle.selectedVehicleWeaponIndex(crew)));
+        return delta.lengthSqr() > 1.0E-4 && vehicle.vehicleHudShootDirection(crew, 1).dot(delta.normalize())
+                >= Math.cos(Math.toRadians(tolerance));
+    }
+
+    private static boolean canSee(VehicleEntity vehicle, LivingEntity target) {
+        Vec3 start = vehicle.position().add(0.0D, 2.4D, 0.0D);
+        Vec3 end = target.getEyePosition();
+        HitResult hit = vehicle.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, vehicle));
+        return hit.getType() == HitResult.Type.MISS;
+    }
+
+    private static void stopVehicle(VehicleEntity vehicle) {
+        vehicle.setAiVehicleInput(VehicleInput.EMPTY);
+        vehicle.setAiWeaponControl(null, false, false);
+    }
+
+    private static void aimCrewAt(LivingEntity crew, Aim aim) {
+        crew.setYRot(aim.worldYaw());
+        crew.setYHeadRot(aim.worldYaw());
+        crew.yBodyRot = aim.worldYaw();
+        crew.setXRot(aim.pitch());
+    }
+
+    private record Aim(float worldYaw, float turretYaw, float pitch) {}
+
+    private enum TargetVehicleClass {
+        NONE,
+        SURFACE,
+        AIR
+    }
+
+    private static final class Brain {
+        private final EnemyVehicleCombat.Cycle combat = new EnemyVehicleCombat.Cycle();
+        private UUID targetId;
+        private int targetMemory;
+        private Vec3 patrolTarget;
+        private Vec3 lastPosition;
+        private int stuckTicks;
+        private int reverseTicks;
+        private int reverseAttempts;
+        private int escapeFailures;
+        private int missingCrewTicks;
+        private boolean reverseLeft = true;
+        private int orbitDirection = 1;
+        private int airEvasionTicks;
+    }
+}

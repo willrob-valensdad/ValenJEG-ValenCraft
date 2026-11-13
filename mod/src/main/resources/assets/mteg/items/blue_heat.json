@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/blue_heat/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/blue_heat/stock_light"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/blue_heat/stock_tactical"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/blue_heat/stock_heavy"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/blue_heat/ejector"
+      }
+    ]
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "fallback": "jeg:valen_ad_astra/dungeon/moon/walkway",
+  "elements": [
+    {
+      "weight": 30,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/walkway",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 30,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/turn",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 30,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/cross",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 30,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/fork",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 20,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/ladders1",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 20,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/stairs1",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 20,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/stairs2",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 150,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/boss_room",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/chest_room",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/libary",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/main",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/meet",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/plant",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/prison",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/spawn_room2",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/statue",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/storage",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 60,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/war1",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+Minipurge:Black 1.0.1 authored bunker, by JayPyro2000 and the Minipurge Team.
+Official project https://modrinth.com/datapack/minipurgeblack
+Official version https://modrinth.com/datapack/minipurgeblack/version/BZAR5eyo
+Licensed by official project declaration under Creative Commons Attribution4.0:
+https://creativecommons.org/licenses/by/4.0/
+Modified for native26.3 NBT palette schema; native beds retain geometry without
+obsolete bed block entities; skeletonspawner becomes inert bars and named
+zombie-villager omitted for postponed NPC/encounter phase. All18837sourcecells,
+8911explicitair and supported inventories/states/staticdecor payloads retained.
+No source event/helper generator code ported. No endorsement implied.
+External source draft only; native placement/access/visual/install/acceptance
+remain separate. Publication/monetization deferred by owner.

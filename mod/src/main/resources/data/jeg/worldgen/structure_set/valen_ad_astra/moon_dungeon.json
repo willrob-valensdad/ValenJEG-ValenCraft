@@ -1,0 +1,21 @@
+{
+  "structures": [
+    {
+      "structure": "jeg:valen_ad_astra/moon_dungeon",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 120,
+    "separation": 40,
+    "spread_type": "linear",
+    "salt": 1728200001,
+    "frequency_reduction_method": "default",
+    "frequency": 1,
+    "exclusion_zone": {
+      "chunk_count": 6,
+      "other_set": "minecraft:villages"
+    }
+  }
+}

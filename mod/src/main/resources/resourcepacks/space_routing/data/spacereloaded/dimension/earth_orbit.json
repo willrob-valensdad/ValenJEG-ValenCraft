@@ -1,0 +1,15 @@
+{
+	"type": "spacereloaded:earth_orbit",
+	"generator": {
+		"type": "minecraft:flat",
+		"settings": {
+			"biome": "spacereloaded:orbit_void",
+			"features": false,
+			"lakes": false,
+			"layers": [],
+			"structure_overrides": [
+				"jeg:valen_ad_astra/space_station"
+			]
+		}
+	}
+}

@@ -1,0 +1,11 @@
+{
+  "id": "jeg:valen_mining/miner_hut",
+  "requested_type": "mining outposts",
+  "archive_sha256": "427774425350741c0ac16780f6d3e47608881896417c26bd117836269fc06ca7",
+  "source_entry": "data/cso/structures/miner_hut.nbt",
+  "source_sha256": "86a40094d7755a8cddaec080fb636904306f146178e2cf8214c473a6869199bc",
+  "source_commit": "0e6ab4abefcc805729772758408f42b135738e45",
+  "source_project": "denmoth/create_structures_overhaul",
+  "source_url": "https://github.com/Denmoth/create_structures_overhaul/tree/0e6ab4abefcc805729772758408f42b135738e45",
+  "rights": "MIT Copyright (c) 2025 Denmoth"
+}

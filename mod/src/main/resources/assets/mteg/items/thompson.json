@@ -1,0 +1,23 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/thompson/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/thompson/grip_light"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/thompson/grip_specialised"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/thompson/ejector"
+      }
+    ]
+  }
+}

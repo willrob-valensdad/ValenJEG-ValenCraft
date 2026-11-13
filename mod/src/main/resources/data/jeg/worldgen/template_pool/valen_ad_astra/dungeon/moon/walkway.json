@@ -1,0 +1,68 @@
+{
+  "fallback": "jeg:valen_ad_astra/dungeon/moon/end",
+  "elements": [
+    {
+      "weight": 100,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/walkway",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 100,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/turn",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 100,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/cross",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 100,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/fork",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 30,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/ladders1",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 30,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/stairs1",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 30,
+      "element": {
+        "location": "jeg:valen_ad_astra/dungeon/moon/stairs2",
+        "processors": "jeg:valen_ad_astra/preserve_bedrock",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

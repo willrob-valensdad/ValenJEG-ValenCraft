@@ -1,0 +1,9 @@
+{
+  "type": "jeg:hbm_authored",
+  "biomes": "#jeg:has_structure/valen/civil_defense_shelter",
+  "start_pool": "jeg:valen_minipurge/underground_shelter",
+  "source_profile": "minipurge_bunker",
+  "step": "surface_structures",
+  "terrain_adaptation": "none",
+  "spawn_overrides": {}
+}

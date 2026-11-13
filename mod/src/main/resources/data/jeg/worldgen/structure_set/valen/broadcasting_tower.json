@@ -1,0 +1,21 @@
+{
+  "structures": [
+    {
+      "structure": "jeg:valen/broadcasting_tower",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 132,
+    "separation": 44,
+    "spread_type": "linear",
+    "salt": 1728100104,
+    "frequency_reduction_method": "default",
+    "frequency": 1,
+    "exclusion_zone": {
+      "chunk_count": 6,
+      "other_set": "minecraft:villages"
+    }
+  }
+}

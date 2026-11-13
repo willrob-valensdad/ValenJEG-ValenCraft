@@ -1,0 +1,8 @@
+Ad Astra OxygenLoader Java and water-processing data are adapted from the MIT Code portion of
+Terrarium Earth / Ad Astra commit 45abf0ec05ea837c3df457f42ae440b6675e9cf0.
+Authors: Terrarium Earth / Ad Astra contributors. Private native adaptation: Valen Systems, 2026.
+The retained full Terrarium License v1 and MIT permission notice are already included at
+META-INF/licenses/valen-tech/Ad-Astra-Terrarium-License-v1.txt in the frozen R12 base.
+Exact selected source hashes and existing license reference: tech/ad-astra/oxygen/source-manifest.json.
+No Ad Astra non-Code models, textures, sounds or GUI artwork are copied.
+Native water and existing Nero gas APIs replace Common Storage Lib; no additional oxygen platform is created.

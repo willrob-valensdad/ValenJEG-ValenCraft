@@ -1,0 +1,9 @@
+{
+  "type": "jeg:hbm_authored",
+  "biomes": "#jeg:has_structure/valen/civil_defense_shelter",
+  "start_pool": "jeg:valen/civil_defense_shelter",
+  "source_profile": "falloutshelter_house",
+  "step": "surface_structures",
+  "terrain_adaptation": "none",
+  "spawn_overrides": {}
+}

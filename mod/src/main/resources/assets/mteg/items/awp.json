@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/awp/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/awp/bolt"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/awp/ejector"
+      }
+    ]
+  }
+}

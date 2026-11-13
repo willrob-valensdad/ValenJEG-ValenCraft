@@ -1,0 +1,29 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# runtime
+run
+logs
+
+# other
+eclipse
+*.log
+
+# Developer-supplied external compile API binaries; listed in build instructions.
+/compile-inputs/

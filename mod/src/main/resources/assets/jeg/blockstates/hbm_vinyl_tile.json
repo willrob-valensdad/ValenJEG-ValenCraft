@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "meta=0": {
+      "model": "jeg:block/hbm_vinyl_tile_large"
+    },
+    "meta=1": {
+      "model": "jeg:block/hbm_vinyl_tile_small"
+    }
+  }
+}

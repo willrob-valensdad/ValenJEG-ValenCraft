@@ -1,0 +1,73 @@
+{
+  "criteria": {
+    "armored_joy_harness_black_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_blue_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_brown_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_cyan_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_gray_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_green_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_light_blue_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_light_gray_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_lime_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_magenta_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_orange_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_pink_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_purple_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_red_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_white_diamond": {
+      "trigger": "minecraft:impossible"
+    },
+    "armored_joy_harness_yellow_diamond": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "armored_joy_harness_black_diamond",
+      "armored_joy_harness_blue_diamond",
+      "armored_joy_harness_brown_diamond",
+      "armored_joy_harness_cyan_diamond",
+      "armored_joy_harness_gray_diamond",
+      "armored_joy_harness_green_diamond",
+      "armored_joy_harness_light_blue_diamond",
+      "armored_joy_harness_light_gray_diamond",
+      "armored_joy_harness_lime_diamond",
+      "armored_joy_harness_magenta_diamond",
+      "armored_joy_harness_orange_diamond",
+      "armored_joy_harness_pink_diamond",
+      "armored_joy_harness_purple_diamond",
+      "armored_joy_harness_red_diamond",
+      "armored_joy_harness_white_diamond",
+      "armored_joy_harness_yellow_diamond"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

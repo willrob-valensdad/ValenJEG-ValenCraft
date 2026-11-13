@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "jeg:block/hbm_reinforced_glass"
+  }
+}

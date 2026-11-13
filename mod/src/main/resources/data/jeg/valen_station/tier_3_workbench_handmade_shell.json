@@ -1,0 +1,21 @@
+{
+  "type": "jeg:gunnite_workbench",
+  "materials": [
+    {
+      "tag": "c:ingots/iron",
+      "count": 2
+    },
+    {
+      "item": "minecraft:flint",
+      "count": 2
+    },
+    {
+      "tag": "c:gunpowders",
+      "count": 2
+    }
+  ],
+  "result": {
+    "item": "jeg:handmade_shell",
+    "count": 8
+  }
+}

@@ -1,0 +1,9 @@
+Ad Astra technology source: terrarium-earth/Ad-Astra commit 45abf0ec05ea837c3df457f42ae440b6675e9cf0.
+Original authors: Terrarium Earth / Ad Astra contributors.
+The pinned Terrarium License v1 defines Java source and resources/data files as MIT Code.
+Source-based private adaptation: Valen Systems, 2026.
+Retained full license is in Ad-Astra-Terrarium-License-v1.txt.
+Only the MIT source/recipe implementation is adapted here. Ad Astra non-Code models,
+textures, sounds and GUI artwork remain All Rights Reserved and are not copied.
+Coal-generator presentation references existing Minecraft furnace models.
+Exact upstream hashes and adaptation boundaries: tech/ad-astra/source-manifest.json.

@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "jeg:bolt_action_rifle"
+    },
+    "title": {
+      "translate": "advancement.jeg.guide.exploration.sniper.title"
+    },
+    "description": {
+      "translate": "advancement.jeg.guide.exploration.sniper.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "conditions": {
+        "action": "long_headshot"
+      },
+      "trigger": "jeg:gameplay_action"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "sends_telemetry_event": false,
+  "parent": "jeg:guide/battle/precision",
+  "rewards": {
+    "experience": 100
+  }
+}

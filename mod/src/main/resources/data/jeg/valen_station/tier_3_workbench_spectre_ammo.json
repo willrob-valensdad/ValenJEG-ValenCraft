@@ -1,0 +1,21 @@
+{
+  "type": "jeg:gunnite_workbench",
+  "materials": [
+    {
+      "tag": "c:ingots/gold",
+      "count": 1
+    },
+    {
+      "item": "jeg:ectoplasm",
+      "count": 1
+    },
+    {
+      "tag": "c:gunpowders",
+      "count": 2
+    }
+  ],
+  "result": {
+    "item": "jeg:spectre_round",
+    "count": 14
+  }
+}

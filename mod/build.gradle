@@ -1,0 +1,293 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = "${project.mod_version}+fabric26.3"
+group = project.mod_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://api.modrinth.com/maven' }
+    maven { url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+}
+
+dependencies {
+    // Optional installed Nero APIs for the source-faithful oxygen loader.
+    compileOnly files(providers.gradleProperty('valen_nero_api').orElse('compile-inputs/nerospace-fabric-26.3-1.6.0.jar').get())
+    compileOnly files(providers.gradleProperty('valen_nerolandcore_api').orElse('compile-inputs/nerolandcore-fabric-26.3-1.15.0.jar').get())
+    compileOnly files(providers.gradleProperty('valen_energy_api').orElse('compile-inputs/energy-5.0.0.jar').get())
+    testImplementation files(providers.gradleProperty('valen_energy_api').orElse('compile-inputs/energy-5.0.0.jar').get())
+    testImplementation files(providers.gradleProperty('valen_nero_api').orElse('compile-inputs/nerospace-fabric-26.3-1.6.0.jar').get())
+    testImplementation files(providers.gradleProperty('valen_nerolandcore_api').orElse('compile-inputs/nerolandcore-fabric-26.3-1.15.0.jar').get())
+    // Pinned native API compile inputs reused from the accepted pack bridge; optional at runtime.
+    compileOnly files(providers.gradleProperty('valen_architectury_api').orElse('compile-inputs/architectury-fabric-22.0.5.jar').get())
+    compileOnly files(providers.gradleProperty('valen_rei_api').orElse('compile-inputs/RoughlyEnoughItems-26.3.824.jar').get())
+    compileOnly files(providers.gradleProperty('valen_basic_math_api').orElse('compile-inputs/basic-math-0.6.1.jar').get())
+
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "maven.modrinth:geckolib:kSxHvs99"
+    implementation "com.electronwill.night-config:toml:3.8.1"
+    implementation "com.electronwill.night-config:core:3.8.1"
+    include "com.electronwill.night-config:toml:3.8.1"
+    include "com.electronwill.night-config:core:3.8.1"
+    compileOnly files("${gradle.gradleUserHomeDir}/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-clientonly-deobf/${project.minecraft_version}/minecraft-clientonly-deobf-${project.minecraft_version}.jar")
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        jeg {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+tasks.register("verifyNoNeoForgePackageDeclarations") {
+    group = "verification"
+    description = "Rejects source files that redeclare classes in NeoForge-owned packages."
+    inputs.files(fileTree("src") { include "**/*.java" })
+
+    doLast {
+        def offenders = inputs.files.files.findAll {
+            it.getText("UTF-8") =~ /(?m)^\s*package\s+net\.neoforged(?:\.|;)/
+        }
+        if (!offenders.isEmpty()) {
+            throw new GradleException("NeoForge package declarations are not allowed: " +
+                    offenders.collect { project.relativePath(it) }.sort().join(", "))
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn(tasks.named("verifyNoNeoForgePackageDeclarations"))
+}
+
+processResources {
+    inputs.property "version", project.mod_version
+    inputs.property "minecraft_version_range", project.minecraft_version_range
+    filesMatching("fabric.mod.json") {
+        expand(
+                "version": project.mod_version,
+                "minecraft_version_range": project.minecraft_version_range
+        )
+    }
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+// Exercise the vehicle OBB ray/contact assertions on this module's mapped runtime classpath.
+tasks.register('checkVehicleGeometry', JavaExec) {
+    dependsOn tasks.named('classes')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.vehicle.util.VehicleGeometry'
+    jvmArgs '-ea'
+}
+
+// Small assertion checks for SW part recovery, save migration and damage-rule parsing.
+tasks.register('checkVehicleDamage', JavaExec) {
+    dependsOn tasks.named('classes')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.vehicle.data.subdata.VehicleDamageProfile'
+    jvmArgs '-ea'
+}
+tasks.register('checkVehicleDamageModifiers', JavaExec) {
+    dependsOn tasks.named('classes')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.vehicle.data.subdata.DamageModifierInfo'
+    jvmArgs '-ea'
+}
+
+// Keep vehicle damage regressions in the normal build/check workflow.
+tasks.register('checkMagazineMode', JavaExec) {
+    dependsOn tasks.named('classes')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.gun.MagazineModeRules'
+    jvmArgs '-ea'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('checkMagazineMode')
+    dependsOn 'checkVehicleGeometry', 'checkVehicleDamage', 'checkVehicleDamageModifiers'
+}
+
+// Deterministic raid/vehicle math and attack-window checks, using the existing assertion-check pattern.
+tasks.register('checkRaidBalance', JavaExec) {
+    dependsOn tasks.named('classes')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.faction.raid.RaidDifficulty'
+    jvmArgs '-ea'
+}
+tasks.named('check') { dependsOn 'checkRaidBalance' }
+
+// Run the actual SW shake arithmetic/lifecycle assertions without launching Minecraft.
+tasks.register('checkExplosionShake', JavaExec) {
+    dependsOn tasks.named('clientClasses')
+    classpath = sourceSets.client.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.client.ExplosionShakeState'
+    jvmArgs '-ea'
+}
+tasks.named('check') { dependsOn tasks.named('checkExplosionShake') }
+
+tasks.register('checkStations', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.station.StationNativeContracts'
+    jvmArgs '-ea', '-Xmx1G', '-XX:ActiveProcessorCount=2'
+}
+tasks.named('check') { dependsOn tasks.named('checkStations') }
+
+if (file('tests/fixture/src').exists()) {
+    tasks.register('compileStationProbe', JavaCompile) {
+        dependsOn tasks.named('classes'), tasks.named('clientClasses')
+        source = fileTree('tests/fixture/src') { include '**/*.java' }
+        classpath = sourceSets.main.compileClasspath + sourceSets.main.output + sourceSets.client.output
+        destinationDirectory = layout.buildDirectory.dir('station-probe-classes')
+    }
+    tasks.register('buildStationProbe', Jar) {
+        dependsOn tasks.named('compileStationProbe')
+        archiveFileName = 'valen-station-probe.jar'
+        destinationDirectory = layout.buildDirectory.dir('fixture')
+        from(layout.buildDirectory.dir('station-probe-classes'))
+        from('tests/fixture/resources')
+    }
+}
+
+tasks.named('jar') {
+    from('LICENSE') { into 'META-INF/licenses'; rename { 'JEG-CODE-GPL-3.0.txt' } }
+    from('provenance') { into 'META-INF/valen-provenance'; include '**/*.json' }
+}
+
+// This module follows upstream's JavaExec assertion-contract pattern; checkStations executes
+// the native src/test contract main explicitly rather than a JUnit engine.
+tasks.named('test', Test) { failOnNoDiscoveredTests = false }
+
+tasks.register('verifyLegacyGunHook') {
+    group = 'verification'
+    def source = file('src/main/java/ttv/migami/jeg/gun/GunDefinitions.java')
+    inputs.file(source)
+    doLast {
+        if (source.text.count('ttv.migami.jeg.legacy.LegacyWeapons.addDefinitions(map);') != 1)
+            throw new GradleException('Missing or duplicate generated-source private legacy gun hook')
+    }
+}
+tasks.named('check') { dependsOn tasks.named('verifyLegacyGunHook') }
+
+tasks.register('verifyStationMaterialTags', Exec) {
+    group = 'verification'
+    commandLine 'python3', 'scripts/normalize_station_tags.py', '--check'
+}
+tasks.named('check') { dependsOn tasks.named('verifyStationMaterialTags') }
+
+// Native advancement recipe-holder references must not outlive removed crafting shortcuts.
+tasks.register('verifyRecipeReferences', Exec) {
+    commandLine 'python3', 'scripts/check_recipe_references.py'
+}
+tasks.named('check') { dependsOn tasks.named('verifyRecipeReferences') }
+
+// Focused native JSON decode of restored original station/attachment models; no game launch.
+tasks.register('checkRestoredModels', JavaExec) {
+    dependsOn tasks.named('testClasses'), tasks.named('clientClasses')
+    classpath = sourceSets.client.runtimeClasspath + sourceSets.test.output
+    mainClass = 'ttv.migami.jeg.station.RestoredModelNativeContracts'
+}
+
+// Focused native Ad Astra coal generator transaction/conservation/source-recipe contracts.
+tasks.register('checkCoalGenerator', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.tech.astra.CoalGeneratorNativeContracts'
+    jvmArgs '-ea', '-Xmx1G', '-XX:ActiveProcessorCount=2'
+}
+
+tasks.register('checkMtegModels', JavaExec) {
+    dependsOn tasks.named('testClasses'), tasks.named('clientClasses')
+    classpath = sourceSets.client.runtimeClasspath + sourceSets.test.output
+    mainClass = 'ttv.migami.jeg.mteg.MtegModelNativeContracts'
+    jvmArgs '-ea', '-Xmx1G', '-XX:ActiveProcessorCount=2'
+}
+
+
+// Pure oxygen quantities/transactions/native value codecs; Fabric item/fluid/gas proof stays in the opt-in fixture.
+tasks.register('checkOxygenLoader', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.tech.astra.oxygen.OxygenLoaderNativeContracts'
+    jvmArgs '-ea', '-Xmx1G', '-XX:ActiveProcessorCount=2'
+}
+
+// Source-faithful enchantment cost/RNG/snapshot checks without launching a game.
+tasks.register('checkLegacyEnchantments', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.enchantment.LegacyEnchantmentPureContracts'
+    jvmArgs '-ea', '-Xmx1G', '-XX:ActiveProcessorCount=2'
+}
+tasks.named('check') { dependsOn tasks.named('checkLegacyEnchantments') }
+
+// Native menu partial transfer, finite gas passthrough and side-property/persistence contracts; real worlds remain fixture-only.
+tasks.register('checkOxygenUi', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.tech.astra.oxygen.ui.OxygenUiNativeContracts'
+    jvmArgs '-ea', '-Xmx1G', '-XX:ActiveProcessorCount=2'
+}
+
+
+// New authored shelter uses source24/25 depth and the realized native template origin.
+tasks.register('checkMinipurgePlacement', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.worldgen.structure.MinipurgePlacementNativeContracts'
+    jvmArgs '-ea', '-Xmx512m', '-XX:ActiveProcessorCount=2'
+}
+
+// Shelter painting attachment across the four native rotations. No world placement.
+tasks.register('checkShelterPaintingAnchor', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.worldgen.structure.ShelterPaintingAnchorContract'
+    jvmArgs '-ea', '-Xmx512m', '-XX:ActiveProcessorCount=2'
+}
+
+// Source prop rotation uses native Rotation semantics; meshes bake on the client.
+tasks.register('checkHbmQuarterTurn', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.structure.mesh.HbmQuarterTurnContract'
+    jvmArgs '-ea', '-Xmx512m', '-XX:ActiveProcessorCount=2'
+}
+
+// Entity-load/unload churn must not invalidate an in-flight server tick.
+tasks.register('checkEntityTickIndex', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'ttv.migami.jeg.util.EntityTickIndexContract'
+    jvmArgs '-ea', '-Xmx512m', '-XX:ActiveProcessorCount=2'
+}
+tasks.named('check') { dependsOn tasks.named('checkEntityTickIndex') }

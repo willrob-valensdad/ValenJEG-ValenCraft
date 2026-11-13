@@ -1,0 +1,25 @@
+{
+  "criteria": {
+    "handmade_shell": {
+      "trigger": "minecraft:impossible"
+    },
+    "pistol_ammo": {
+      "trigger": "minecraft:impossible"
+    },
+    "rifle_ammo": {
+      "trigger": "minecraft:impossible"
+    },
+    "shotgun_shell": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "handmade_shell",
+      "pistol_ammo",
+      "rifle_ammo",
+      "shotgun_shell"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

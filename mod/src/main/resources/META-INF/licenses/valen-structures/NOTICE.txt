@@ -1,0 +1,35 @@
+Valen JEG structures adaptation, modified 2026-11-12.
+
+HBM Nuclear Tech Mod original 1.7.10 contributors:
+https://github.com/HbmMods/Hbm-s-Nuclear-Tech-GIT/tree/ad3185b56ae2b020bf9a4a0ddcd3ebcb6e1002e6
+https://modrinth.com/mod/ntm
+Source README states LGPL version 3. Original authored NBT geometry and Silo.java
+schematic coordinates adapted to current vanilla blocks, current NBT schema,
+JEG material loot and Ghoul encounters. Original nuclear, radiation, bomb-trap
+and custom model behavior are not ported. This adaptation is distributed under
+GPL-3.0 as part of this JEG fork; source LGPL/GPL notices remain intact.
+Silo.java source credits jajo_11 and Mithions schematic-to-Java converting tool.
+
+Trek B0.6.2.1 by hotsuop, Hugger and ALDgamer, MIT:
+https://modrinth.com/datapack/trek
+https://github.com/hotsu0p/Trek-Issues
+Existing installed 26.3 worldgen structure, template pool, structure set and
+protected-block processor data adapted for identifiers, source height offsets,
+rarity and biomes. Placement executes vanilla minecraft:jigsaw machinery.
+
+Source files, exact input hashes, complete licenses and reproducible conversion
+are supplied in structures/ in the corresponding private source repository.
+No warranty. No endorsement by the original authors is implied.
+
+Additional authored HBM prefabs integrated from the same pinned revision:
+aircraft_carrier, forest_post, abandoned_arcticstation, radio_house,
+broadcasting_tower and factory. Exact original NBTs remain under upstream/hbm.
+Office doors use paired native iron doors; narrow rails, switches, anvils and
+ordinary furnace/smoker substitutes use current vanilla block states. Original
+radio/power/reactor/launch functionality remains unimplemented; no fake working
+technology is advertised. Source bomb/mine/radiation triggers do not execute.
+Carrier realized source height clamp42 is retained; its fallback Ghoul marker
+uses the authored above-water bridge crate. Ordinary storage is empty native
+barrels; only original loot markers receive bounded material salvage.
+The exact85requested structure types remain additive and separately tracked.
+No SCP/anomalous creature content is included.

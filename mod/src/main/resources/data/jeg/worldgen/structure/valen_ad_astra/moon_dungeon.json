@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:jigsaw",
+  "start_pool": "jeg:valen_ad_astra/dungeon/moon/entrance",
+  "size": 20,
+  "max_distance_from_center": 80,
+  "biomes": "#jeg:has_structure/valen_ad_astra/moon_dungeon",
+  "step": "surface_structures",
+  "terrain_adaptation": "none",
+  "start_height": {
+    "absolute": -40
+  },
+  "project_start_to_heightmap": "WORLD_SURFACE_WG",
+  "use_expansion_hack": false,
+  "spawn_overrides": {}
+}

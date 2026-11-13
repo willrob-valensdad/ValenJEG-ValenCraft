@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/wrapped_rifle/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/wrapped_rifle/ejector"
+      }
+    ]
+  }
+}

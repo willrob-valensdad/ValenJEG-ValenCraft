@@ -1,0 +1,75 @@
+{
+  "paint_skins": {
+    "classic": [
+      "burst_rifle",
+      "combat_rifle",
+      "infantry_rifle",
+      "light_machine_gun",
+      "repeating_shotgun",
+      "service_rifle"
+    ],
+    "toy": [
+      "assault_rifle",
+      "burst_rifle",
+      "flare_gun",
+      "infantry_rifle",
+      "pump_shotgun",
+      "revolver",
+      "rocket_launcher",
+      "semi_auto_rifle",
+      "service_rifle",
+      "waterpipe_shotgun"
+    ],
+    "whiteout": [
+      "burst_rifle",
+      "combat_rifle",
+      "service_rifle"
+    ],
+    "golden": [
+      "bolt_action_rifle",
+      "combat_pistol",
+      "combat_rifle",
+      "compound_bow",
+      "custom_smg",
+      "double_barrel_shotgun",
+      "flare_gun",
+      "infantry_rifle",
+      "light_machine_gun",
+      "pump_shotgun",
+      "repeating_shotgun",
+      "revolver",
+      "rocket_launcher",
+      "semi_auto_pistol",
+      "service_rifle",
+      "waterpipe_shotgun"
+    ]
+  },
+  "dyed_guns": [
+    "mteg:akm",
+    "mteg:akm_custom",
+    "mteg:as_val",
+    "mteg:awp",
+    "mteg:benelli_m4",
+    "mteg:blue_heat",
+    "mteg:famas",
+    "mteg:flamer",
+    "mteg:g36c",
+    "mteg:glock_17",
+    "mteg:hellfire",
+    "mteg:m16a1",
+    "mteg:m1911",
+    "mteg:m2_flamethrower",
+    "mteg:micro_uzi",
+    "mteg:mossberg_590",
+    "mteg:mp5",
+    "mteg:ppsh_41",
+    "mteg:remington_870",
+    "mteg:scar_h",
+    "mteg:scar_l",
+    "mteg:thompson",
+    "mteg:uzi",
+    "mteg:vss_vintorez",
+    "mteg:walther_ppk",
+    "mteg:wrapped_rifle"
+  ]
+}

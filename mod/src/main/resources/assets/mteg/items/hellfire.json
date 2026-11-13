@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/hellfire/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/hellfire/stock_light"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/hellfire/stock_tactical"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/hellfire/stock_heavy"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/hellfire/ejector"
+      }
+    ]
+  }
+}

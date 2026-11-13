@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/scar_h/main"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/scar_h/stock_light"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/scar_h/stock_tactical"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/scar_h/stock_heavy"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "mteg:special/scar_h/ejector"
+      }
+    ]
+  }
+}

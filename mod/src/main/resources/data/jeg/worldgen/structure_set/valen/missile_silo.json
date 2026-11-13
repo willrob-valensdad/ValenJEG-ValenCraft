@@ -1,0 +1,21 @@
+{
+  "structures": [
+    {
+      "structure": "jeg:valen/missile_silo",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 112,
+    "separation": 37,
+    "spread_type": "linear",
+    "salt": 1728100005,
+    "frequency_reduction_method": "default",
+    "frequency": 1,
+    "exclusion_zone": {
+      "chunk_count": 6,
+      "other_set": "minecraft:villages"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "variants": {
+    "rotation=0": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "pole_top",
+      "mesh": "jeg:structure/mesh/ModelPoleTop",
+      "particle": "jeg:block/hbm_pole_top_particle",
+      "worldRotation": 0
+    },
+    "rotation=1": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "pole_top",
+      "mesh": "jeg:structure/mesh/ModelPoleTop",
+      "particle": "jeg:block/hbm_pole_top_particle",
+      "worldRotation": 1
+    },
+    "rotation=2": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "pole_top",
+      "mesh": "jeg:structure/mesh/ModelPoleTop",
+      "particle": "jeg:block/hbm_pole_top_particle",
+      "worldRotation": 2
+    },
+    "rotation=3": {
+      "fabric:type": "jeg:hbm_static_mesh",
+      "kind": "pole_top",
+      "mesh": "jeg:structure/mesh/ModelPoleTop",
+      "particle": "jeg:block/hbm_pole_top_particle",
+      "worldRotation": 3
+    }
+  }
+}
