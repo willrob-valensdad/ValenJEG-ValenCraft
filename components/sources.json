@@ -10,8 +10,7 @@
       "status": "port in progress; no complete 26.3 build",
       "files": 69763,
       "bytes": 237220481,
-      "tree_sha256": "2eaa6bbca9bdbcecac6ad3564a60defe0dd752da6aeea8abcbccacec005c90b4",
-      "code_files": 8397
+      "tree_sha256": "2eaa6bbca9bdbcecac6ad3564a60defe0dd752da6aeea8abcbccacec005c90b4"
     },
     {
       "id": "ad-astra",
@@ -21,8 +20,7 @@
       "status": "Ad Astra port in progress; Common Storage Lib JAR builds",
       "files": 2728,
       "bytes": 4435183,
-      "tree_sha256": "5351c63144b263322ca2706de2df36ab9c86518f52e13182248704317100f842",
-      "code_files": 685
+      "tree_sha256": "5351c63144b263322ca2706de2df36ab9c86518f52e13182248704317100f842"
     },
     {
       "id": "scorched-guns",
@@ -32,8 +30,7 @@
       "status": "port in progress; compiler failures remain",
       "files": 15858,
       "bytes": 73017163,
-      "tree_sha256": "db04d85f380da8e099c9a6ab304e4a815658232de9def7838b888ecde2b03925",
-      "code_files": 1194
+      "tree_sha256": "db04d85f380da8e099c9a6ab304e4a815658232de9def7838b888ecde2b03925"
     },
     {
       "id": "combined-arms",
@@ -41,10 +38,9 @@
       "upstream": "https://github.com/NeoAlive/tacz-simple-enemies-vehicular-warfare",
       "commit": "9006481a04edbf6967033b0b785611ee419b1cb4",
       "status": "Combined Arms + Superb Warfare port incomplete; SEM source missing",
-      "files": 10188,
-      "bytes": 129380151,
-      "tree_sha256": "f89fd305a4e6304fa7cae9a3f226c5b6ca40297403097b7e3602249ca232042f",
-      "code_files": 2426
+      "files": 10427,
+      "bytes": 130786664,
+      "tree_sha256": "98ffb234903ad147f155efc552b948a8cbe61215c8f67edf07ec6d5c8c43e882"
     },
     {
       "id": "create-fly",
@@ -54,8 +50,7 @@
       "status": "existing 26.3 port; broader rendering acceptance remains incomplete",
       "files": 16011,
       "bytes": 37171209,
-      "tree_sha256": "42307f19c87aaef5a8a7f63e827f87bdae891e2a373a304a86acc7d19768285c",
-      "code_files": 3733
+      "tree_sha256": "42307f19c87aaef5a8a7f63e827f87bdae891e2a373a304a86acc7d19768285c"
     },
     {
       "id": "spacereloaded",
@@ -65,8 +60,7 @@
       "status": "existing 26.3 port; individual native gameplay tests recorded privately",
       "files": 3678,
       "bytes": 12969589,
-      "tree_sha256": "bfc0663fe132cbb1e7b9fc2b48457e3625fd61d6f87622e64247a3f3119a2537",
-      "code_files": 491
+      "tree_sha256": "bfc0663fe132cbb1e7b9fc2b48457e3625fd61d6f87622e64247a3f3119a2537"
     },
     {
       "id": "simple-enemy-mod",
@@ -77,7 +71,9 @@
       "archive_url": "https://codeload.github.com/NeoAlive/Simple-Enemy-Mod-Public/zip/54df119975c09de896ff0df4577361de91d9931e",
       "archive_sha256": "9ead4d4072c3cc0423bb38d4019819930b02f43adc4b45031f851277047b3777",
       "files": 239,
-      "status": "upstream 1.21.1 source acquired; 26.3 Fabric migration pending"
+      "status": "upstream 1.21.1 source acquired; 26.3 Fabric migration pending",
+      "bytes": 1406513,
+      "tree_sha256": "2a0688b997aa33ff54e759fcb8e0fa0e7f044b5a8b4e022049de0da7c617d0fa"
     }
   ],
   "reserved_assets": [
