@@ -1,0 +1,15 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "hbm:drive_flash_broken"
+    }
+  ],
+  "order": 21248,
+  "output_items": [
+    {
+      "count": 2,
+      "id": "hbm:powder_polymer"
+    }
+  ]
+}

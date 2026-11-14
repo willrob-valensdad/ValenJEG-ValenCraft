@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/defender_pistol",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

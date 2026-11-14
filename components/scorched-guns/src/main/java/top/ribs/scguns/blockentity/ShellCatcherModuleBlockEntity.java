@@ -1,0 +1,122 @@
+package top.ribs.scguns.blockentity;
+
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import top.ribs.scguns.block.ShellCatcherModuleBlock;
+import top.ribs.scguns.init.ModBlockEntities;
+
+import net.minecraft.world.entity.ContainerUser;
+import net.minecraft.world.entity.LivingEntity;
+public class ShellCatcherModuleBlockEntity extends RandomizableContainerBlockEntity {
+    private NonNullList<ItemStack> items;
+    private final IItemHandlerModifiable itemStackHandler = new ContainerItemHandler(this);
+    private final ContainerOpenersCounter openersCounter;
+
+    public ShellCatcherModuleBlockEntity(BlockPos pPos, BlockState pBlockState) {
+        super(ModBlockEntities.SHELL_CATCHER_MODULE.get(), pPos, pBlockState);
+        this.items = NonNullList.withSize(27, ItemStack.EMPTY);
+        this.openersCounter = new ContainerOpenersCounter() {
+            protected void onOpen(Level p_155062_, BlockPos p_155063_, BlockState p_155064_) {
+                ShellCatcherModuleBlockEntity.this.playSound(p_155064_, SoundEvents.BARREL_OPEN);
+            }
+
+            protected void onClose(Level p_155072_, BlockPos p_155073_, BlockState p_155074_) {
+                ShellCatcherModuleBlockEntity.this.playSound(p_155074_, SoundEvents.BARREL_CLOSE);
+            }
+
+            protected void openerCountChanged(Level p_155066_, BlockPos p_155067_, BlockState p_155068_, int p_155069_, int p_155070_) {
+            }
+
+            public boolean isOwnContainer(Player p_155060_) {
+                if (p_155060_.containerMenu instanceof ChestMenu) {
+                    Container $$1 = ((ChestMenu)p_155060_.containerMenu).getContainer();
+                    return $$1 == ShellCatcherModuleBlockEntity.this;
+                } else {
+                    return false;
+                }
+            }
+        };
+    }
+
+    @Override
+    protected NonNullList<ItemStack> getItems() {
+        return this.items;
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> items) {
+        this.items = items;
+    }
+
+    @Override
+    protected Component getDefaultName() {
+        return Component.translatable("container.shell_catcher_module");
+    }
+
+    @Override
+    protected AbstractContainerMenu createMenu(int id, Inventory playerInventory) {
+        return ChestMenu.threeRows(id, playerInventory, this);
+    }
+
+    @Override
+    public int getContainerSize() {
+        return 27;
+    }
+
+    @Override
+    public void startOpen(ContainerUser containerUser) {
+        LivingEntity player = containerUser.getLivingEntity();
+        if (!this.remove && !player.isSpectator()) {
+            this.openersCounter.incrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState(), containerUser.getContainerInteractionRange());
+        }
+    }
+    @Override
+    public void stopOpen(ContainerUser containerUser) {
+        LivingEntity player = containerUser.getLivingEntity();
+        if (!this.remove && !player.isSpectator()) {
+            this.openersCounter.decrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+    }
+    void playSound(BlockState state, SoundEvent sound) {
+        Vec3i directionVec = state.getValue(ShellCatcherModuleBlock.FACING).getUnitVec3i();
+        double x = this.worldPosition.getX() + 0.5 + directionVec.getX() / 2.0;
+        double y = this.worldPosition.getY() + 0.5 + directionVec.getY() / 2.0;
+        double z = this.worldPosition.getZ() + 0.5 + directionVec.getZ() / 2.0;
+        this.level.playSound(null, x, y, z, sound, SoundSource.BLOCKS, 0.5F, this.level.getRandom().nextFloat() * 0.1F + 0.9F);
+    }
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        ContainerHelper.saveAllItems(output, this.items);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(input, this.items);
+    }
+
+    public IItemHandlerModifiable getItemStackHandler() {
+        return this.itemStackHandler;
+    }
+}

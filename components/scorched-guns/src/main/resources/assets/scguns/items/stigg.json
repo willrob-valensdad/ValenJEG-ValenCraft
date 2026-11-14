@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/stigg",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

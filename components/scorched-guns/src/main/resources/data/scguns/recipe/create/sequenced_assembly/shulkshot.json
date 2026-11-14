@@ -1,0 +1,56 @@
+{
+  "type": "create:sequenced_assembly",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredient": "scguns:shulker_casing",
+  "loops": 1,
+  "results": [
+    {
+      "id": "scguns:shulkshot"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_shulkshot",
+        "#scguns:gunpowder_dust"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_shulkshot"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_shulkshot",
+        "#scguns:advanced_bullet_tips"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_shulkshot"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        "scguns:unfinished_shulkshot"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_shulkshot"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "scguns:unfinished_shulkshot"
+  }
+}

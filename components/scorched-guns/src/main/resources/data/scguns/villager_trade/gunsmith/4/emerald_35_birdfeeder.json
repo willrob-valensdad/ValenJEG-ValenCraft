@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 35
+  },
+  "gives": {
+    "id": "scguns:birdfeeder"
+  },
+  "max_uses": 1,
+  "xp": 25,
+  "reputation_discount": 0.05
+}

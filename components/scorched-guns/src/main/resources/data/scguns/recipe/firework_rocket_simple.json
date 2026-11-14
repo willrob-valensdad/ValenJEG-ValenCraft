@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "scguns:sheol",
+    "minecraft:paper"
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:firework_rocket"
+  }
+}

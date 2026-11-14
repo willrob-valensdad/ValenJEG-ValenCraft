@@ -1,0 +1,20 @@
+{
+  "type": "hbm:centrifuge",
+  "duration": 200,
+  "input_items": [
+    {
+      "ingredient": "#c:ores/cobalt"
+    }
+  ],
+  "order": 12800,
+  "output_items": [
+    {
+      "count": 2,
+      "id": "hbm:powder_cobalt"
+    },
+    "hbm:powder_iron",
+    "hbm:powder_copper",
+    "minecraft:gravel"
+  ],
+  "power": 200
+}

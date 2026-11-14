@@ -1,0 +1,56 @@
+{
+  "type": "create:sequenced_assembly",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredient": "scguns:empty_cell",
+  "loops": 1,
+  "results": [
+    {
+      "id": "scguns:energy_cell"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_energy_cell",
+        "scguns:plasma_nugget"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_energy_cell"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_energy_cell",
+        "#scguns:stan_bullet_tips"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_energy_cell"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        "scguns:unfinished_energy_cell"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_energy_cell"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "scguns:unfinished_energy_cell"
+  }
+}

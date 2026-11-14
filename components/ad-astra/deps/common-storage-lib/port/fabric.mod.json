@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "common_storage_lib",
+  "version": "0.0.10+fabric26.3-valen.1",
+  "name": "ValenJEG - Common Storage Lib",
+  "description": "Fabric 26.3 port. Combines the upstream core, data, lookup, and resources modules so Ad Astra can load one library. MIT license retained. Not an upstream release.",
+  "authors": [
+    "CodexAdrian"
+  ],
+  "contact": {
+    "repo": "https://github.com/terrarium-earth/Common-Storage-Lib"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "earth.terrarium.common_storage_lib.FabricCommonStorageLib",
+      "earth.terrarium.common_storage_lib.data.FabricDataLib",
+      "earth.terrarium.common_storage_lib.resources.ResourceLib::init"
+    ],
+    "client": [
+      "earth.terrarium.common_storage_lib.data.FabricDataLibClient"
+    ]
+  },
+  "mixins": [
+    "common_storage_lib_data.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "fabric-api": "*",
+    "minecraft": ">=26.3 <26.4"
+  }
+}

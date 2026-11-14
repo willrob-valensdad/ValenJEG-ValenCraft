@@ -1,0 +1,6 @@
+{
+	"parent": "create:block/gearshift/block",
+    "textures": {
+        "side": "create:block/gearshift_on"
+    }
+}

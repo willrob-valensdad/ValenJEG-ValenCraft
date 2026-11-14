@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "Q": [
+      "minecraft:iron_ingot",
+      "scguns:treated_iron_ingot"
+    ],
+    "X": [
+      "minecraft:iron_nugget",
+      "scguns:treated_iron_nugget"
+    ]
+  },
+  "pattern": [
+    "XXX",
+    "X X",
+    "QQQ"
+  ],
+  "result": {
+    "id": "scguns:ammo_box"
+  }
+}

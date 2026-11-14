@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "minecraft:stone"
+  },
+  "pattern": [
+    "  Q",
+    " Q ",
+    "Q  "
+  ],
+  "result": {
+    "id": "scguns:stone_gun_barrel"
+  }
+}

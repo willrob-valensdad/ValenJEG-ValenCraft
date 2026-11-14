@@ -1,0 +1,15 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "hbm:debris_element"
+    }
+  ],
+  "order": 52480,
+  "output_items": [
+    {
+      "count": 4,
+      "id": "hbm:scrap_nuclear"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+package com.atsuishio.superbwarfare.item.misc
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
+import com.atsuishio.superbwarfare.item.IVehicleInteract
+import com.atsuishio.superbwarfare.tools.EntityFindUtil
+import com.atsuishio.superbwarfare.tools.NBTTool
+import com.atsuishio.superbwarfare.tools.clientLevel
+import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.level.Level
+
+open class VehicleKeyItem(properties: Properties) : Item(properties), IVehicleInteract {
+    constructor() : this(Properties().stacksTo(1))
+
+    override fun appendHoverText(
+        stack: ItemStack,
+        context: TooltipContext,
+        tooltip: MutableList<Component>,
+        flag: TooltipFlag
+    ) {
+        val tag = NBTTool.getTag(stack)
+        val level = clientLevel
+        if (!tag.contains(TAG_UUID)) {
+            tooltip.add(Component.translatable("des.superbwarfare.vehicle_key.empty").withStyle(ChatFormatting.GRAY))
+        } else {
+            val entity = if (level != null) EntityFindUtil.findEntity(level, tag.getString(TAG_UUID)) else null
+            if (entity != null && entity.displayName != null) {
+                tooltip.add(
+                    Component.translatable(
+                        "des.superbwarfare.vehicle_key.bind", Component.empty().append(entity.displayName!!).withStyle(
+                            ChatFormatting.GREEN
+                        )
+                    ).withStyle(ChatFormatting.GRAY)
+                )
+            } else {
+                tooltip.add(
+                    Component.translatable("des.superbwarfare.vehicle_key.not_found").withStyle(ChatFormatting.GRAY)
+                )
+            }
+        }
+    }
+
+    override fun use(
+        level: Level,
+        player: Player,
+        hand: InteractionHand
+    ): InteractionResult {
+        val stack = player.getItemInHand(hand)
+        val tag = NBTTool.getTag(stack)
+        if (!tag.contains(TAG_UUID)) {
+            tag.putString(TAG_UUID, player.stringUUID)
+            NBTTool.saveTag(stack, tag)
+            if (player.displayName != null) {
+                player.sendOverlayMessage(
+                    Component.translatable(
+                        "des.superbwarfare.vehicle_key.bind", Component.empty().append(player.displayName!!).withStyle(
+                            ChatFormatting.GREEN
+                        )
+                    ).withStyle(ChatFormatting.GRAY))
+            }
+            player.playSound(SoundEvents.ARROW_HIT_PLAYER)
+            return InteractionResult.SUCCESS
+        }
+        return InteractionResult.FAIL
+    }
+
+    override fun onInteractVehicle(
+        vehicle: VehicleEntity,
+        stack: ItemStack,
+        player: Player,
+        hand: InteractionHand
+    ): InteractionResult {
+        val uuid = NBTTool.getTag(stack).getString(TAG_UUID) ?: return InteractionResult.FAIL
+        if (!vehicle.passengers.isEmpty()) {
+            player.sendOverlayMessage(
+                Component.translatable("tips.superbwarfare.vehicle.lock_not_empty")
+                    .withStyle(ChatFormatting.RED))
+            return InteractionResult.FAIL
+        }
+
+        if (!vehicle.locked) {
+            if (vehicle.lastDriverUUID == uuid || vehicle.lastDriverUUID == "undefined") {
+                vehicle.lastDriverUUID = uuid
+                vehicle.locked = true
+
+                player.sendOverlayMessage(
+                    Component.translatable(
+                        "tips.superbwarfare.vehicle.lock_vehicle",
+                        vehicle.displayName
+                    ).withStyle(ChatFormatting.GREEN))
+                return InteractionResult.SUCCESS
+            } else {
+                player.sendOverlayMessage(
+                    Component.translatable("tips.superbwarfare.vehicle.lock_fail")
+                        .withStyle(ChatFormatting.RED))
+                return InteractionResult.FAIL
+            }
+        } else {
+            if (vehicle.lastDriverUUID == uuid) {
+                vehicle.lastDriverUUID = uuid
+                vehicle.locked = false
+
+                player.sendOverlayMessage(
+                    Component.translatable(
+                        "tips.superbwarfare.vehicle.unlock_vehicle",
+                        vehicle.displayName
+                    ).withStyle(ChatFormatting.GREEN))
+                return InteractionResult.SUCCESS
+            } else {
+                player.sendOverlayMessage(
+                    Component.translatable("tips.superbwarfare.vehicle.lock_fail")
+                        .withStyle(ChatFormatting.RED))
+                return InteractionResult.FAIL
+            }
+        }
+    }
+
+    companion object {
+        const val TAG_UUID = "DriverUUID"
+    }
+}

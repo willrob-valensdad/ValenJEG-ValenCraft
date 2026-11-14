@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/rg_jigsaw",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "M": {
+      "preserve": "remainder"
+    }
+  },
+  "key": {
+    "E": "minecraft:egg",
+    "M": "minecraft:milk_bucket",
+    "P": "hbm:man_core",
+    "W": "minecraft:wheat"
+  },
+  "pattern": [
+    "WEW",
+    "MPM",
+    "WEW"
+  ],
+  "result": {
+    "id": "hbm:bomb_waffle"
+  }
+}

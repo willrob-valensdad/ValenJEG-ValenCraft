@@ -1,0 +1,20 @@
+{
+  "type": "create:mixing",
+  "heatRequirement": "heated",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredients": [
+    "scguns:ancient_brass",
+    "#c:ingots/brass"
+  ],
+  "results": [
+    {
+      "count": 3,
+      "id": "create:brass_ingot"
+    }
+  ]
+}

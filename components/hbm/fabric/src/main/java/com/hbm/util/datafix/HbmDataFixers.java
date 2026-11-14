@@ -1,0 +1,58 @@
+// SPDX-FileCopyrightText: 2026 movblock <admin@movblock.mov>
+// SPDX-License-Identifier: LGPL-3.0-only
+
+package com.hbm.util.datafix;
+
+import com.mojang.datafixers.DSL;
+import com.mojang.datafixers.DataFixer;
+import com.mojang.datafixers.DataFixerBuilder;
+import com.mojang.datafixers.schemas.Schema;
+import com.mojang.serialization.Dynamic;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+
+public final class HbmDataFixers {
+
+    public static final String VERSION_KEY = "hbm_data_version";
+    public static final int CURRENT = 7;
+    static final DSL.TypeReference CHUNK = () -> "hbm:chunk";
+    private static final DataFixer FIXER = build();
+
+    private HbmDataFixers() {}
+
+    private static DataFixer build() {
+        DataFixerBuilder builder = new DataFixerBuilder(CURRENT);
+        builder.addSchema(0, (version, parent) -> new HbmRootSchema(version));
+        Schema v1 = builder.addSchema(1, Schema::new);
+        builder.addFixer(new CoreIndexWideningFix(v1));
+        Schema v2 = builder.addSchema(2, Schema::new);
+        builder.addFixer(new PowerLockInteractionFix(v2));
+        Schema v3 = builder.addSchema(3, Schema::new);
+        builder.addFixer(new PendingFallerIntroductionFix(v3));
+        Schema v4 = builder.addSchema(4, Schema::new);
+        builder.addFixer(new GlyphidSpawnerDelayFix(v4));
+        Schema v5 = builder.addSchema(5, Schema::new);
+        builder.addFixer(new GlyphidSpawnerInitialSpawnFix(v5));
+        Schema v6 = builder.addSchema(6, Schema::new);
+        builder.addFixer(new TrinketTypeNameFix(v6));
+        builder.addFixer(new PadSizeNameFix(v6));
+        Schema v7 = builder.addSchema(7, Schema::new);
+        builder.addFixer(new CoreIndexPopulationFix(v7));
+        return builder.build().fixer();
+    }
+
+    public static CompoundTag upgradeChunk(CompoundTag tag) {
+        int version = tag.getIntOr(VERSION_KEY, 0);
+        if (version >= CURRENT) return tag;
+        CompoundTag fixed =
+                (CompoundTag)
+                        FIXER.update(CHUNK, new Dynamic<>(NbtOps.INSTANCE, tag), version, CURRENT)
+                                .getValue();
+        fixed.putInt(VERSION_KEY, CURRENT);
+        return fixed;
+    }
+
+    public static void stamp(CompoundTag chunkTag) {
+        chunkTag.putInt(VERSION_KEY, CURRENT);
+    }
+}

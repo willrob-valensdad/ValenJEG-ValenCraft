@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/sculk_cell_3d",
+  "textures": {
+    "0": "scguns:item/sculk_cell",
+    "particle": "scguns:item/sculk_cell"
+  }
+}

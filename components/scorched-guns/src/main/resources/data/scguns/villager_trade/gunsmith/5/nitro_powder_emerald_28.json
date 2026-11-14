@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "scguns:nitro_powder"
+  },
+  "gives": {
+    "id": "minecraft:emerald",
+    "count": 28
+  },
+  "max_uses": 8,
+  "xp": 25,
+  "reputation_discount": 0.05
+}

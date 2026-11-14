@@ -1,0 +1,114 @@
+package com.neoalive.tacz_sewv.entity.ai.goal;
+
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+
+import com.neoalive.tacz_sewv.compat.SoftEnemyTargeting;
+import com.neoalive.tacz_sewv.compat.TripodCompat;
+import com.neoalive.tacz_sewv.compat.lv.LvCompat;
+import com.neoalive.tacz_sewv.compat.lv.LvGoals;
+
+/**
+ * Shared goal wiring for any unit that can crew a weapon it doesn't own — vehicles,
+ * mortars and TOWs alike — for PmcUnitEntity (player-commandable) as well as
+ * RUunitEntity/USunitEntity (hostile, no order queue).
+ *
+ * <p>BoardVehicleGoal lives here rather than with the PMC-only goals because it only ever
+ * EXECUTES a standing order — it has no opinion on where that order came from. A PMC gets one
+ * from the player over the network; an RU/US unit gets the identical one from
+ * SeekAbandonedVehicleGoal, which is the only piece that is faction-gated.
+ */
+public final class VehicleAiGoals {
+
+    private VehicleAiGoals() {}
+
+    public static void addDriveGoals(AbstractUnit unit) {
+        // Priority 0: bailing out of a hull that's about to die outranks everything
+        // it could otherwise be doing from inside that hull.
+        unit.goalSelector.addGoal(0, new BailOutVehicleGoal(unit));
+        // One drive goal per locomotion type — ground, flight, water. All three are registered
+        // on every crew; each gates on the mounted vehicle's engine type, so exactly one
+        // activates for whatever hull the unit ends up in.
+        unit.goalSelector.addGoal(1, new DriveVehicleGoal(unit));
+        unit.goalSelector.addGoal(1, new DriveHelicopterGoal(unit));
+        unit.goalSelector.addGoal(1, new DriveTransportHelicopterGoal(unit));
+        unit.goalSelector.addGoal(1, new DrivePlaneGoal(unit));
+        unit.goalSelector.addGoal(1, new DriveShipGoal(unit));
+        // GROUND/SHIP/HELI armed non-driver seats — inverse of rappel cargo eligibility.
+        // Helis pause this goal while LANDING/LANDED (see TurretGunnerGoal).
+        unit.goalSelector.addGoal(1, new TurretGunnerGoal(unit));
+        unit.goalSelector.addGoal(1, new VehicleMinRangeGoal(unit));
+        // Gates on the mounted hull being a TOW, the same way the two drive goals gate on
+        // engine type. It belongs here rather than with the PMC-only goals because loading
+        // a launcher needs nothing but the crew's own inventory — no network bridge — so
+        // any crew that carries missiles can work one.
+        unit.goalSelector.addGoal(1, new ManTowGoal(unit));
+        // MOVE+LOOK at priority 1: a crew on a mortar outranks SEM's cover/approach/order
+        // goals, which would walk it off the tube, and its rifle goal, which would have it
+        // lean out and shoot instead of working the tube. Gates on holding a claim, so it
+        // costs a null check on every unit that has none.
+        unit.goalSelector.addGoal(1, new ManMortarGoal(unit));
+        unit.goalSelector.addGoal(1, new ManType63Goal(unit));
+        // FCP wheeled mortar vehicles (Hilux / Stryker): gunner seat reloads, lays, fires.
+        // Soft-gated; no-op without those entity types. Flagless — boarding is ordinary.
+        unit.goalSelector.addGoal(1, new ManVehicleMortarGoal(unit));
+        // ASH Sapsan: stop, raise pod, fire at a radio/fire-mission mark. DriveVehicleGoal
+        // yields while this engages (see canUse there).
+        unit.goalSelector.addGoal(1, new ManMissileSystemGoal(unit));
+        // SPH / coastal guns (PLZ-05, mk_42): lay and fire on radio / fire-mission marks only.
+        // DriveVehicleGoal yields while this engages (see canUse there).
+        unit.goalSelector.addGoal(1, new ManArtilleryGoal(unit));
+        // Walks the unit to a hull it has been ordered onto and seats it. Gates on holding a
+        // pending order, so it costs a boolean read on every unit that has none.
+        unit.goalSelector.addGoal(1, new BoardVehicleGoal(unit));
+        // Writes that order for an RU/US unit that spots an abandoned hull. Claims no flags and
+        // never actually runs — it hands the job to the goal above. RU/US-gated internally.
+        unit.goalSelector.addGoal(1, new SeekAbandonedVehicleGoal(unit));
+        unit.goalSelector.addGoal(1, new SeekTowRecoveryGoal(unit));
+        // Same feature as the goal above, for the one VehicleEntity it deliberately excludes: a
+        // mortar has no seats, so this writes an IMortarCrew claim (ManMortarGoal above) instead
+        // of a board order. Claims no flags; RU/US-gated internally.
+        unit.goalSelector.addGoal(1, new SeekAbandonedMortarGoal(unit));
+        // ENTRENCHED cell hold / reroll — flagless; board/mortar goals still own weapon slots.
+        unit.goalSelector.addGoal(1, new EntrenchGoal(unit));
+        // RU/US auto-populate trench networks (SeekAbandoned pattern). Config-gated.
+        unit.goalSelector.addGoal(1, new SeekEntrenchmentGoal(unit));
+        // Works a SuperbWarfare launcher for a unit on foot (an IFV dismount issued one, or a
+        // PMC a player equipped). Gates on an SBW gun being in the main hand, which is one
+        // instanceof for everyone else.
+        unit.goalSelector.addGoal(1, new AtWeaponGoal(unit));
+        // Invasion infantry walking to (and holding) its capture objective. Priority 1 MOVE, gates
+        // on the invasion SPAWN tag first, so it is one NBT read for every other unit.
+        unit.goalSelector.addGoal(1, new InvasionObjectiveGoal(unit));
+        // On-foot grenade throw (LOOK). Below AT launchers; holsters the rifle for the toss.
+        unit.goalSelector.addGoal(2, new GrenadeThrowGoal(unit));
+        // Priority 2: the turret sweep and radio chatter of a crew with nothing to fight. Claims no
+        // flags and only runs while the unit holds no target, so it yields to everything above by
+        // simply not being applicable. The idle DRIVING half is not here — it is a destination
+        // fallback in VehicleTargeting, handled by the drive goal like any other.
+        unit.goalSelector.addGoal(2, new IdleCrewGoal(unit));
+        // Priority 2: while mounted this owns the TARGET flag over SEM's short
+        // vanilla scans (also priority 2+, but strictly less reach), while SEM's
+        // HurtByTargetGoal at priority 1 still preempts for retaliation.
+        unit.targetSelector.addGoal(2, new VehicleTargetScanGoal(unit));
+        // Priority 1, and it has to be: SEM's ladder puts a catch-all Monster scan at the
+        // SAME priority 2 as its troop scans, and vanilla only lets a strictly higher
+        // priority steal a held flag — so nothing at 2 can take a crew off a zombie. See
+        // the class doc. Still loses to a priority-0 radio fire mission.
+        unit.targetSelector.addGoal(1, new CrewTargetPriorityGoal(unit));
+        // Same priority-1 override, for the same reason, softcompat scope: nudges a unit onto
+        // a Spore / Phayriosis Two mob over a same-priority vanilla Monster catch-all. No-ops
+        // (never even scans) with neither mod installed — see SoftEnemyTargeting.anyPresent().
+        unit.targetSelector.addGoal(1, new SoftEnemyTargetPriorityGoal(unit));
+        // Tripod Invasion: a tripod is the top target for everyone (priority 0, above retaliation),
+        // and RU/US on foot keep the standoff ring (priority 0 MOVE, above every priority-1 walk).
+        // Not added at all without the mod — see TripodCompat.
+        if (TripodCompat.present()) {
+            unit.targetSelector.addGoal(0, new SoftEnemyTargetPriorityGoal(unit, SoftEnemyTargeting.Tier.APEX));
+            unit.goalSelector.addGoal(0, new TripodStandoffGoal(unit));
+        }
+        // Limitless Vehicles hulls: their own drive / gunner / board goals, each gated on the
+        // unit sitting in (or being ordered onto) an LV hull. Not added at all without the mod,
+        // so no LV class is ever loaded.
+        if (LvCompat.present()) LvGoals.add(unit);
+    }
+}

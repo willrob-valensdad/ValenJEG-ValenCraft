@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:large_brass_casing",
+    "scguns:gunpowder_dust",
+    "minecraft:prismarine_shard"
+  ],
+  "result": {
+    "id": "scguns:ocean_flare",
+    "count": 1
+  }
+}

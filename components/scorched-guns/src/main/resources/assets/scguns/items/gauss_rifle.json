@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/gauss_rifle",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "type": "create:sequenced_assembly",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredient": "scguns:medium_brass_casing",
+  "loops": 1,
+  "results": [
+    {
+      "id": "scguns:shatter_round"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_shatter_round",
+        "minecraft:gunpowder"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_shatter_round"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_shatter_round",
+        "scguns:flechette"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_shatter_round"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        "scguns:unfinished_shatter_round"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_shatter_round"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "scguns:unfinished_shatter_round"
+  }
+}

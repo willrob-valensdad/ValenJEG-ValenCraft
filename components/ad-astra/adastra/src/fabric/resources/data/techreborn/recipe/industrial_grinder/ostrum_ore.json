@@ -1,0 +1,32 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "techreborn"
+      ]
+    }
+  ],
+  "type": "techreborn:industrial_grinder",
+  "power": 64,
+  "time": 100,
+  "fluid": {
+    "amount": { "value": 1000 },
+    "fluid": { "fluid": "minecraft:water" }
+  },
+  "ingredients": [
+    {
+      "tag": "c:ostrum_ores"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "ad_astra:raw_ostrum",
+      "count": 3
+    },
+    {
+      "id": "ad_astra:ostrum_nugget",
+      "count": 3
+    }
+  ]
+}

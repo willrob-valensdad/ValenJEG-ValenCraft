@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "dev.valen.compat.energy.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "NeroOxygenAccess",
+    "NeroOxygenMixin",
+    "SpaceEquipmentMixin"
+  ],
+  "client": [
+    "NeroOxygenHudMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/compact_advanced_round_3d",
+  "textures": {
+    "0": "scguns:item/hardened_bullet",
+    "particle": "scguns:item/hardened_bullet"
+  }
+}

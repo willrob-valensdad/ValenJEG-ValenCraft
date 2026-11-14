@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "Q": "scguns:polished_phosphorite"
+  },
+  "pattern": [
+    "QQ ",
+    "QQ "
+  ],
+  "result": {
+    "id": "scguns:phosphorite_bricks",
+    "count": 4
+  }
+}

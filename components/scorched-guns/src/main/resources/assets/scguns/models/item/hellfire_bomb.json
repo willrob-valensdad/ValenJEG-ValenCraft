@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/hellfire_bomb_3d",
+  "textures": {
+    "0": "scguns:item/hellfire_bomb",
+    "particle": "scguns:item/hellfire_bomb"
+  }
+}

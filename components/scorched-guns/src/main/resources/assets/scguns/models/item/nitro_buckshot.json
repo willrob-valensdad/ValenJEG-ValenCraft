@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/nitro_buckshot_3d",
+  "textures": {
+    "0": "scguns:item/nitro_buckshot",
+    "particle": "scguns:item/nitro_buckshot"
+  }
+}

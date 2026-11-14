@@ -1,0 +1,7 @@
+HBM Valen is a private modified build of NTM NEXT.
+Upstream: https://github.com/Warfactory-Official/ntm-next
+Revision: 05496ec456f1fc34e53f18b7cf1bfb81010ebfb6
+Modified: 2026-11-13
+This is not an official NTM NEXT release and is not named NTM NEXT.
+The Minecraft registry id remains hbm so existing structure bindings use the upstream block registry.
+License: LGPL-3.0-only for the upstream work, with GPL-3.0 notices retained. movblock assets remain under their stated terms. The icon hbm.png stays All Rights Reserved and is not relicensed.

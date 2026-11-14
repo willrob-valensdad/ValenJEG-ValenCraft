@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "scguns:treated_iron_ingot"
+  ],
+  "result": {
+    "count": 1,
+    "id": "scguns:team_log"
+  }
+}

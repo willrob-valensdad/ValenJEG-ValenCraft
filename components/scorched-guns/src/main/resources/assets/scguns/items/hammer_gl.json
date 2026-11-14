@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/hammer_gl",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

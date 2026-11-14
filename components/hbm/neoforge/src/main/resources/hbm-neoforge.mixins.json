@@ -1,0 +1,38 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "com.hbm.neoforge.mixin",
+  "mixins": [
+    "storage.MixinCraftingCpuLogic",
+    "storage.MixinCraftingCPUCluster",
+    "storage.MixinCraftingBlockEntity",
+    "MixinEntityCallbacks",
+    "MixinItemStacksResourceHandler",
+    "storage.MixinBasicCellInventory",
+    "storage.MixinItemGenBlockEntity",
+    "storage.MixinAEBaseBlockEntity",
+    "storage.MixinAppEngInternalInventory",
+    "storage.MixinAppEngCellInventory",
+    "storage.MixinGenericStackInv",
+    "storage.MixinPatternProviderLogic",
+    "ae2.MixinNetworkStorage",
+    "ae2.MixinMEInventoryHandler",
+    "ae2.MixinKeyCounter",
+    "ae2.MixinInventoryCache",
+    "MixinEntityFluidInteraction",
+    "MixinLivingEntity",
+    "storage.MixinInventoryHandler",
+    "storage.MixinStorageBlockEntity",
+    "storage.MixinBackpackBlockEntity",
+    "storage.MixinUpgradeHandler",
+    "storage.MixinBackpackStorage",
+    "storage.MixinItemContentsStorage"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "MixinEnhancedBlockModelLighter"
+  ],
+  "plugin": "com.hbm.transform.inventory.StorageTrackingMixinPlugin"
+}

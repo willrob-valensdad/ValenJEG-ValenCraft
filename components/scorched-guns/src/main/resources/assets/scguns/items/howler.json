@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/howler",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

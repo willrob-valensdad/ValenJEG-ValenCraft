@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:anthralite_ingot",
+    "Q": [
+      "minecraft:iron_ingot",
+      "scguns:treated_iron_ingot"
+    ],
+    "X": "minecraft:hopper"
+  },
+  "pattern": [
+    " # ",
+    "#X#",
+    "Q#Q"
+  ],
+  "result": {
+    "id": "scguns:shell_catcher_turret_module"
+  }
+}

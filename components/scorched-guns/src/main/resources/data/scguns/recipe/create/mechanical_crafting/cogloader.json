@@ -1,0 +1,30 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "#minecraft:planks",
+    "L": "scguns:rapid_firing_unit",
+    "R": "scguns:heavy_gun_parts",
+    "J": "scguns:heavy_gun_barrel",
+    "M": "scguns:treated_brass_ingot",
+    "X": "scguns:treated_brass_blueprint",
+    "K": "scguns:treated_brass_gun_frame",
+    "A": "scguns:gun_magazine",
+    "P": "scguns:gun_barrel"
+  },
+  "pattern": [
+    "MKAX",
+    "LRJP",
+    "Q C "
+  ],
+  "result": {
+    "id": "scguns:cogloader"
+  }
+}

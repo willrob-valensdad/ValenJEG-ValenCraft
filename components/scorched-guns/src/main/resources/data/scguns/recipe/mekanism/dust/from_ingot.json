@@ -1,0 +1,13 @@
+{
+  "type": "mekanism:crushing",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "mekanism"
+    }
+  ],
+  "input": {
+    "ingredient": "scguns:anthralite_ingot"
+  },
+  "output": "scguns:anthralite_dust"
+}

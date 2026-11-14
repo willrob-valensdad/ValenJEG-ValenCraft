@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/m3_marksman",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

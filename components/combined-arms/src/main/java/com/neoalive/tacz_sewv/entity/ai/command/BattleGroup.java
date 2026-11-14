@@ -1,0 +1,234 @@
+package com.neoalive.tacz_sewv.entity.ai.command;
+
+import java.util.Arrays;
+
+import javax.annotation.Nullable;
+
+/**
+ * Sticky battle group — identity persists across scans while a quorum of members stay co-located.
+ */
+public final class BattleGroup {
+
+    private final int groupId;
+    private final int faction;
+    private int[] memberIds;
+    private double centroidX;
+    private double centroidZ;
+
+    /** Network id of the elected commander, or {@link Integer#MIN_VALUE} if none yet. */
+    private int commanderId = Integer.MIN_VALUE;
+
+    /** Reused across command-cadence rebuilds — never allocated fresh per scan. */
+    private final InfluenceMap influenceMap = new InfluenceMap();
+    private final BattleField battleField = new BattleField();
+    private double lastInfluenceCentroidX = Double.NaN;
+    private double lastInfluenceCentroidZ = Double.NaN;
+    private int lastMemberFingerprint;
+    private boolean hasInfluenceStamp;
+    private long lastInfluenceTick = Long.MIN_VALUE;
+    /** Highest weighted enemy strength faced since the group formed (Pursuit's collapse test). */
+    private double peakEnemyWeight;
+
+    @Nullable
+    private PlayId currentPlay;
+    /** Server tick when {@link #currentPlay} was committed; {@link Long#MIN_VALUE} = none. */
+    private long playStartedTick = Long.MIN_VALUE;
+    @Nullable
+    private Roles currentRoles;
+
+    public BattleGroup(int groupId, int faction, int[] memberIds, double centroidX, double centroidZ) {
+        this.groupId = groupId;
+        this.faction = faction;
+        this.memberIds = memberIds.clone();
+        this.centroidX = centroidX;
+        this.centroidZ = centroidZ;
+    }
+
+    public int groupId() {
+        return this.groupId;
+    }
+
+    public int faction() {
+        return this.faction;
+    }
+
+    public int[] memberIds() {
+        return this.memberIds.clone();
+    }
+
+    public boolean contains(int unitId) {
+        for (int id : this.memberIds) {
+            if (id == unitId) return true;
+        }
+        return false;
+    }
+
+    public int size() {
+        return this.memberIds.length;
+    }
+
+    public double centroidX() {
+        return this.centroidX;
+    }
+
+    public double centroidZ() {
+        return this.centroidZ;
+    }
+
+    /** Allocentric influence grid — reused; rebuild only from the coordinator. */
+    public InfluenceMap influenceMap() {
+        return this.influenceMap;
+    }
+
+    /**
+     * True when the cached influence field is no longer reusable: membership changed, the group moved, or it is
+     * older than {@code maxAgeTicks}. The age bound matters because only OUR side is fingerprinted — a group
+     * holding still kept its enemy centroid, counts and flank marks from formation until it dissolved.
+     */
+    boolean needsInfluenceRebuild(double movementThreshold, long nowTick, long maxAgeTicks) {
+        int fingerprint = memberFingerprint();
+        if (!this.hasInfluenceStamp || fingerprint != this.lastMemberFingerprint) return true;
+        if (nowTick - this.lastInfluenceTick >= maxAgeTicks || nowTick < this.lastInfluenceTick) return true;
+        double dx = this.centroidX - this.lastInfluenceCentroidX;
+        double dz = this.centroidZ - this.lastInfluenceCentroidZ;
+        return dx * dx + dz * dz > movementThreshold * movementThreshold;
+    }
+
+    /** Stamp only after a successful influence rebuild. */
+    void markInfluenceRebuilt(long nowTick) {
+        this.lastInfluenceCentroidX = this.centroidX;
+        this.lastInfluenceCentroidZ = this.centroidZ;
+        this.lastMemberFingerprint = memberFingerprint();
+        this.hasInfluenceStamp = true;
+        this.lastInfluenceTick = nowTick;
+    }
+
+    /** Record this rebuild's enemy strength; returns the peak so far. */
+    double notePeakEnemy(double enemyWeight) {
+        this.peakEnemyWeight = Math.max(this.peakEnemyWeight, enemyWeight);
+        return this.peakEnemyWeight;
+    }
+
+    private int memberFingerprint() {
+        int[] sorted = this.memberIds.clone();
+        Arrays.sort(sorted);
+        return Arrays.hashCode(sorted);
+    }
+
+    /** Derived battle facts — gathers, never decides. Cleared when the group dissolves. */
+    public BattleField battleField() {
+        return this.battleField;
+    }
+
+    /**
+     * Centroid used for commander fitness. Prefers a populated {@link BattleField} friendly
+     * centroid (Stage 3); falls back to the sticky group mean (Stage 1/2) when the map has
+     * not been built yet this scan.
+     */
+    public double fitnessCentroidX() {
+        return this.battleField.populated ? this.battleField.friendlyCentroidX : this.centroidX;
+    }
+
+    public double fitnessCentroidZ() {
+        return this.battleField.populated ? this.battleField.friendlyCentroidZ : this.centroidZ;
+    }
+
+    @Nullable
+    public PlayId currentPlay() {
+        return this.currentPlay;
+    }
+
+    public long playStartedTick() {
+        return this.playStartedTick;
+    }
+
+    @Nullable
+    public Roles currentRoles() {
+        return this.currentRoles;
+    }
+
+    /** Enemy centroid when the holding points were last laid fresh; NaN = lay them fresh next pass. */
+    private double latchEnemyX = Double.NaN;
+    private double latchEnemyZ = Double.NaN;
+
+    double latchEnemyX() {
+        return this.latchEnemyX;
+    }
+
+    double latchEnemyZ() {
+        return this.latchEnemyZ;
+    }
+
+    void relatch(double enemyX, double enemyZ) {
+        this.latchEnemyX = enemyX;
+        this.latchEnemyZ = enemyZ;
+    }
+
+    void commitPlay(PlayId play, Roles roles, long nowTick) {
+        if (play != this.currentPlay) {
+            this.lastLeapfrogTick = Long.MIN_VALUE;
+            this.latchEnemyX = Double.NaN;
+            this.latchEnemyZ = Double.NaN;
+        }
+        this.currentPlay = play;
+        this.currentRoles = roles;
+        this.playStartedTick = nowTick;
+    }
+
+    /** Server tick of the last leapfrog swap; {@link Long#MIN_VALUE} = none this play. */
+    private long lastLeapfrogTick = Long.MIN_VALUE;
+
+    long lastLeapfrogTick() {
+        return this.lastLeapfrogTick;
+    }
+
+    void noteLeapfrog(long nowTick) {
+        this.lastLeapfrogTick = nowTick;
+    }
+
+    void clearPlay() {
+        this.currentPlay = null;
+        this.currentRoles = null;
+        this.playStartedTick = Long.MIN_VALUE;
+        this.lastLeapfrogTick = Long.MIN_VALUE;
+        this.hasInfluenceStamp = false;
+        this.latchEnemyX = Double.NaN;
+        this.latchEnemyZ = Double.NaN;
+    }
+
+    /** Elected commander network id, or empty if election has deferred / never run. */
+    public boolean hasCommander() {
+        return this.commanderId != Integer.MIN_VALUE;
+    }
+
+    public int commanderId() {
+        return this.commanderId;
+    }
+
+    void setCommanderId(int commanderId) {
+        this.commanderId = commanderId;
+    }
+
+    void apply(AssignedGroup assigned) {
+        this.memberIds = assigned.memberIds.clone();
+        this.centroidX = assigned.centroidX;
+        this.centroidZ = assigned.centroidZ;
+        // Incumbent left the group — clear so the next election is a no-incumbent case.
+        if (this.commanderId != Integer.MIN_VALUE && !contains(this.commanderId)) {
+            this.commanderId = Integer.MIN_VALUE;
+        }
+    }
+
+    ExistingGroup toExisting() {
+        return new ExistingGroup(this.groupId, this.faction, this.memberIds.clone(),
+                this.centroidX, this.centroidZ);
+    }
+
+    @Override
+    public String toString() {
+        return "BattleGroup{id=" + this.groupId + " faction=" + this.faction
+                + " members=" + Arrays.toString(this.memberIds)
+                + " commander=" + (hasCommander() ? this.commanderId : "none")
+                + " c=(" + this.centroidX + "," + this.centroidZ + ")}";
+    }
+}

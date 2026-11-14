@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/shard_culler",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

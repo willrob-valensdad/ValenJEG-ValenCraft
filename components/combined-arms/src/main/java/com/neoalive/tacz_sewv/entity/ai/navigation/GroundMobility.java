@@ -1,0 +1,253 @@
+package com.neoalive.tacz_sewv.entity.ai.navigation;
+
+import com.atsuishio.superbwarfare.data.vehicle.subdata.EngineInfo;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
+
+import com.neoalive.tacz_sewv.debug.SewvDiag;
+import com.neoalive.tacz_sewv.util.WarnOnce;
+
+/**
+ * Shared ground-mobility numbers: water, slope cost, context-map pick. A non-amphibious hull
+ * never enters water at all — no fording, no depth grading, no already-wet exception. Used by
+ * {@link GroundVehicleNodeEvaluator} (A* malus) and
+ * {@link com.neoalive.tacz_sewv.entity.ai.sensor.GroundTerrainSensor} (whisker maps).
+ */
+public final class GroundMobility {
+
+    /** Soft cost reach around water; never a hard block. */
+    public static final int DEEP_WATER_MARGIN = 3;
+
+    /** Path malus for a dry node sitting next to water. */
+    public static final float DEEP_MARGIN_PENALTY = 3.0F;
+
+    /** Path malus at maxUpStep (smoothstep from 0.5×). */
+    public static final float SLOPE_PENALTY = 4.0F;
+
+    /** Soft path malus for local grade (tilt that SBW terrainCompact would apply). */
+    public static final float GRADE_PENALTY = 2.0F;
+
+    /** Grade ratio below this is treated as flat (no malus). */
+    public static final float GRADE_DEADBAND = 0.15F;
+
+    /** Grade ratio at which {@link #gradeMalus} reaches {@link #GRADE_PENALTY}. */
+    public static final float GRADE_FULL = 0.5F;
+
+    /** Fan danger cap — preference only, never {@link #HARD_CAP}. */
+    public static final float GRADE_FAN_MAX = 0.4F;
+
+    /**
+     * Rise (blocks) above which a step is a hard wall. Minecraft hills routinely jump 1–2
+     * between neighbouring columns; hard-blocking those arms reverse recovery on ordinary
+     * terrain. Buildings/cliffs still clear this. Preference only below it.
+     */
+    public static final float STEP_WALL = 2.5F;
+
+    /** Soft fan danger at {@code maxUpStep} — prefer around, never boxed-in. */
+    public static final float STEP_SOFT_MAX = 0.55F;
+
+    /** Amphibious still slightly prefers land when the dry detour is equal. */
+    public static final float AMPHIBIOUS_WATER_COST = 0.5F;
+
+    /** Context-map slots, angular order around the desired bearing. */
+    public static final double[] SLOTS_DEG = {-75.0, -50.0, -25.0, 0.0, 25.0, 50.0, 75.0};
+    public static final int SLOT_COUNT = SLOTS_DEG.length;
+
+    /** Blend of previous map into the current one (Fray 18.6.1). */
+    public static final float MAP_BLEND = 0.5F;
+
+    /** Weak "keep facing" interest — strongest-wins, never enough to beat the waypoint. */
+    public static final float FACING_INTEREST = 0.3F;
+
+    /** Peer-skirt ranking weight. Must not be able to push a slot to the hard cap. */
+    public static final float PEER_SKIRT_WEIGHT = 0.35F;
+
+    /** Hard danger at or above this is impassable (mask + headingClear). */
+    public static final float HARD_CAP = 1.0F;
+
+    public static final double NO_FLOOR = Double.NEGATIVE_INFINITY;
+
+    private GroundMobility() {}
+
+    public static float smoothstep(float t) {
+        t = Mth.clamp(t, 0.0F, 1.0F);
+        return t * t * (3.0F - 2.0F * t);
+    }
+
+    /** Bite from 0.5× to 1× of the limit. */
+    public static float bite(float t) {
+        if (t <= 0.5F) return 0.0F;
+        return smoothstep((t - 0.5F) / 0.5F);
+    }
+
+    public static boolean waterBlocked(int depth, boolean amphibious) {
+        return !amphibious && depth > 0;
+    }
+
+    public static float fordMalus(int depth, boolean amphibious) {
+        if (depth <= 0) return 0.0F;
+        if (amphibious) return AMPHIBIOUS_WATER_COST;
+        return Float.POSITIVE_INFINITY;
+    }
+
+    public static float slopeMalus(double rise, float maxUpStep) {
+        if (rise <= 0.0 || maxUpStep <= 0.0F) return 0.0F;
+        if (rise > maxUpStep) return Float.POSITIVE_INFINITY;
+        return SLOPE_PENALTY * bite((float) (rise / maxUpStep));
+    }
+
+    /**
+     * 0–1 danger from a vertical jump. Hard ({@link #HARD_CAP}) only past {@link #STEP_WALL}.
+     * Climbable and marginal rises stay under the cap so a fan of ordinary hills cannot read
+     * as boxed-in and trigger reverse recovery.
+     */
+    public static float stepDanger(double delta, float maxUpStep) {
+        if (delta <= 0.0 || maxUpStep <= 0.0F) return 0.0F;
+        if (delta > STEP_WALL) return HARD_CAP;
+        if (delta <= maxUpStep) {
+            return STEP_SOFT_MAX * bite((float) (delta / maxUpStep));
+        }
+        float span = STEP_WALL - maxUpStep;
+        if (span <= 1.0E-4F) return 0.99F;
+        float t = (float) ((delta - maxUpStep) / span);
+        return STEP_SOFT_MAX + (0.99F - STEP_SOFT_MAX) * smoothstep(t);
+    }
+
+    /**
+     * Local height relief over {@code halfSpan} blocks — max cardinal |Δh| / span. Mirrors the
+     * magnitude SBW's terrainCompact plane fit reacts to, without collision sampling.
+     */
+    public static double localGrade(BlockGetter level, int x, int z, int halfSpan) {
+        halfSpan = Math.max(1, halfSpan);
+        int center = motionBlockingY(level, x, z);
+        int worst = 0;
+        worst = Math.max(worst, Math.abs(motionBlockingY(level, x + halfSpan, z) - center));
+        worst = Math.max(worst, Math.abs(motionBlockingY(level, x - halfSpan, z) - center));
+        worst = Math.max(worst, Math.abs(motionBlockingY(level, x, z + halfSpan) - center));
+        worst = Math.max(worst, Math.abs(motionBlockingY(level, x, z - halfSpan) - center));
+        return (double) worst / halfSpan;
+    }
+
+    /** Soft A* malus for local grade — never infinite (climbability stays in {@link #slopeMalus}). */
+    public static float gradeMalus(double grade) {
+        if (grade <= GRADE_DEADBAND) return 0.0F;
+        float span = GRADE_FULL - GRADE_DEADBAND;
+        if (span <= 0.0F) return GRADE_PENALTY;
+        float t = Mth.clamp((float) ((grade - GRADE_DEADBAND) / span), 0.0F, 1.0F);
+        return GRADE_PENALTY * smoothstep(t);
+    }
+
+    /** Fan soft danger twin of {@link #gradeMalus}; capped below {@link #HARD_CAP}. */
+    public static float gradeDanger(double grade) {
+        float malus = gradeMalus(grade);
+        if (malus <= 0.0F) return 0.0F;
+        return Math.min(GRADE_FAN_MAX, malus / GRADE_PENALTY * GRADE_FAN_MAX);
+    }
+
+    private static int motionBlockingY(BlockGetter level, int x, int z) {
+        if (level instanceof Level l) {
+            return l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+        }
+        return 64;
+    }
+
+    public static float waterDanger(int depth, boolean amphibious) {
+        return waterBlocked(depth, amphibious) ? 1.0F : 0.0F;
+    }
+
+    public static float maxUpStepOf(VehicleEntity v) {
+        return Math.max(1.0F, v.maxUpStep());
+    }
+
+    public static boolean isAmphibious(VehicleEntity v) {
+        try {
+            EngineInfo engine = v.getEngineInfo();
+            if (engine == null) return false;
+            return engine instanceof EngineInfo.Ship || engine.getBuoyancy() > 0.0;
+        } catch (Exception e) {
+            WarnOnce.warn(SewvDiag.LOG, "amphibious:" + v.getId(),
+                    "Failed to read engine buoyancy for " + v.getType().getDescriptionId(), e);
+            return false;
+        }
+    }
+
+    /** Consecutive water cells from {@code y} downward, capped at 3 (diagnostic value only —
+     * any depth above 0 is equally blocked). */
+    public static int waterDepth(BlockGetter level, BlockPos.MutableBlockPos pos, int x, int y, int z) {
+        int depth = 0;
+        for (int dy = 0; dy <= 3; dy++) {
+            if (!level.getFluidState(pos.set(x, y - dy, z)).is(FluidTags.WATER)) break;
+            depth++;
+        }
+        return depth;
+    }
+
+    public static void blendMaps(float[] prev, float[] cur) {
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            cur[i] = MAP_BLEND * prev[i] + (1.0F - MAP_BLEND) * cur[i];
+        }
+    }
+
+    /**
+     * F1 walk: from the facing slot, expand to a neighbor while its hard danger does not
+     * increase. A flat map (all zeros) therefore reaches every slot; a spike still masks
+     * whatever sits behind it.
+     */
+    public static boolean[] reachableMask(float[] hardDanger, int facingSlot) {
+        boolean[] mask = new boolean[SLOT_COUNT];
+        mask[facingSlot] = true;
+        for (int i = facingSlot; i < SLOT_COUNT - 1; i++) {
+            if (hardDanger[i + 1] <= hardDanger[i]) mask[i + 1] = true;
+            else break;
+        }
+        for (int i = facingSlot; i > 0; i--) {
+            if (hardDanger[i - 1] <= hardDanger[i]) mask[i - 1] = true;
+            else break;
+        }
+        return mask;
+    }
+
+    public static float slotScore(int i, float[] interest, float[] hardDanger, float[] peerSkirt) {
+        return interest[i] - hardDanger[i] - PEER_SKIRT_WEIGHT * peerSkirt[i];
+    }
+
+    /**
+     * Highest {@code interest - hard - skirt} among reachable slots under the hard cap.
+     * {@code -1} when nothing is drivable.
+     */
+    public static int pickWinner(float[] interest, float[] hardDanger, float[] peerSkirt, boolean[] reachable) {
+        int best = -1;
+        float bestScore = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            if (!reachable[i] || hardDanger[i] >= HARD_CAP) continue;
+            float score = slotScore(i, interest, hardDanger, peerSkirt);
+            if (score > bestScore) {
+                bestScore = score;
+                best = i;
+            }
+        }
+        return best;
+    }
+
+    /** Gradient around the winning slot → a heading between discrete offsets. */
+    public static double interpolateOffsetDeg(int winner, float[] interest, float[] hardDanger, float[] peerSkirt) {
+        double off = SLOTS_DEG[winner];
+        if (winner <= 0 || winner >= SLOT_COUNT - 1) return off;
+        float wL = Math.max(0.0F, slotScore(winner - 1, interest, hardDanger, peerSkirt));
+        float w0 = Math.max(0.0F, slotScore(winner, interest, hardDanger, peerSkirt));
+        float wR = Math.max(0.0F, slotScore(winner + 1, interest, hardDanger, peerSkirt));
+        float sum = wL + w0 + wR;
+        if (sum < 1.0E-6F) return off;
+        return (wL * SLOTS_DEG[winner - 1] + w0 * SLOTS_DEG[winner] + wR * SLOTS_DEG[winner + 1]) / sum;
+    }
+
+    /** Goal interest: cosine peak at 0° (the waypoint), zero past 90°. */
+    public static float goalInterest(double slotDeg) {
+        return (float) Math.max(0.0, Math.cos(Math.toRadians(slotDeg)));
+    }
+}

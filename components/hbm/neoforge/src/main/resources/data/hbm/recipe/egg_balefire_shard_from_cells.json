@@ -1,0 +1,19 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "#": {
+      "preserve": "remainder"
+    }
+  },
+  "key": {
+    "#": "hbm:cell_balefire"
+  },
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "hbm:egg_balefire_shard"
+  }
+}

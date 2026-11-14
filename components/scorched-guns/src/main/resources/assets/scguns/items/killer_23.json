@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/killer_23",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

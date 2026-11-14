@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/swarm_bomb_3d",
+  "textures": {
+    "0": "scguns:item/swarm_bomb",
+    "particle": "scguns:item/swarm_bomb"
+  }
+}

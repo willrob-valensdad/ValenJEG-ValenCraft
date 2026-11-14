@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": [
+      "minecraft:iron_ingot",
+      "scguns:treated_iron_ingot"
+    ],
+    "M": "minecraft:flint",
+    "X": "#minecraft:planks"
+  },
+  "pattern": [
+    "QM ",
+    "XX "
+  ],
+  "result": {
+    "id": "scguns:gun_bench"
+  }
+}

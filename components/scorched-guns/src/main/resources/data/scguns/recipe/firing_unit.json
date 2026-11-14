@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:anthralite_ingot",
+    "X": [
+      "minecraft:iron_ingot",
+      "scguns:treated_iron_ingot"
+    ],
+    "Q": "minecraft:iron_nugget"
+  },
+  "pattern": [
+    "  Q",
+    " # ",
+    "X  "
+  ],
+  "result": {
+    "id": "scguns:firing_unit"
+  }
+}

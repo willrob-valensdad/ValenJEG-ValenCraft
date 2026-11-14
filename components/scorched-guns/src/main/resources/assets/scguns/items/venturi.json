@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/venturi",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

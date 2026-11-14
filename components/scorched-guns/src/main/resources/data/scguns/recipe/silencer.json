@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "#minecraft:wool",
+    "Q": [
+      "minecraft:iron_ingot",
+      "scguns:treated_iron_ingot"
+    ]
+  },
+  "pattern": [
+    "  Q",
+    " # ",
+    "Q  "
+  ],
+  "result": {
+    "id": "scguns:silencer"
+  }
+}

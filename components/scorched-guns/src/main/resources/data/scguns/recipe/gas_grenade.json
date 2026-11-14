@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "scguns:treated_iron_ingot",
+    "X": "minecraft:glass_bottle",
+    "Q": "#c:dusts/sulfur",
+    "T": "#c:dusts/phosphorus"
+  },
+  "pattern": [
+    " T ",
+    "QXQ",
+    " # "
+  ],
+  "result": {
+    "id": "scguns:gas_grenade"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "minecraft:iron_ingot",
+    "L": "scguns:firing_unit",
+    "R": "scguns:gun_parts",
+    "S": "scguns:gun_barrel",
+    "X": "scguns:gun_magazine",
+    "V": "scguns:iron_gun_frame",
+    "P": "scguns:iron_blueprint",
+    "K": "#minecraft:planks"
+  },
+  "pattern": [
+    "CVP ",
+    "LRKS",
+    "Q X "
+  ],
+  "result": {
+    "id": "scguns:m3_carabine"
+  }
+}

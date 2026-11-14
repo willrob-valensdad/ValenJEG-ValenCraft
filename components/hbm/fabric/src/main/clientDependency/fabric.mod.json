@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "hbm_client",
+  "version": "${version}",
+  "name": "ValenJEG - Nuclear Tech Client",
+  "license": "LGPL-3.0-only",
+  "environment": "client",
+  "depends": {
+    "crankshaft": ">=1.6.0"
+  }
+}

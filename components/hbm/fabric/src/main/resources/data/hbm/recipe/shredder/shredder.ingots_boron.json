@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:ingots/boron"
+    }
+  ],
+  "order": 93952,
+  "output_items": [
+    "hbm:powder_boron"
+  ]
+}

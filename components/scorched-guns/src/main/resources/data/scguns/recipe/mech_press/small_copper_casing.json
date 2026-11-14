@@ -1,0 +1,12 @@
+{
+  "type": "scguns:mechanical_pressing",
+  "processingTime": 50,
+  "ingredients": [
+    "minecraft:copper_ingot"
+  ],
+  "mold": "scguns:small_casing_mold",
+  "result": {
+    "id": "scguns:small_copper_casing",
+    "count": 14
+  }
+}

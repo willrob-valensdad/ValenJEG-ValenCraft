@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "scguns:gun_magazine",
+    "X": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "   ",
+    "XX ",
+    "QQ "
+  ],
+  "result": {
+    "id": "scguns:extended_mag"
+  }
+}

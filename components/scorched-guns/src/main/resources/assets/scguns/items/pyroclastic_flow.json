@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/pyroclastic_flow",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

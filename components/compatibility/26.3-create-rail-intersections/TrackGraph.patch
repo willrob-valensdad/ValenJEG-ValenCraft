@@ -1,0 +1,13 @@
+--- a/com/zurrtum/create/content/trains/graph/TrackGraph.java
++++ b/com/zurrtum/create/content/trains/graph/TrackGraph.java
+@@ -413,6 +413,10 @@
+         TrackEdge edge = new TrackEdge(node1, node2, turn, material);
+         TrackEdge edge2 = new TrackEdge(node2, node1, bezier ? turn.secondary() : null, material);
+ 
++        if (ValenRailIntersections.tryConnect(reader, this, node1, node2, edge, edge2, bezier)) {
++            return;
++        }
++
+         for (TrackGraph graph : Create.RAILWAYS.trackNetworks.values()) {
+             for (TrackNode otherNode1 : graph.nodes.values()) {
+                 Map<TrackNode, TrackEdge> connections = graph.connectionsByNode.get(otherNode1);

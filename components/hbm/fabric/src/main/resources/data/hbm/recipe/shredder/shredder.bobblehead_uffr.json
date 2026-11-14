@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "hbm:bobblehead_uffr"
+    }
+  ],
+  "order": 49408,
+  "output_items": [
+    "hbm:scrap_plastic_mem_socket"
+  ]
+}

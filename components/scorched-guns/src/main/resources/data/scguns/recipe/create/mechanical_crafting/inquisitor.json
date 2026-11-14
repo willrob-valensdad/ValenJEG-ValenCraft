@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "#minecraft:planks",
+    "L": "scguns:empty_tank",
+    "R": "scguns:heavy_gun_parts",
+    "S": "scguns:heavy_gun_barrel",
+    "N": "scguns:gun_barrel",
+    "M": "scguns:diamond_steel_ingot",
+    "X": "scguns:diamond_steel_blueprint",
+    "K": "scguns:diamond_steel_gun_frame"
+  },
+  "pattern": [
+    "MKX ",
+    "LRSN",
+    "Q C "
+  ],
+  "result": {
+    "id": "scguns:inquisitor"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "scguns:polished_asgharian_panel",
+  "result": {
+    "count": 1,
+    "id": "scguns:asgharian_bricks"
+  }
+}

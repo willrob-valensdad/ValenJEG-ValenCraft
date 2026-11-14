@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:treated_brass_ingot",
+    "X": "scguns:gun_barrel",
+    "Q": "scguns:gun_grip"
+  },
+  "pattern": [
+    "  X",
+    " # ",
+    "Q  "
+  ],
+  "result": {
+    "id": "scguns:flare_pistol"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "hbm:centrifuge",
+  "duration": 200,
+  "input_items": [
+    {
+      "ingredient": "#c:ores/aluminum"
+    }
+  ],
+  "order": 7168,
+  "output_items": [
+    {
+      "count": 2,
+      "id": "hbm:chunk_ore_cryolite"
+    },
+    "hbm:powder_titanium",
+    "hbm:powder_iron",
+    "minecraft:gravel"
+  ],
+  "power": 200
+}

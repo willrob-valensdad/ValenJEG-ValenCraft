@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/hyperbaria",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

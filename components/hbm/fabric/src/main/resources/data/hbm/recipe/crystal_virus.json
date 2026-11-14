@@ -1,0 +1,21 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "S": {
+      "preserve": "remainder"
+    }
+  },
+  "key": {
+    "H": "hbm:crystal_horn",
+    "S": "hbm:particle_strange",
+    "T": "#c:dusts/tungsten"
+  },
+  "pattern": [
+    "STS",
+    "THT",
+    "STS"
+  ],
+  "result": {
+    "id": "hbm:crystal_virus"
+  }
+}

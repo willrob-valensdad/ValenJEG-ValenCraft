@@ -1,0 +1,309 @@
+package org.alex_melan.spacereloaded.cannon;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+import org.alex_melan.spacereloaded.SpaceReloaded;
+import org.alex_melan.spacereloaded.core.ballistics.BallisticIntegrator;
+import org.alex_melan.spacereloaded.energy.MachineBlockEntity;
+import org.alex_melan.spacereloaded.planet.ModTickets;
+import org.alex_melan.spacereloaded.planet.PlanetManager;
+import org.alex_melan.spacereloaded.registry.ModEntities;
+
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * Орбитальная кинетическая пушка (US7, T080–T083): работает только на орбите
+ * (профиль планеты arrival=platform), заряжается вольфрамовыми ломами,
+ * питается от кабельной сети. Выстрел спавнит {@link KineticProjectileEntity}
+ * в ЦЕЛЕВОМ измерении на входе в атмосферу — честный межпространственный
+ * удар с упреждающей загрузкой чанков цели (FR-043, принцип V).
+ */
+public class OrbitalCannonBlockEntity extends MachineBlockEntity {
+
+    private int rods;
+    @Nullable
+    private GlobalPos target;
+    // НЕ Long.MIN_VALUE: getGameTime() - MIN_VALUE переполняется в отрицательное
+    // и свежепоставленная пушка вечно «перезаряжается»
+    private long lastFireGameTime = -1_000_000L;
+
+    public OrbitalCannonBlockEntity(BlockPos pos, BlockState state) {
+        super(org.alex_melan.spacereloaded.registry.ModBlockEntities.ORBITAL_CANNON, pos, state,
+                SpaceReloaded.config().cannonEnergyCapacity, 1024, 0);
+    }
+
+    public int rods() {
+        return rods;
+    }
+
+    /** Зарядить один лом из руки; true, если принят. */
+    public boolean loadRod() {
+        if (rods >= SpaceReloaded.config().cannonMaxRods) {
+            return false;
+        }
+        rods++;
+        setChanged();
+        return true;
+    }
+
+    /** Навести по метке целеуказателя. */
+    public void setTarget(GlobalPos target) {
+        this.target = target;
+        setChanged();
+    }
+
+    @Nullable
+    public GlobalPos target() {
+        return target;
+    }
+
+    /**
+     * Выстрел. Проверки честные: орбита, цель, лом, энергия. Снаряд входит
+     * в атмосферу над целью с дульной скоростью вниз — дальше только физика.
+     *
+     * @return сообщение игроку (статус или причина отказа)
+     */
+    public Component tryFire(ServerLevel level, net.minecraft.server.level.ServerPlayer shooter) {
+        int before = rods;
+        Component result = tryFire(level);
+        if (rods < before && shooter != null) {
+            org.alex_melan.spacereloaded.industry.IndustryAdvancements.award(shooter,
+                    org.alex_melan.spacereloaded.industry.IndustryAdvancements.CANNON_FIRE);
+        }
+        return result;
+    }
+
+    public Component tryFire(ServerLevel level) {
+        var config = SpaceReloaded.config();
+        boolean inOrbit = PlanetManager.profileFor(level)
+                .map(profile -> "platform".equals(profile.arrival()))
+                .orElse(false);
+        if (!inOrbit) {
+            return Component.translatable("message.spacereloaded.cannon.not_in_orbit");
+        }
+        if (target == null) {
+            return Component.translatable("message.spacereloaded.cannon.no_target");
+        }
+        if (rods <= 0) {
+            return Component.translatable("message.spacereloaded.cannon.no_rods");
+        }
+        if (energy.amount < config.cannonEnergyPerShot) {
+            return Component.translatable("message.spacereloaded.cannon.no_energy",
+                    energy.amount, config.cannonEnergyPerShot);
+        }
+        if (level.getGameTime() - lastFireGameTime < config.cannonCooldownTicks) {
+            return Component.translatable("message.spacereloaded.cannon.cooldown");
+        }
+        ServerLevel targetLevel = level.getServer().getLevel(target.dimension());
+        if (targetLevel == null) {
+            return Component.translatable("message.spacereloaded.cannon.no_target");
+        }
+        // Орудие бьёт вниз, по поверхности ЧУЖОГО измерения: нельзя стрелять
+        // по собственной орбите (иначе станция расстреливает сама себя)
+        if (targetLevel.dimension().equals(level.dimension())) {
+            return Component.translatable("message.spacereloaded.cannon.same_dimension");
+        }
+        boolean targetIsPlatform = PlanetManager.profileFor(targetLevel)
+                .map(profile -> "platform".equals(profile.arrival()))
+                .orElse(false);
+        if (targetIsPlatform) {
+            return Component.translatable("message.spacereloaded.cannon.orbital_target");
+        }
+
+        rods--;
+        energy.amount -= config.cannonEnergyPerShot;
+        lastFireGameTime = level.getGameTime();
+        setChanged();
+        // 010: клиенту — момент выстрела (откат ствола, вспышка у дула)
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+
+        BlockPos aim = target.pos();
+        // Упреждающая загрузка чанков цели ДО спавна снаряда (FR-043):
+        // persist + keep-dimension-active — измерение без игроков тикает
+        ModTickets.holdStrike(targetLevel, aim, 2);
+
+        // Полёт 2.0 (FR-090, D16): наведение по спутниковому покрытию цели; без него —
+        // случайное смещение равномерно по кругу рассеивания. Режим фиксируется сейчас.
+        boolean guided = isGuidedFor(level, targetLevel);
+        var random = level.getRandom();
+        org.alex_melan.spacereloaded.core.ballistics.StrikeSolution solution =
+                org.alex_melan.spacereloaded.core.ballistics.StrikeSolution.solve(
+                        random.nextDouble(), random.nextDouble(), guided,
+                        config.cannonGuidedSpreadBlocks, config.cannonUnguidedSpreadBlocks);
+
+        double spawnY = aim.getY() + config.cannonDropAltitude;
+        KineticProjectileEntity projectile = new KineticProjectileEntity(
+                ModEntities.KINETIC_PROJECTILE, targetLevel);
+        projectile.setPos(aim.getX() + 0.5 + solution.offsetX(), spawnY,
+                aim.getZ() + 0.5 + solution.offsetZ());
+        projectile.configure(config.cannonRodMassKg, config.cannonRodDragCoefficient,
+                config.cannonRodAreaM2, new Vec3(0, -config.cannonMuzzleSpeed, 0), aim, guided);
+        targetLevel.addFreshEntity(projectile);
+
+        // Предупреждение внизу: гром за секунды до удара (FR-044) — по метке, не по точке удара
+        targetLevel.playSound(null, aim, SoundEvents.LIGHTNING_BOLT_THUNDER,
+                SoundSource.WEATHER, 8.0f, 0.6f);
+        level.playSound(null, getBlockPos(), org.alex_melan.spacereloaded.registry.ModSounds.ORBITAL_CANNON_FIRE,
+                SoundSource.BLOCKS, 3.0f, 1.0f);
+
+        double eta = BallisticIntegrator.etaToAltitude(spawnY, -config.cannonMuzzleSpeed,
+                aim.getY(), PlanetManager.gravity(targetLevel));
+        String etaText = Double.isNaN(eta) ? "?" : String.valueOf(Math.round(eta));
+        SpaceReloaded.LOGGER.info("Пушка {}: выстрел по {} в {}, подлёт ~{} с, наведение {}, смещение {} бл.",
+                getBlockPos(), aim, target.dimension().identifier(), etaText,
+                guided ? "спутниковое" : "нет", String.format(java.util.Locale.ROOT, "%.1f",
+                        solution.offsetDistance()));
+        return Component.translatable("message.spacereloaded.cannon.fired_mode",
+                aim.getX(), aim.getY(), aim.getZ(), etaText,
+                Component.translatable(guided
+                        ? "message.spacereloaded.cannon.mode.guided"
+                        : "message.spacereloaded.cannon.mode.unguided"));
+    }
+
+    /** Наводимый ли лом по цели: спутниковое покрытие целевого измерения (FR-090). */
+    private static boolean isGuidedFor(ServerLevel level, ServerLevel targetLevel) {
+        return org.alex_melan.spacereloaded.network.SpaceNetworkState.get(level.getServer())
+                .hasCoverage(targetLevel.dimension());
+    }
+
+    /** Сколько тиков ещё перезаряжается; 0 — готова. */
+    public int cooldownRemaining(ServerLevel level) {
+        long elapsed = level.getGameTime() - lastFireGameTime;
+        long left = SpaceReloaded.config().cannonCooldownTicks - elapsed;
+        return (int) Math.clamp(left, 0, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Снимок для терминала наведения. Полёт 2.0 (FR-091): режим наведения по
+     * покрытию цели, радиус рассеивания и прогноз удара по атмосфере целевого тела.
+     */
+    public org.alex_melan.spacereloaded.network.CannonStatePayload snapshot(ServerLevel level) {
+        var config = SpaceReloaded.config();
+        BlockPos targetPos = target == null ? BlockPos.ZERO : target.pos();
+        Identifier targetDim = target == null
+                ? Identifier.fromNamespaceAndPath(SpaceReloaded.MOD_ID, "none")
+                : target.dimension().identifier();
+        boolean guided = false;
+        double impactSpeed = 0;
+        double impactEnergyMJ = 0;
+        ServerLevel targetLevel = target == null ? null : level.getServer().getLevel(target.dimension());
+        if (targetLevel != null) {
+            guided = isGuidedFor(level, targetLevel);
+            var forecast = BallisticIntegrator.impactForecast(
+                    new org.alex_melan.spacereloaded.core.ballistics.ProjectileSpec(
+                            config.cannonRodMassKg, config.cannonRodDragCoefficient, config.cannonRodAreaM2),
+                    config.cannonDropAltitude, config.cannonMuzzleSpeed,
+                    PlanetManager.gravity(targetLevel), PlanetManager.aero(targetLevel), target.pos().getY());
+            impactSpeed = forecast.impactSpeedMs();
+            impactEnergyMJ = forecast.impactEnergyJ() / 1.0e6;
+        }
+        double spread = guided ? config.cannonGuidedSpreadBlocks : config.cannonUnguidedSpreadBlocks;
+        return new org.alex_melan.spacereloaded.network.CannonStatePayload(
+                getBlockPos(), level.dimension().identifier(),
+                rods, config.cannonMaxRods, energy.amount, config.cannonEnergyCapacity,
+                config.cannonEnergyPerShot, cooldownRemaining(level),
+                targetPos, targetDim, target != null, guided, spread, impactSpeed, impactEnergyMJ);
+    }
+
+    /** Статус для ПКМ без предметов, когда стрелять нельзя/нечем. */
+    public Component status() {
+        var config = SpaceReloaded.config();
+        String targetText = target == null ? "—"
+                : target.pos().toShortString() + " @ " + target.dimension().identifier();
+        return Component.translatable("message.spacereloaded.cannon.status",
+                rods, config.cannonMaxRods, energy.amount, config.cannonEnergyCapacity, targetText);
+    }
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("rods", rods);
+        output.putLong("last_fire", lastFireGameTime);
+        if (target != null) {
+            output.putString("target_dim", target.dimension().identifier().toString());
+            output.putLong("target_pos", target.pos().asLong());
+        }
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        rods = input.getIntOr("rods", 0);
+        lastFireGameTime = input.getLongOr("last_fire", -1_000_000L);
+        String dim = input.getStringOr("target_dim", "");
+        if (!dim.isEmpty()) {
+            target = GlobalPos.of(
+                    ResourceKey.create(Registries.DIMENSION, Identifier.parse(dim)),
+                    BlockPos.of(input.getLongOr("target_pos", 0L)));
+        }
+    }
+
+    /** Снос блока: заряженные ломы — честные предметы, выбрасываем (не сжигаем). */
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null && !level.isClientSide() && rods > 0) {
+            net.minecraft.world.level.block.Block.popResource(level, pos,
+                    new net.minecraft.world.item.ItemStack(
+                            org.alex_melan.spacereloaded.registry.ModItems.TUNGSTEN_ROD, rods));
+            rods = 0;
+        }
+    }
+
+    /** Тикер: как у станков — присоединяемся к кабельной сети рядом; заряд — клиенту (свечение). */
+    public static void serverTick(OrbitalCannonBlockEntity cannon, ServerLevel level) {
+        if (cannon.level != null && cannon.level.getGameTime() % 40 == 0) {
+            cannon.ensureAdjacentCableNetworks(level);
+            float charge = cannon.chargeFraction();
+            if (Math.abs(charge - cannon.syncedCharge) > 0.02f) {
+                cannon.syncedCharge = charge;
+                level.sendBlockUpdated(cannon.getBlockPos(), cannon.getBlockState(), cannon.getBlockState(),
+                        net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
+    // --------- 010: анимация (клиент) ---------
+
+    private float syncedCharge = -1;
+    /** Клиентское состояние анимации (рендер). */
+    public Object clientAnim;
+
+    public float chargeFraction() {
+        long cap = SpaceReloaded.config().cannonEnergyCapacity;
+        return cap <= 0 ? 0 : (float) Math.min(1.0, energyStorage().getAmount() / (double) cap);
+    }
+
+    /** Стенд (010): выстрел без цели — только анимация. */
+    public void testFire(ServerLevel level) {
+        lastFireGameTime = level.getGameTime();
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+    }
+
+    public long lastFireGameTime() {
+        return lastFireGameTime;
+    }
+
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public net.minecraft.nbt.CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
+}

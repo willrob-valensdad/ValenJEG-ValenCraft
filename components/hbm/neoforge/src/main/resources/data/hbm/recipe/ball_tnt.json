@@ -1,0 +1,21 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    {
+      "neoforge:ingredient_type": "hbm:fluid_content",
+      "amount": 1000,
+      "fluid": "hbm:aromatics"
+    },
+    "#c:dusts/saltpeter",
+    "#hbm:tools/chemistry_set"
+  ],
+  "input_state": {
+    "2": {
+      "preserve": "remainder"
+    }
+  },
+  "result": {
+    "count": 4,
+    "id": "hbm:ball_tnt"
+  }
+}

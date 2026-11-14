@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/bruiser",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

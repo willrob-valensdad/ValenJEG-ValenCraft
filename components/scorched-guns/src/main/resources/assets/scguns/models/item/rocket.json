@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/rocket_3d",
+  "textures": {
+    "0": "scguns:item/rocket",
+    "particle": "scguns:item/rocket"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 25
+  },
+  "gives": {
+    "id": "scguns:iron_blueprint"
+  },
+  "max_uses": 1,
+  "xp": 30,
+  "reputation_discount": 0.05
+}

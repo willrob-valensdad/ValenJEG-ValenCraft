@@ -1,0 +1,18 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:rg_jigsaw",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:diamond_steel_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:gun_parts",
+    "gun_top_internal_1": "scguns:diamond_steel_ingot",
+    "gun_top_internal_2": "scguns:diamond_steel_gun_frame",
+    "gun_barrel_2": "scguns:heavy_gun_barrel",
+    "gun_grip": "scguns:gun_magazine",
+    "gun_barrel_1": "#minecraft:planks",
+    "gun_magazine": "scguns:gun_grip"
+  }
+}

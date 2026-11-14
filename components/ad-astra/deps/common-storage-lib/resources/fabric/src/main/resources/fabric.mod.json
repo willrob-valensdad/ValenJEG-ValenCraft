@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "common_storage_lib_resources",
+  "version": "${version}",
+  "name": "Common Storage Lib: Resources",
+  "description": "Abstraction for Transfer resources, including Item, Fluids and Entity resources, as well as Ingredient, Tag, and Codec utilities for them",
+  "authors": [
+    "CodexAdrian"
+  ],
+  "contact": {
+    "repo": "https://github.com/terrarium-earth/Common-Storage-Lib",
+    "issues": "https://github.com/terrarium-earth/Common-Storage-Lib/issues"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "earth.terrarium.common_storage_lib.resources.ResourceLib::init"
+    ]
+  },
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.20.6"
+  }
+}

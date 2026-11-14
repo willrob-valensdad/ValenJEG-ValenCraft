@@ -1,0 +1,15 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "count": 1,
+    "id": "scguns:longarm"
+  },
+  "ingredients": {
+    "blueprint": "scguns:antique_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:gun_magazine",
+    "gun_top_internal_2": "scguns:gun_parts",
+    "gun_barrel_1": "scguns:stone_gun_barrel",
+    "gun_grip": "scguns:gun_grip"
+  }
+}

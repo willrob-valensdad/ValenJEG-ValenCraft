@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:small_iron_casing",
+    "scguns:gunpowder_dust",
+    "scguns:needle"
+  ],
+  "result": {
+    "id": "scguns:frog_dart",
+    "count": 1
+  }
+}

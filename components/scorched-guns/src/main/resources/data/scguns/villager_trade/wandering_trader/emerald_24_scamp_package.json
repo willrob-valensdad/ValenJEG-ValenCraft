@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 24
+  },
+  "gives": {
+    "id": "scguns:scamp_package"
+  },
+  "max_uses": 1,
+  "xp": 12,
+  "reputation_discount": 0.15
+}

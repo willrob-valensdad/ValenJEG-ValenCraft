@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "minecraft:cobblestone",
+    "X": "minecraft:smooth_stone_slab",
+    "I": "minecraft:furnace"
+  },
+  "pattern": [
+    "X X",
+    "XIX",
+    "QQQ"
+  ],
+  "result": {
+    "id": "scguns:macerator"
+  }
+}

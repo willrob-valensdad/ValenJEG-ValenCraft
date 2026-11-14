@@ -1,0 +1,12 @@
+{
+  "type": "scguns:macerating",
+  "processingTime": 200,
+  "ingredients": [
+    "scguns:nitro_powder",
+    "scguns:vehement_coal"
+  ],
+  "result": {
+    "id": "scguns:nitro_powder_dust",
+    "count": 11
+  }
+}

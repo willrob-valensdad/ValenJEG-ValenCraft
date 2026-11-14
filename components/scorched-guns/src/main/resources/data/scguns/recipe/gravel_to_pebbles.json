@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "scguns:pebbles",
+    "scguns:pebbles",
+    "scguns:pebbles",
+    "scguns:pebbles"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:gravel"
+  }
+}

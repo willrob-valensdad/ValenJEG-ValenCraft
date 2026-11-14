@@ -1,0 +1,80 @@
+package com.neoalive.tacz_sewv.mixin;
+
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.nekoyuni.SimpleEnemyMod.entity.ai.goals.RangedGunAttackGoal;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import com.neoalive.tacz_sewv.compat.TripodCompat;
+import com.neoalive.tacz_sewv.compat.lv.LvCompat;
+import com.neoalive.tacz_sewv.entity.ai.core.VehicleWeapons;
+import com.neoalive.tacz_sewv.entity.ai.navigation.VehiclePathObstacles;
+import com.neoalive.tacz_sewv.entity.ai.support.GrenadeSupport;
+import com.neoalive.tacz_sewv.entity.ai.support.SuppressOrders;
+import com.neoalive.tacz_sewv.entity.ai.support.UnitHolster;
+
+/**
+ * Stops a mounted crew member from firing its hand-held gun with SEM's
+ * {@link RangedGunAttackGoal}. That goal's canUse only checks target + gun-in-hand
+ * + range — it never notices the unit is crewing a vehicle, so a driver or gunner
+ * would lean out and shoot its rifle instead of working the vehicle's weapons.
+ *
+ * <p>The gate is {@link VehicleWeapons#controlsVehicleWeapon}: drivers and armed
+ * gunners are suppressed; pure passengers (no seat weapons) are excluded and keep
+ * the goal, so a trooper riding in the back can still shoot out.
+ *
+ * <p>The fire LOS gate ({@code hasLineOfSightToTarget}) is a block clip of its own
+ * — it does not call {@code hasLineOfSight} — so hull occlusion is applied here
+ * as well, or an already-started burst keeps dumping into a tank in the way.
+ */
+@Mixin(RangedGunAttackGoal.class)
+public abstract class MixinRangedGunAttackGoal {
+
+    // Mod-declared field: its name is stable across dev/production, so don't remap it.
+    @Shadow(remap = false)
+    @Final
+    private Mob mob;
+
+    @Inject(method = "canUse", at = @At("HEAD"), cancellable = true)
+    private void tacz_sewv$blockGunWhenCrewingVehicle(CallbackInfoReturnable<Boolean> cir) {
+        if (VehicleWeapons.controlsVehicleWeapon(this.mob) || LvCompat.controlsWeapon(this.mob)) {
+            cir.setReturnValue(false);
+            return;
+        }
+        if (UnitHolster.isThrowingGrenade(this.mob) || GrenadeSupport.isGrenadeItem(this.mob.getMainHandItem())) {
+            cir.setReturnValue(false);
+            return;
+        }
+        // A Suppress Area order owns the gun (SuppressAreaGoal), short of self-defence.
+        if (SuppressOrders.preemptsRifle(this.mob)) cir.setReturnValue(false);
+    }
+
+    @Inject(method = "canContinueToUse", at = @At("HEAD"), cancellable = true)
+    private void tacz_sewv$stopGunWhenCrewingVehicle(CallbackInfoReturnable<Boolean> cir) {
+        if (VehicleWeapons.controlsVehicleWeapon(this.mob) || LvCompat.controlsWeapon(this.mob)) {
+            cir.setReturnValue(false);
+            return;
+        }
+        if (UnitHolster.isThrowingGrenade(this.mob) || GrenadeSupport.isGrenadeItem(this.mob.getMainHandItem())) {
+            cir.setReturnValue(false);
+            return;
+        }
+        // A Suppress Area order owns the gun (SuppressAreaGoal), short of self-defence.
+        if (SuppressOrders.preemptsRifle(this.mob)) cir.setReturnValue(false);
+    }
+
+    @Inject(method = "hasLineOfSightToTarget", at = @At("RETURN"), cancellable = true, remap = false)
+    private void tacz_sewv$hullsBlockGunLos(LivingEntity target, CallbackInfoReturnable<Boolean> cir) {
+        boolean clear = cir.getReturnValue();
+        // SEM's clip stops on a tripod's (invisible) shield, so the rifle never fired at one.
+        // Re-cast with the shield transparent, only for a tripod and only when SEM said blocked.
+        if (!clear && TripodCompat.isTripod(target)) clear = TripodCompat.clearShot(this.mob, target);
+        if (clear && VehiclePathObstacles.occludesLos(this.mob, target)) clear = false;
+        cir.setReturnValue(clear);
+    }
+}

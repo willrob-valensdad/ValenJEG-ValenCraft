@@ -1,0 +1,15 @@
+{
+  "type": "hbm:liquefaction",
+  "input_items": [
+    {
+      "ingredient": "hbm:biomass"
+    }
+  ],
+  "order": 6144,
+  "output_fluids": [
+    {
+      "type": "hbm:biogas",
+      "amount": 125
+    }
+  ]
+}

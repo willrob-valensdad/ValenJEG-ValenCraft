@@ -1,0 +1,30 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "X": "scguns:firing_unit",
+    "B": "scguns:anthralite_ingot",
+    "A": "minecraft:gold_ingot",
+    "P": "scguns:piglin_blueprint",
+    "L": "scguns:vehement_coal",
+    "Q": "scguns:heavy_gun_parts",
+    "R": "scguns:heavy_gun_barrel",
+    "C": "scguns:gun_barrel",
+    "K": "scguns:gun_grip",
+    "S": "minecraft:crimson_planks"
+  },
+  "pattern": [
+    "XBAP",
+    "LQRC",
+    "K S "
+  ],
+  "result": {
+    "id": "scguns:trotters"
+  }
+}

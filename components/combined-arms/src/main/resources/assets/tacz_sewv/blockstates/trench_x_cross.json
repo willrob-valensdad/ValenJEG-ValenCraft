@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "half=lower,netting=false": {
+      "model": "tacz_sewv:block/trench_down_x_cross"
+    },
+    "half=lower,netting=true": {
+      "model": "tacz_sewv:block/trench_down_x_cross"
+    },
+    "half=upper,netting=false": {
+      "model": "tacz_sewv:block/trench_up_x_cross"
+    },
+    "half=upper,netting=true": {
+      "model": "tacz_sewv:block/trench_up_x_cross_netted"
+    }
+  }
+}

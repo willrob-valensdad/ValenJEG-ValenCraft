@@ -1,105 +1,46 @@
-<p align="center"><img src="mod/src/main/resources/assets/jeg/branding/valenjeg-logo.png" width="520" alt="ValenJEG logo"></p>
+<p align="center"><img src="branding/valenjeg-logo.png" width="300" alt="ValenJEG logo"></p>
 
-# ValenJEG - ValenCraft
+# ValenJEG — a ValenCraft mini-modpack
 
-[Source and build instructions](docs/BUILDING.md) · [Development status](docs/STATUS.md) · [Valen Craft structure](docs/VALENCRAFT.md)
+ValenCraft is a modular Minecraft modpack. ValenJEG is its weapons, military structures, technology and exploration mini-modpack: usable as a module in ValenCraft and developed toward standalone pack distribution.
 
-> `main` contains development source. Structure-fidelity repairs and full donor compatibility work are in progress; this import does not publish a release artifact.
+This repository contains the pack definition **and its implementation code**. The root owns dependency selection, configuration and packaging. `components/` contains the gun fork, donor-mod ports, structure conversion tools and cross-mod compatibility code, with their original licenses and credits.
 
-ValenJEG — Version 0.1.0
+The current target is Minecraft **26.3**, **Fabric Loader 0.20.1**, and **Java 25**. This is a development snapshot. Several complete donor-mod ports still fail compilation; no finished 0.1.0 pack download is being claimed here.
 
-The first release in the Valen Craft series.
+## Contents
 
-Weapons • Military Structures • Technology • Exploration
+| Path | Purpose |
+| --- | --- |
+| `valencraft.module.json` | Mini-modpack identity and its place within ValenCraft |
+| `mods.lock.json` | Real dependency versions, hashes, side selection and explicitly pending inputs |
+| `overrides/config/` | Shared gameplay configuration |
+| `components/` | Implementation source, resources, conversion and compatibility tooling |
+| `scripts/pack.py` | Client/server assembly and Modrinth pack export |
+| `branding/` | Owner-supplied ValenJEG logo |
+| `docs/` | Build, component status and source provenance |
 
-ValenJEG is an expanded Minecraft project built on Just Enough Guns (JEGN). It brings together firearms, restored crafting and progression, military and industrial world generation, and technology integrations adapted from multiple Minecraft modding projects.
+## Build the pack
 
-ValenJEG is the first standalone mini-modpack in Valen Craft. It can evolve as its own project while also serving as a component of the much larger Valen Craft modpack.
+```sh
+python3 scripts/pack.py check --side client
+python3 scripts/pack.py check --side server
+python3 -m unittest discover -s tests -v
+python3 scripts/pack.py assemble --side client --inputs /path/to/pinned-jars --output /path/to/new-instance
+```
 
-0.1.0 Features
+`check` validates the definition and lists pending inputs; it does not claim they are finished. Assembly stops before creating an instance when any required component is unresolved. Verified public downloads may be fetched with `--download`; custom builds must match the lock. Existing instance folders are never overwritten.
 
-Weapons and Combat
+Supporting JAR filenames receive the `ValenJEG--` prefix during assembly. Their bytes, upstream signatures, internal mod IDs, versions and author metadata are preserved. Custom ports have their own ValenJEG display names. See [building](docs/BUILDING.md) and [component status](docs/COMPONENTS.md).
 
-35 additional firearms adapted from Mo' Than Enough Guns.
-Expanded ammunition, weapon crafting, and the Mo Workbench.
-Specialty weapons and additional weapon functionality.
-Tested firing, reloading, projectile behavior, and magazine handling.
-Weapon model, animation, scope, and item-rendering compatibility fixes.
-Continued support for the original JEG content.
-Restored Crafting and Progression
+## Development scope
 
-Six restored crafting and processing stations, including older JEG workbench functionality.
-Scrap, Gunmetal, Gunnite, and blueprint-related mechanics.
-175 implemented recipes, with materials and progression requirements.
-Blueprint acquisition, copying, restrictions, and persistent station behavior.
-Additional materials and production mechanics beyond the ordinary crafting table.
-Military, Industrial, and Space-Themed Structures
+The core fork contains expanded firearms, magazine/attachment handling, restored stations and progression, and authored structure integration. Structure repair preserves donor layouts and restores actual mod blocks and models. HBM, Ad Astra, Scorched Guns and Combined Arms/Superb Warfare are included as source ports in progress. The dependency lock makes unfinished inputs explicit.
 
-Naturally generated bunkers, shelters, labs, and fortified locations.
-Armories, watchtowers, hangars, helipads, and airfield content.
-Industrial warehouses, rail facilities, and technology complexes.
-Desert facilities, research sites, and space-themed locations.
-Structure interiors with containers, loot, equipment, and selected hostile encounters.
-Continued improvements to biome-aware generation, underground placement, rotations, and terrain integration.
-Technology and Cross-Mod Systems
+Source presence, compilation, native gameplay qualification, installation and player acceptance are separate milestones. See component status for the current evidence. Public source population does not install or alter an existing world.
 
-Content and integrations adapted from HBM/NTM, Ad Astra, and other source projects.
-Generator and energy-system integrations, including tested Tech Reborn interoperability.
-Compatibility work for inventories, item and fluid movement, recipes, and modded block entities.
-Source-based structure conversions and compatibility with Minecraft's current world-generation systems.
-Compatibility and Technical Fixes
+## Licenses and credits
 
-Developed for the project's Minecraft 26.3 / Fabric environment.
-Corrections to legacy JEG content missing from the newer port.
-Rendering, animation, and held-item positioning fixes.
-World-generation, structure-data, loot, and block-state compatibility improvements.
-Coming Soon
+The pack definition retains the owner's [MIT license](LICENSE). That license does not replace component licenses. JEG's inherited GPL license, HBM's LGPL notices, the Terrarium License for Ad Astra, and other upstream notices remain with their components. Reserved upstream artwork is referenced through pinned source manifests rather than relicensed. See [third-party notices](THIRD_PARTY_NOTICES.md).
 
-0.1.1–0.1.x — Compatibility & World Generation
-
-Broader compatibility with the mods used in Valen Craft, additional structure variants, better biome placement, loot balancing, and fixes discovered during public play.
-
-0.2.0+ — Equipment & Survival Systems
-
-Expanded oxygen production and storage, suit support, connected energy systems, and additional weapon enchantments and equipment interactions.
-
-0.3.0+ — Military NPCs & Combat
-
-Conventional military NPCs, hostile encounters, defensive installations, better combat behavior, and more interactive military locations.
-
-0.4.0+ — Full Technology Trees
-
-Deeper power generation, manufacturing, material processing, machines, crafting progression, and interoperability with established technology mods.
-
-0.5.0+ — Advanced Exploration
-
-More substantial naval and space exploration, lunar and orbital locations, additional dimensional content, and wider integration across the Valen Craft ecosystem.
-
-These are planned development targets, not guaranteed release dates or final feature assignments.
-
-About Valen Craft
-
-Valen Craft is two things:
-
-A complete Minecraft modpack: a larger integrated experience combining mods, custom and modified content, resource packs, shaders, compatibility work, and runtime improvements.
-A modular Minecraft project line: individually distributed mini-modpacks, modified mods, shader and resource packs, compatibility components, custom JVM work, and related tools.
-ValenJEG 0.1.0 is the first release in that line. More components will follow and may also be integrated into the complete Valen Craft modpack.
-
-Credits and Dependencies
-
-ValenJEG builds upon Just Enough Guns and includes adapted or integrated work informed by projects such as Mo' Than Enough Guns, HBM/NTM, and Ad Astra. We thank the original creators and the Minecraft modding community.
-
-Original authors retain their respective rights. Required dependencies, component credits, license notices, and compatibility information should be listed alongside the published files for each release.
-
-Developed by Valen Systems as part of Valen Craft.
-
-Valen JEG - ValenCraft Team
-
-
-## Repository layout
-
-- `mod/`: the ValenJEG Minecraft 26.3 / Fabric fork, with its own GPL code license and separate asset terms.
-- `compatibility/`: supporting-mod identity and pack-label information.
-- `docs/`: build instructions, current status and the Valen Craft project relationship.
-
-The root MIT license covers the original pack-level material. Inherited mod code and third-party assets retain the licenses and credits stated in `mod/`.
+Developed by **Valen Systems** as part of **ValenCraft**. Original creators retain their respective rights and attribution.

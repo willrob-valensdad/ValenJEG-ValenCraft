@@ -1,0 +1,155 @@
+{
+  "markers": [
+    {
+      "pos": [
+        2,
+        1,
+        8
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_FILING_CABINET",
+      "min": 4,
+      "max": 12,
+      "rot": 26.251861572265625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        7,
+        1,
+        8
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_CAPNUKE",
+      "min": 1,
+      "max": 1,
+      "rot": -10.949389457702637,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        7,
+        11,
+        2
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_green",
+      "replace_meta": 0,
+      "source_pool": "POOL_OFFICE_TRASH",
+      "min": 0,
+      "max": 1,
+      "rot": 94.0469970703125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        7,
+        11,
+        4
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_CAPNUKE",
+      "min": 0,
+      "max": 1,
+      "rot": 89.09637451171875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        8,
+        1,
+        2
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_SUPPLIES",
+      "min": 8,
+      "max": 16,
+      "rot": 168.149658203125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        11,
+        1,
+        3
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MEDICINE",
+      "min": 0,
+      "max": 1,
+      "rot": -135.14932250976562,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        11,
+        1,
+        8
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_green",
+      "replace_meta": 0,
+      "source_pool": "POOL_FILING_CABINET",
+      "min": 3,
+      "max": 8,
+      "rot": -18.601806640625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        13,
+        1,
+        6
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MAKESHIFT_GUN",
+      "min": 0,
+      "max": 1,
+      "rot": -75.14937591552734,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        15,
+        11,
+        6
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MEDICINE",
+      "min": 0,
+      "max": 1,
+      "rot": -92.40338134765625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        15,
+        15,
+        6
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MAKESHIFT_GUN",
+      "min": 0,
+      "max": 1,
+      "rot": -57.75006103515625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    }
+  ],
+  "class_notes": []
+}

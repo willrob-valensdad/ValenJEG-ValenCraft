@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/mokova",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "scguns:flechette",
+    "Q": "#c:glass",
+    "S": "minecraft:gunpowder"
+  },
+  "pattern": [
+    " X ",
+    "XSX",
+    " Q "
+  ],
+  "result": {
+    "id": "scguns:nail_bomb"
+  }
+}

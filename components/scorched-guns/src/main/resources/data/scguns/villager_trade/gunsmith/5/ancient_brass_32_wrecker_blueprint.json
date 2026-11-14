@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "scguns:ancient_brass",
+    "count": 32
+  },
+  "gives": {
+    "id": "scguns:wrecker_blueprint"
+  },
+  "max_uses": 8,
+  "xp": 25,
+  "reputation_discount": 0.05
+}

@@ -1,0 +1,211 @@
+{
+	"parent": "minecraft:block/block",
+	"textures": {
+		"s": "spacereloaded:block/orbital_cannon_side",
+		"t": "spacereloaded:block/orbital_cannon_top",
+		"b": "spacereloaded:block/orbital_cannon_bottom",
+		"particle": "spacereloaded:block/orbital_cannon_side"
+	},
+	"elements": [
+		{
+			"from": [
+				0,
+				0,
+				0
+			],
+			"to": [
+				16,
+				10,
+				16
+			],
+			"faces": {
+				"north": {
+					"texture": "#s"
+				},
+				"south": {
+					"texture": "#s"
+				},
+				"east": {
+					"texture": "#s"
+				},
+				"west": {
+					"texture": "#s"
+				},
+				"up": {
+					"texture": "#t"
+				},
+				"down": {
+					"texture": "#b"
+				}
+			}
+		},
+		{
+			"from": [
+				3,
+				10,
+				3
+			],
+			"to": [
+				13,
+				14,
+				13
+			],
+			"faces": {
+				"north": {
+					"texture": "#s"
+				},
+				"south": {
+					"texture": "#s"
+				},
+				"east": {
+					"texture": "#s"
+				},
+				"west": {
+					"texture": "#s"
+				},
+				"up": {
+					"texture": "#t"
+				},
+				"down": {
+					"texture": "#s"
+				}
+			}
+		},
+		{
+			"from": [
+				5.5,
+				14,
+				5.5
+			],
+			"to": [
+				10.5,
+				26,
+				10.5
+			],
+			"faces": {
+				"north": {
+					"texture": "#b",
+					"uv": [
+						5.5,
+						4,
+						10.5,
+						16
+					]
+				},
+				"south": {
+					"texture": "#b",
+					"uv": [
+						5.5,
+						4,
+						10.5,
+						16
+					]
+				},
+				"east": {
+					"texture": "#b",
+					"uv": [
+						5.5,
+						4,
+						10.5,
+						16
+					]
+				},
+				"west": {
+					"texture": "#b",
+					"uv": [
+						5.5,
+						4,
+						10.5,
+						16
+					]
+				},
+				"up": {
+					"texture": "#b",
+					"uv": [
+						5.5,
+						5.5,
+						10.5,
+						10.5
+					]
+				},
+				"down": {
+					"texture": "#b",
+					"uv": [
+						5.5,
+						5.5,
+						10.5,
+						10.5
+					]
+				}
+			}
+		},
+		{
+			"from": [
+				4.5,
+				24,
+				4.5
+			],
+			"to": [
+				11.5,
+				27,
+				11.5
+			],
+			"faces": {
+				"north": {
+					"texture": "#s",
+					"uv": [
+						4.5,
+						5,
+						11.5,
+						8
+					]
+				},
+				"south": {
+					"texture": "#s",
+					"uv": [
+						4.5,
+						5,
+						11.5,
+						8
+					]
+				},
+				"east": {
+					"texture": "#s",
+					"uv": [
+						4.5,
+						5,
+						11.5,
+						8
+					]
+				},
+				"west": {
+					"texture": "#s",
+					"uv": [
+						4.5,
+						5,
+						11.5,
+						8
+					]
+				},
+				"up": {
+					"texture": "#s",
+					"uv": [
+						4.5,
+						4.5,
+						11.5,
+						11.5
+					]
+				},
+				"down": {
+					"texture": "#s",
+					"uv": [
+						4.5,
+						4.5,
+						11.5,
+						11.5
+					]
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "scguns:lightning_rod_connector"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:lightning_rod"
+  }
+}

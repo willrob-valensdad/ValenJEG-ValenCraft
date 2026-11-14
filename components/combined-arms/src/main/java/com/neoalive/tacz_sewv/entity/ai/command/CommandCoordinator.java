@@ -1,0 +1,1209 @@
+package com.neoalive.tacz_sewv.entity.ai.command;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import org.slf4j.Logger;
+
+import com.neoalive.tacz_sewv.bridge.IAiFireTracker;
+import com.neoalive.tacz_sewv.config.EasyMode;
+import com.neoalive.tacz_sewv.config.EasyTuning;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.crew.CrewFacts;
+import com.neoalive.tacz_sewv.debug.SewvDiag;
+import com.neoalive.tacz_sewv.entity.ai.cover.CoverQuery;
+import com.neoalive.tacz_sewv.entity.ai.formation.DrivableGround;
+import com.neoalive.tacz_sewv.entity.ai.formation.FormationTemplates;
+import com.neoalive.tacz_sewv.entity.ai.formation.SlotMatcher;
+import com.neoalive.tacz_sewv.entity.ai.march.CohesiveMarches;
+import com.neoalive.tacz_sewv.entity.ai.march.IdleMarches;
+import com.neoalive.tacz_sewv.entity.ai.march.March;
+import com.neoalive.tacz_sewv.entity.ai.march.MarchRegistry;
+import com.neoalive.tacz_sewv.entity.ai.sensor.CombatantIndex;
+import com.neoalive.tacz_sewv.entity.ai.sensor.HullLocalScan;
+import com.neoalive.tacz_sewv.entity.ai.support.HeliFollowSlots;
+import com.neoalive.tacz_sewv.entity.ai.support.IdleGroupSupport;
+import com.neoalive.tacz_sewv.entity.ai.utility.Facts;
+import com.neoalive.tacz_sewv.entity.ai.utility.TacticalScale;
+import com.neoalive.tacz_sewv.entity.ai.utility.UtilityWeights;
+import com.neoalive.tacz_sewv.entity.unit.PmcCommanderEntity;
+import com.neoalive.tacz_sewv.map.BattleFieldMarker;
+
+/**
+ * Server-side owner of battle groups: scans eligible drivers on the utility cadence, battle-gates,
+ * runs the pure {@link Grouping} core, rebuilds per-group {@link InfluenceMap}/{@link BattleField},
+ * then elects commanders.
+ *
+ * <p>Influence maps are rebuilt only here (command cadence) and only for live battle-gated groups.
+ * Cell arrays are reused on each {@link BattleGroup}.
+ */
+public final class CommandCoordinator {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    /** A battlefield is rebuilt at least this often even when our side has not moved (the enemy may have). */
+    private static final long INFLUENCE_MAX_AGE_TICKS = 60;
+
+    private static int nextScan = Integer.MIN_VALUE;
+    private static int nextGroupId = 1;
+
+    private static final Map<ResourceKey<Level>, Map<Integer, BattleGroup>> GROUPS_BY_LEVEL = new HashMap<>();
+
+    /**
+     * Idle-tasked unit ids published this command pass (uncontested hybrid idle). Merged into
+     * {@link #syncCrewAssignments()} so retainAll does not wipe them when battle groups are empty.
+     */
+    private static final Set<Integer> IDLE_TASKED_KEEP = new HashSet<>();
+
+    /**
+     * Seated ground drivers, noted by {@code DriveVehicleGoal.canUse} whether or not that goal is running. Facts
+     * are only bound while the goal runs, and a crew parked with nowhere to go has stopped it — so reading Facts
+     * alone made every parked crew invisible here, which meant it could never be grouped or tasked, which meant
+     * nothing ever gave it somewhere to go again. Pruned by {@link #collectDrivers}, so it heals itself.
+     */
+    private static final Set<Integer> SEATED_DRIVERS = new HashSet<>();
+
+    /** Per level: battle group id → the id of its CohesiveLine march (-1 when the line was refused). */
+    private static final Map<ResourceKey<Level>, Map<Integer, Integer>> COHESIVE_LINES = new HashMap<>();
+
+    /** Note {@code unitId} as sitting in a ground hull's driver seat. Server thread; cheap enough for canUse. */
+    public static void noteSeatedDriver(int unitId) {
+        SEATED_DRIVERS.add(unitId);
+    }
+
+    private CommandCoordinator() {}
+
+    @SubscribeEvent
+    public static void onServerStarting(ServerStartingEvent event) {
+        nextScan = Integer.MIN_VALUE;
+        nextGroupId = 1;
+        GROUPS_BY_LEVEL.clear();
+        CommandEligibility.clearCache();
+        CrewAssignment.clearAll();
+        IDLE_TASKED_KEEP.clear();
+        IdleGroupSupport.clearPublished();
+        MarchRegistry.clear();
+        IdleMarches.clear();
+        SEATED_DRIVERS.clear();
+        COHESIVE_LINES.clear();
+        HeliFollowSlots.clear();
+    }
+
+    @SubscribeEvent
+    public static void onServerStopping(ServerStoppingEvent event) {
+        nextScan = Integer.MIN_VALUE;
+        GROUPS_BY_LEVEL.clear();
+        CommandEligibility.clearCache();
+        CrewAssignment.clearAll();
+        IDLE_TASKED_KEEP.clear();
+        IdleGroupSupport.clearPublished();
+        MarchRegistry.clear();
+        IdleMarches.clear();
+        SEATED_DRIVERS.clear();
+        COHESIVE_LINES.clear();
+        HeliFollowSlots.clear();
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        try {
+            if (!SewvConfig.COMMAND_SYSTEM_ENABLED.get()) {
+                if (!GROUPS_BY_LEVEL.isEmpty()) {
+                    GROUPS_BY_LEVEL.clear();
+                    CommandEligibility.clearCache();
+                    CrewAssignment.clearAll();
+                    IDLE_TASKED_KEEP.clear();
+                    IdleGroupSupport.clearPublished();
+                    MarchRegistry.clear();
+                    IdleMarches.clear();
+                    COHESIVE_LINES.clear();
+                }
+                return;
+            }
+        } catch (Throwable ignored) {
+            return;
+        }
+        int now = event.getServer().getTickCount();
+        if (now < nextScan) return;
+        int interval;
+        try {
+            interval = SewvConfig.UTILITY_REFRESH_INTERVAL_TICKS.get();
+        } catch (Throwable ignored) {
+            return;
+        }
+        nextScan = now + interval;
+        IDLE_TASKED_KEEP.clear();
+        IdleGroupSupport.beginPublish();
+
+        GroupParams params;
+        int maxUnits;
+        double engagement;
+        try {
+            // Every command-tier distance scales together (tacticalScale), so the hysteresis band and the
+            // diameter cap keep their proportions.
+            double scale = TacticalScale.get();
+            params = new GroupParams(
+                    SewvConfig.COMMAND_GROUP_JOIN_RADIUS.get() * scale,
+                    SewvConfig.COMMAND_GROUP_LEAVE_RADIUS.get() * scale,
+                    SewvConfig.COMMAND_GROUP_MAX_DIAMETER.get() * scale,
+                    SewvConfig.COMMAND_GROUP_MIN_SIZE.get());
+            maxUnits = SewvConfig.COMMAND_MAX_UNITS.get();
+            engagement = SewvConfig.COMMAND_ENGAGEMENT_RADIUS.get() * scale;
+        } catch (Throwable ignored) {
+            return;
+        }
+        if (params.leaveRadius <= params.joinRadius) {
+            LOGGER.warn("[sewv-command] leaveRadius must exceed joinRadius; skipping scan");
+            return;
+        }
+        if (params.leaveRadius > params.maxRadius()) {
+            LOGGER.warn("[sewv-command] leaveRadius exceeds maxDiameter/2; hysteresis band is clipped by diameter");
+        }
+
+        for (ServerLevel level : event.getServer().getAllLevels()) {
+            scanLevel(level, params, maxUnits, engagement, now);
+        }
+        syncCrewAssignments();
+    }
+
+    /** Publish every live role into {@link CrewAssignment}; drop units no longer tasked. */
+    private static void syncCrewAssignments() {
+        Set<Integer> keep = new HashSet<>(IDLE_TASKED_KEEP);
+        for (Map<Integer, BattleGroup> levelGroups : GROUPS_BY_LEVEL.values()) {
+            for (BattleGroup g : levelGroups.values()) {
+                Roles roles = g.currentRoles();
+                if (roles == null) continue;
+                for (Assignment a : roles.assignments) {
+                    CrewAssignment.publish(a);
+                    keep.add(a.unitId);
+                }
+            }
+        }
+        CrewAssignment.retainAll(keep);
+    }
+
+    /** Snapshot of live groups across all dimensions — Stage 2+ read from here. */
+    public static Map<ResourceKey<Level>, Map<Integer, BattleGroup>> groupsView() {
+        Map<ResourceKey<Level>, Map<Integer, BattleGroup>> copy = new HashMap<>();
+        for (var e : GROUPS_BY_LEVEL.entrySet()) {
+            copy.put(e.getKey(), Map.copyOf(e.getValue()));
+        }
+        return copy;
+    }
+
+    /**
+     * Read-only map-debug lookup: which battle group a driver belongs to, and whether it is
+     * the elected commander. Does not mutate grouping or election state.
+     *
+     * <p>{@code commander == false} with a non-null result means in-group but not commander —
+     * including the deferred-election case where the group has no {@code commanderId} yet.
+     */
+    @Nullable
+    public static CommandTag tagForDriver(int driverId) {
+        for (Map<Integer, BattleGroup> levelGroups : GROUPS_BY_LEVEL.values()) {
+            for (BattleGroup g : levelGroups.values()) {
+                if (!g.contains(driverId)) continue;
+                boolean commander = g.hasCommander() && g.commanderId() == driverId;
+                return new CommandTag(g.groupId(), commander);
+            }
+        }
+        return null;
+    }
+
+    /** Immutable view for map markers — never write through this. */
+    public record CommandTag(int groupId, boolean commander) {}
+
+    /**
+     * Read-only debug snapshots of populated battlefields across all dimensions. Copies field
+     * values only — does not rebuild influence or mutate groups.
+     */
+    public static List<BattleFieldDebug> battleFieldsDebug() {
+        List<BattleFieldDebug> out = new ArrayList<>();
+        for (var e : GROUPS_BY_LEVEL.entrySet()) {
+            ResourceKey<Level> dim = e.getKey();
+            for (BattleGroup g : e.getValue().values()) {
+                BattleField bf = g.battleField();
+                if (!bf.populated) continue;
+                out.add(new BattleFieldDebug(
+                        g.groupId(), dim,
+                        bf.friendlyCentroidX, bf.friendlyCentroidZ,
+                        bf.enemyCentroidX, bf.enemyCentroidZ,
+                        bf.axisX, bf.axisZ,
+                        bf.openFlankLeft, bf.openFlankRight,
+                        playLabelOf(g)));
+            }
+        }
+        return out;
+    }
+
+    /** PascalCase play name for the overlay, or empty when none committed. Read-only. */
+    private static String playLabelOf(BattleGroup g) {
+        PlayId play = g.currentPlay();
+        if (play == null) return "";
+        String[] parts = play.key.split("_");
+        StringBuilder sb = new StringBuilder(play.key.length());
+        for (String p : parts) {
+            if (p.isEmpty()) continue;
+            sb.append(Character.toUpperCase(p.charAt(0)));
+            if (p.length() > 1) sb.append(p.substring(1));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Read-only: the Stage-4 assignment role for a driver, if any. Does not mutate play state.
+     */
+    @Nullable
+    public static Assignment.Role assignmentRoleForDriver(int driverId) {
+        for (Map<Integer, BattleGroup> levelGroups : GROUPS_BY_LEVEL.values()) {
+            for (BattleGroup g : levelGroups.values()) {
+                Roles roles = g.currentRoles();
+                if (roles == null) continue;
+                for (Assignment a : roles.assignments) {
+                    if (a.unitId == driverId) return a.role;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Plain copy of {@link BattleField} fields for the map packet. Flank <i>positions</i> are
+     * decided by the tracker when packaging — not here.
+     */
+    public record BattleFieldDebug(
+            int groupId, ResourceKey<Level> dimension,
+            double friendlyX, double friendlyZ,
+            double enemyX, double enemyZ,
+            double axisX, double axisZ,
+            boolean openFlankLeft, boolean openFlankRight,
+            String playLabel
+    ) {}
+
+    private static void scanLevel(ServerLevel level, GroupParams params, int maxUnits, double engagement,
+                                  int nowTick) {
+        ResourceKey<Level> dim = level.dimension();
+        Map<Integer, BattleGroup> levelGroups = GROUPS_BY_LEVEL.computeIfAbsent(dim, d -> new HashMap<>());
+
+        List<Candidate> drivers = collectDrivers(level);
+        drivers.sort(Comparator.comparingInt(c -> c.unitId));
+        if (drivers.size() > maxUnits) {
+            drivers = new ArrayList<>(drivers.subList(0, maxUnits));
+        }
+
+        Map<Integer, Candidate> byId = new HashMap<>(drivers.size() * 2);
+        for (Candidate c : drivers) byId.put(c.unitId, c);
+
+        double engagementSq = engagement * engagement;
+        List<UnitPos> contested = new ArrayList<>();
+        Set<Integer> contestedIds = new HashSet<>();
+        for (Candidate c : drivers) {
+            if (hasOpposingNearby(level, c, engagementSq)) {
+                contested.add(new UnitPos(c.unitId, c.faction.ordinal(), c.x, c.z));
+                contestedIds.add(c.unitId);
+            }
+        }
+
+        // Keep members of a still-contested group in the candidate set even if they personally
+        // drifted out of engagement — sticky through a lull on one flank.
+        List<ExistingGroup> existing = new ArrayList<>();
+        List<Integer> dissolveNoBattle = new ArrayList<>();
+        for (BattleGroup g : levelGroups.values()) {
+            if (!centroidHasOpposing(level, g, engagementSq)) {
+                dissolveNoBattle.add(g.groupId());
+                continue;
+            }
+            existing.add(g.toExisting());
+            for (int memberId : g.memberIds()) {
+                if (contestedIds.contains(memberId)) continue;
+                Candidate c = byId.get(memberId);
+                if (c == null || c.faction.ordinal() != g.faction()) continue;
+                contested.add(new UnitPos(c.unitId, c.faction.ordinal(), c.x, c.z));
+                contestedIds.add(c.unitId);
+            }
+        }
+        for (int id : dissolveNoBattle) {
+            if (levelGroups.remove(id) != null) {
+                SewvDiag.command("dissolve group {} (no engagement)", id);
+            }
+        }
+
+        if (!contested.isEmpty()) {
+            // Refresh existing list after dissolves.
+            existing.clear();
+            for (BattleGroup g : levelGroups.values()) {
+                existing.add(g.toExisting());
+            }
+
+            List<AssignedGroup> assigned = Grouping.groupAssignments(
+                    contested, existing, params, () -> nextGroupId++);
+
+            applyAssignments(levelGroups, assigned, existing);
+            rebuildBattleFields(level, levelGroups, engagement, nowTick);
+            electCommanders(level, levelGroups, params);
+            selectPlays(level, levelGroups, nowTick);
+            if (SewvDiag.collectiveAiVerbose()) {
+                for (BattleGroup g : levelGroups.values()) logGroup(level, g);
+            }
+        }
+
+        // Soft IDLE_HOLD / IDLE_TRAVEL for clustered idle ground drivers that are not in a battle group, so
+        // the utility scorer can bias formation without inventing a battle play. Every pass, not only when the
+        // whole dimension is quiet: one skirmish anywhere used to dissolve every idle formation on the level.
+        Set<Integer> inBattle = new HashSet<>();
+        for (BattleGroup g : levelGroups.values()) {
+            for (int id : g.memberIds()) inBattle.add(id);
+        }
+        List<Candidate> notInBattle = new ArrayList<>(drivers.size());
+        for (Candidate c : drivers) {
+            if (!inBattle.contains(c.unitId)) notInBattle.add(c);
+        }
+        syncCohesiveLines(level, levelGroups, level.getGameTime());
+        publishIdleAssignments(level, notInBattle, inBattle);
+    }
+
+    /**
+     * Keep one COHESIVE_LINE march for every group whose play is CohesiveLine, and none for any other. The play only
+     * deals roles; the march is the line itself, so it is formed the pass the play is committed and ended the pass
+     * the play is dropped (or the group dissolves). A line whose march ended on its own (arrived, stalled) is not
+     * re-formed under the same play: the play's own validity hands over soon after.
+     */
+    private static void syncCohesiveLines(ServerLevel level, Map<Integer, BattleGroup> levelGroups, long now) {
+        Map<Integer, Integer> lines = COHESIVE_LINES.computeIfAbsent(level.dimension(), d -> new HashMap<>());
+        for (var it = lines.entrySet().iterator(); it.hasNext(); ) {
+            var e = it.next();
+            BattleGroup g = levelGroups.get(e.getKey());
+            if (g == null || g.currentPlay() != PlayId.COHESIVE_LINE) {
+                MarchRegistry.end(e.getValue(), g == null ? "group dissolved" : "play ended");
+                it.remove();
+            }
+        }
+        for (BattleGroup g : levelGroups.values()) {
+            if (g.currentPlay() != PlayId.COHESIVE_LINE || lines.containsKey(g.groupId())) continue;
+            Roles roles = g.currentRoles();
+            BattleField bf = g.battleField();
+            if (roles == null || !bf.populated) continue;
+            Assignment[] line = roles.assignments.clone();
+            java.util.Arrays.sort(line, Comparator.comparingInt((Assignment a) -> a.slot).thenComparingInt(a -> a.unitId));
+            int[] hulls = new int[line.length];
+            for (int i = 0; i < line.length; i++) hulls[i] = line[i].unitId;
+            double scale = TacticalScale.get();
+            double spacing = FormationTemplates.active().lookup(PlayId.COHESIVE_LINE.key, "maneuver").spacing() * scale;
+            double length = PlayGeometry.enemyDistance(bf) - TacticalScale.of(CohesiveLine.HANDOVER_DISTANCE);
+            March march = CohesiveMarches.form(level, CrewFacts.Faction.byId(g.faction()), hulls,
+                    g.centroidX(), groupY(level, g), g.centroidZ(), -bf.axisX, -bf.axisZ, length,
+                    spacing, TacticalScale.of(INFANTRY_AT_HULLS), now);
+            // Recorded even when refused, so a refused line is not re-tried every pass; the play stands regardless.
+            lines.put(g.groupId(), march == null ? -1 : march.id());
+        }
+    }
+
+    /**
+     * {@code collectiveAiDebug}: one line per group per pass. Each role point is printed with its distance to
+     * both centroids, so a point on the wrong side of the line (a withdraw point nearer the enemy than the
+     * group is) shows up in the log.
+     */
+    private static void logGroup(ServerLevel level, BattleGroup g) {
+        BattleField bf = g.battleField();
+        StringBuilder roles = new StringBuilder();
+        Roles r = g.currentRoles();
+        if (r != null) {
+            for (Assignment a : r.assignments) {
+                roles.append(' ').append(a.unitId).append(':').append(a.role);
+                if (a.flankSide != null) roles.append('/').append(a.flankSide);
+                if (Double.isFinite(a.destX) && bf.populated) {
+                    double dF = Math.hypot(a.destX - bf.friendlyCentroidX, a.destZ - bf.friendlyCentroidZ);
+                    double dE = Math.hypot(a.destX - bf.enemyCentroidX, a.destZ - bf.enemyCentroidZ);
+                    double groupToEnemy = Math.hypot(bf.friendlyCentroidX - bf.enemyCentroidX,
+                            bf.friendlyCentroidZ - bf.enemyCentroidZ);
+                    roles.append(String.format("@%.0f,%.0f(dFriendly=%.0f dEnemy=%.0f vs group %.0f)",
+                            a.destX, a.destZ, dF, dE, groupToEnemy));
+                }
+            }
+        }
+        SewvDiag.command("group={} dim={} faction={} members={} commander={} friendly={} enemy={} balance={}"
+                        + " flanks L={} R={} play={} |{}",
+                g.groupId(), level.dimension().location(), CrewFacts.Faction.byId(g.faction()),
+                Arrays.toString(g.memberIds()), g.hasCommander() ? g.commanderId() : "none",
+                bf.friendlyCount, bf.enemyCount, String.format("%.2f", bf.forceBalance),
+                bf.openFlankLeft, bf.openFlankRight, g.currentPlay() == null ? "none" : g.currentPlay().key,
+                roles);
+    }
+
+    private static void selectPlays(ServerLevel level, Map<Integer, BattleGroup> levelGroups, int nowTick) {
+        int minTicks;
+        double margin;
+        try {
+            minTicks = SewvConfig.MIN_PLAY_TICKS.get();
+            margin = SewvConfig.PLAY_SWITCH_MARGIN.get();
+        } catch (Throwable ignored) {
+            return;
+        }
+        UtilityWeights weights = UtilityWeights.active();
+        for (BattleGroup group : levelGroups.values()) {
+            try {
+                selectPlayOne(level, group, nowTick, minTicks, margin, weights);
+            } catch (Throwable t) {
+                LOGGER.debug("[sewv-command] play select failed group {}: {}",
+                        group.groupId(), t.toString());
+            }
+        }
+    }
+
+    /** Easy Mode morale applies to this group — judged off its first live member (one faction per group). */
+    private static boolean timidGroup(ServerLevel level, BattleGroup group) {
+        if (!EasyMode.active()) return false;
+        for (int id : group.memberIds()) {
+            var e = level.getEntity(id);
+            if (e != null) return EasyMode.timid(e);
+        }
+        return false;
+    }
+
+    private static void selectPlayOne(ServerLevel level, BattleGroup group, int nowTick,
+                                      int minTicks, double margin, UtilityWeights weights) {
+        if (!group.battleField().populated) {
+            group.clearPlay();
+            return;
+        }
+        int[] ids = group.memberIds();
+        double[] xs = new double[ids.length];
+        double[] zs = new double[ids.length];
+        for (int i = 0; i < ids.length; i++) {
+            var e = level.getEntity(ids[i]);
+            if (e != null) {
+                xs[i] = e.getX();
+                zs[i] = e.getZ();
+            } else {
+                xs[i] = group.centroidX();
+                zs[i] = group.centroidZ();
+            }
+        }
+        GroupSnapshot snap = new GroupSnapshot(ids, xs, zs);
+        PlaySelection.Result result = PlaySelection.select(
+                group.battleField(), snap,
+                group.currentPlay(), group.playStartedTick(), nowTick,
+                group.currentRoles(),
+                timidGroup(level, group) ? EasyTuning.scaleTicks(minTicks, EasyTuning.MIN_PLAY_TICKS_MULT) : minTicks,
+                margin, weights);
+        Roles roles = applyTactics(level, group, snap, result, nowTick);
+        roles = withFocusFire(level, group, roles);
+        boolean playChanged = result.switched() || group.currentPlay() == null
+                || group.currentPlay() != result.play();
+        if (playChanged) {
+            SewvDiag.command("play group={} {} play={}",
+                    group.groupId(), result.reason(), result.play().key);
+            if (roles != null) {
+                for (Assignment a : roles.assignments) {
+                    SewvDiag.command("formation group={} unit={} role={} side={} slot={} point={},{} facing={},{}",
+                            group.groupId(), a.unitId, a.role, a.flankSide, a.slot,
+                            String.format(Locale.ROOT, "%.0f", a.destX), String.format(Locale.ROOT, "%.0f", a.destZ),
+                            String.format(Locale.ROOT, "%.2f", a.facingX), String.format(Locale.ROOT, "%.2f", a.facingZ));
+                }
+            }
+            group.commitPlay(result.play(), roles, nowTick);
+        } else {
+            // Keep start tick; refresh roles for moving geometry.
+            long started = group.playStartedTick() == Long.MIN_VALUE ? nowTick : group.playStartedTick();
+            group.commitPlay(result.play(), roles, started);
+        }
+    }
+
+    /** Whether the hull {@code unitId} crews fired an AI shot within {@code window} game ticks. */
+    private static boolean hullFiredWithin(ServerLevel level, int unitId, long gameTime, long window) {
+        if (!(level.getEntity(unitId) instanceof AbstractUnit unit)) return false;
+        if (!(unit.getVehicle() instanceof IAiFireTracker hull)) return false;
+        long last = hull.tacz_sewv$getLastAiShotTick();
+        return last != IAiFireTracker.NEVER && gameTime - last <= window;
+    }
+
+    /**
+     * Group tactics on top of the selected roles, in order: leapfrog (same play only — it reads the previous pass's
+     * committed roles), formation slots, commander back, cover points. See {@link TacticPostProcess} and
+     * {@link PlayFormations}.
+     */
+    private static Roles applyTactics(ServerLevel level, BattleGroup group, GroupSnapshot snap,
+                                      PlaySelection.Result result, int nowTick) {
+        BattleField bf = group.battleField();
+        Roles roles = result.roles();
+        if (roles == null) return null;
+        if (group.currentPlay() == result.play()) {
+            Roles fresh = Plays.of(result.play()).assignRoles(bf, snap);
+            // The bound waits for real covering fire, not just an OVERWATCH role (see TacticPostProcess).
+            // No swap yet this play: the bound has been waiting since the play began.
+            long swapClock = group.lastLeapfrogTick() != Long.MIN_VALUE ? group.lastLeapfrogTick()
+                    : group.playStartedTick();
+            long sinceSwap = swapClock == Long.MIN_VALUE ? Long.MAX_VALUE : nowTick - swapClock;
+            long gameTime = level.getGameTime();
+            Roles swapped = TacticPostProcess.leapfrog(result.play(), group.currentRoles(), roles, fresh, snap,
+                    TacticalScale.of(TaskedDestination.ARRIVE), bf.enemyCount > 0,
+                    id -> hullFiredWithin(level, id, gameTime, TacticPostProcess.COVER_FIRE_TICKS), sinceSwap);
+            if (swapped != roles) {
+                group.noteLeapfrog(nowTick);
+                SewvDiag.command("tactic leapfrog group={} play={}: movers on their points, halves swap",
+                        group.groupId(), result.play().key);
+            }
+            roles = swapped;
+        }
+        FormationTemplates templates = FormationTemplates.active();
+        roles = PlayFormations.lay(result.play(), bf, roles, group.currentRoles(), snap, templates, TacticalScale.get());
+        if (group.hasCommander()) {
+            Roles back = TacticPostProcess.commanderBack(roles, snap, group.commanderId());
+            if (back != roles) {
+                SewvDiag.command("tactic commander-back group={} commander={} stays with the supporting element",
+                        group.groupId(), group.commanderId());
+            }
+            roles = back;
+        }
+        double ex = bf.enemyCentroidX;
+        double ez = bf.enemyCentroidZ;
+        // Holding points stay put through a play until the enemy has really moved; laid fresh each pass they
+        // jumped 20-40 blocks and had the hulls pivoting on the spot chasing them.
+        if (group.currentPlay() == result.play() && Double.isFinite(group.latchEnemyX())
+                && Math.hypot(ex - group.latchEnemyX(), ez - group.latchEnemyZ())
+                        <= TacticalScale.of(TacticPostProcess.LATCH_REANCHOR)) {
+            roles = TacticPostProcess.latchHolding(group.currentRoles(), roles);
+        } else {
+            group.relatch(ex, ez);
+        }
+        // Half the tightest spacing: cover may bend a formation, never fold two slots onto one spot.
+        roles = TacticPostProcess.coverPoints(roles,
+                TacticalScale.of(TacticPostProcess.COVER_NEAR), TacticalScale.of(TacticPostProcess.COVER_FAR),
+                TacticalScale.of(templates.minSpacing()) * 0.5,
+                (x, z) -> CoverQuery.exposure(level, x, z, ex, ez));
+        return onLand(level, roles, group.centroidX(), group.centroidZ());
+    }
+
+    /**
+     * Soft focus-fire: stamp every role with the nearest opposing unit to the enemy centroid.
+     * Does not hard-set {@code unit.setTarget} — only biases acquisition when the id is still live.
+     */
+    private static Roles withFocusFire(ServerLevel level, BattleGroup group, Roles roles) {
+        if (roles == null || roles.size() == 0) return roles;
+        Integer focus = nearestOpposingId(level, group);
+        if (focus == null) return roles;
+        Assignment[] out = new Assignment[roles.assignments.length];
+        for (int i = 0; i < roles.assignments.length; i++) {
+            Assignment a = roles.assignments[i];
+            out[i] = a.withPriorityTarget(focus);
+        }
+        return new Roles(out);
+    }
+
+    @Nullable
+    private static Integer nearestOpposingId(ServerLevel level, BattleGroup group) {
+        BattleField bf = group.battleField();
+        if (!bf.populated) return null;
+        CrewFacts.Faction ours = CrewFacts.Faction.byId(group.faction());
+        double cx = bf.enemyCentroidX;
+        double cz = bf.enemyCentroidZ;
+        double best = Double.POSITIVE_INFINITY;
+        Integer bestId = null;
+        double r = 96.0;
+        try {
+            r = SewvConfig.COMMAND_ENGAGEMENT_RADIUS.get();
+        } catch (Throwable ignored) {
+        }
+        r *= TacticalScale.get();
+        for (AbstractUnit other : unitsAround(level, cx, groupY(level, group), cz, r)) {
+            CrewFacts.Faction f = CrewFacts.factionOfCrew(other);
+            if (f == null || f == ours) continue;
+            double dx = other.getX() - cx;
+            double dz = other.getZ() - cz;
+            double d = dx * dx + dz * dz;
+            if (d < best || (d == best && (bestId == null || other.getId() < bestId))) {
+                best = d;
+                bestId = other.getId();
+            }
+        }
+        return bestId;
+    }
+
+    /**
+     * Influence + BattleField for every live group. Groups already passed the battle gate;
+     * a group with no opposing samples this tick still clears rather than keeping a stale map.
+     */
+    private static void rebuildBattleFields(ServerLevel level, Map<Integer, BattleGroup> levelGroups,
+                                            double engagement, int nowTick) {
+        double cell;
+        int maxCells;
+        try {
+            cell = SewvConfig.INFLUENCE_CELL_SIZE.get() * TacticalScale.get();
+            maxCells = SewvConfig.INFLUENCE_MAX_CELLS.get();
+        } catch (Throwable ignored) {
+            return;
+        }
+        double margin = Math.max(cell * 2.0, engagement * 0.25);
+
+        for (BattleGroup group : levelGroups.values()) {
+            try {
+                // Skip sample collection + rebuild when membership/centroid are unchanged and the picture is
+                // recent — samples are the expensive half of a stable stalemate.
+                if (group.battleField().populated
+                        && !group.needsInfluenceRebuild(cell * 0.5, nowTick, INFLUENCE_MAX_AGE_TICKS)) {
+                    continue;
+                }
+                double[] weights = new double[3]; // our weight, theirs, our riflemen at the hulls
+                List<UnitPos> samples = collectInfluenceSamples(level, group, engagement, weights);
+                if (samples.isEmpty()) {
+                    group.battleField().clear();
+                    group.clearPlay();
+                    continue;
+                }
+                // Only build when at least one opposing sample is present — mirrors the gate.
+                boolean hasEnemy = false;
+                for (UnitPos u : samples) {
+                    if (u.faction != group.faction()) {
+                        hasEnemy = true;
+                        break;
+                    }
+                }
+                if (!hasEnemy) {
+                    group.battleField().clear();
+                    group.clearPlay();
+                    continue;
+                }
+                BattleField bf = group.battleField();
+                group.influenceMap().rebuildAndDerive(bf, samples, group.faction(), cell, maxCells, margin, group.memberIds());
+                // Riflemen weigh a third of a hull: a tank group facing a rifle squad is not "outnumbered".
+                bf.enemyWeight = weights[1];
+                bf.friendlyInfantry = (int) weights[2];
+                bf.infantrySupport = Math.min(1.0, weights[2] / (2.0 * Math.max(1, group.memberIds().length)));
+                bf.forceBalance = weights[0] / Math.max(weights[1], 1.0);
+                // Easy Mode: a hostile group reads its odds as worse than they are, which is what
+                // tilts play selection towards withdrawal and holding and away from envelopment.
+                if (timidGroup(level, group)) bf.forceBalance *= EasyTuning.FORCE_BALANCE_MULT;
+                bf.peakEnemyWeight = group.notePeakEnemy(weights[1]);
+                gateFlanksByTerrain(level, bf);
+                group.markInfluenceRebuilt(nowTick);
+            } catch (Throwable t) {
+                group.battleField().clear();
+                LOGGER.debug("[sewv-command] influence rebuild failed group {}: {}",
+                        group.groupId(), t.toString());
+            }
+        }
+    }
+
+    /**
+     * One sample per combatant within engagement of the group centroid, on both sides: a hull (its crew and any
+     * embarked squad) counts once, an on-foot unit once ({@link CrewFacts#combatantId}). Counting drivers on our
+     * side but every crewman on theirs made 4 tanks vs 2 three-crew tanks read 0.67. Plain {@link UnitPos} — no
+     * vehicle types leak into the map.
+     */
+    private static List<UnitPos> collectInfluenceSamples(ServerLevel level, BattleGroup group,
+                                                         double engagement, double[] weightsOut) {
+        List<UnitPos> out = new ArrayList<>();
+        Set<Integer> seen = new HashSet<>();
+        for (int memberId : group.memberIds()) {
+            var e = level.getEntity(memberId);
+            if (e == null) continue;
+            out.add(new UnitPos(memberId, group.faction(), e.getX(), e.getZ()));
+            seen.add(CrewFacts.combatantId(e));
+            weightsOut[0] += 1.0;
+        }
+        if (out.isEmpty()) return out;
+        List<UnitPos> hulls = List.copyOf(out);
+
+        double r = engagement;
+        CrewFacts.Faction ours = CrewFacts.Faction.byId(group.faction());
+        double rSq = r * r;
+        for (AbstractUnit other : unitsAround(level, group.centroidX(), groupY(level, group), group.centroidZ(), r)) {
+            CrewFacts.Faction f = CrewFacts.factionOfCrew(other);
+            if (f == null) continue;
+            double dx = other.getX() - group.centroidX();
+            double dz = other.getZ() - group.centroidZ();
+            if (dx * dx + dz * dz > rSq) continue;
+            int combatant = CrewFacts.combatantId(other);
+            if (!seen.add(combatant)) continue;
+            // Our side: dismounted infantry and friendly hulls outside the group are strength too.
+            boolean friendly = f == ours;
+            if (friendly && !other.isPassenger() && nearAny(hulls, other.getX(), other.getZ(), INFANTRY_AT_HULLS)) {
+                weightsOut[2] += 1.0;
+            }
+            out.add(new UnitPos(combatant, friendly ? group.faction() : f.ordinal(), other.getX(), other.getZ()));
+            weightsOut[friendly ? 0 : 1] += CrewFacts.combatantWeight(other);
+        }
+        return out;
+    }
+
+    /** Pull step when moving a point off water or a tree, in blocks. */
+    private static final double LAND_PULL_STEP = 4.0;
+
+    /**
+     * The influence map opens a flank on friend/foe density alone, so on an island it opened one over the sea and
+     * the flankers were sent offshore. A flank whose mark cannot be pulled onto drivable ground within half the
+     * mark's own offset (walking back toward the enemy) is closed, and play selection sees the real picture.
+     */
+    private static void gateFlanksByTerrain(ServerLevel level, BattleField bf) {
+        if (!bf.populated) return;
+        DrivableGround.Column col = DrivableGround.column(level);
+        double limit = TacticalScale.of(BattleFieldMarker.FLANK_MARK_OFFSET) * 0.5;
+        for (int side : new int[] {+1, -1}) {
+            if (side > 0 ? !bf.openFlankLeft : !bf.openFlankRight) continue;
+            double mx = PlaySignals.flankMarkX(bf, side);
+            double mz = PlaySignals.flankMarkZ(bf, side);
+            if (!flankReachable(col, mx, mz, bf.enemyCentroidX, bf.enemyCentroidZ, limit)) {
+                if (side > 0) bf.openFlankLeft = false;
+                else bf.openFlankRight = false;
+                SewvDiag.command("flank {} closed: mark {},{} has no ground within {}", side > 0 ? "L" : "R",
+                        String.format(Locale.ROOT, "%.0f", mx), String.format(Locale.ROOT, "%.0f", mz),
+                        String.format(Locale.ROOT, "%.0f", limit));
+            }
+        }
+    }
+
+    /** Pure: is there drivable ground walking from the mark toward the enemy within {@code limit}? */
+    static boolean flankReachable(DrivableGround.Column col, double mx, double mz, double ex, double ez,
+                                  double limit) {
+        double[] p = DrivableGround.pullTowards(col, mx, mz, ex, ez, LAND_PULL_STEP);
+        return p != null && Math.hypot(p[0] - mx, p[1] - mz) <= limit;
+    }
+
+    /**
+     * Last pass over a group's dealt points: anything on water or a tree top is walked back toward the group
+     * until it is ground a hull can reach. Plays lay geometry with no idea of terrain.
+     */
+    private static Roles onLand(ServerLevel level, Roles roles, double cx, double cz) {
+        if (roles == null) return null;
+        DrivableGround.Column col = DrivableGround.column(level);
+        Assignment[] out = null;
+        for (int i = 0; i < roles.assignments.length; i++) {
+            Assignment a = roles.assignments[i];
+            if (!Double.isFinite(a.destX) || !Double.isFinite(a.destZ)) continue;
+            if (col.drivable(Mth.floor(a.destX), Mth.floor(a.destZ))) continue;
+            double[] p = DrivableGround.pullTowards(col, a.destX, a.destZ, cx, cz, LAND_PULL_STEP);
+            if (p == null) continue;
+            if (out == null) out = roles.assignments.clone();
+            out[i] = a.withDest(p[0], p[1]);
+        }
+        return out == null ? roles : new Roles(out);
+    }
+
+    /** A rifleman this close to one of the group's hulls is at the hulls (CohesiveLine's infantry). */
+    static final double INFANTRY_AT_HULLS = 24.0;
+
+    /** Is {@code (x, z)} within {@code r} of any of {@code samples}? */
+    private static boolean nearAny(List<UnitPos> samples, double x, double z, double r) {
+        for (UnitPos u : samples) {
+            double dx = u.x - x;
+            double dz = u.z - z;
+            if (dx * dx + dz * dz <= r * r) return true;
+        }
+        return false;
+    }
+
+    private static void electCommanders(ServerLevel level, Map<Integer, BattleGroup> levelGroups,
+                                        GroupParams params) {
+        double margin;
+        int quorum;
+        try {
+            margin = SewvConfig.COMMAND_MARGIN.get();
+            quorum = SewvConfig.COMMAND_GROUP_MIN_SIZE.get();
+        } catch (Throwable ignored) {
+            return;
+        }
+        UtilityWeights weights = UtilityWeights.active();
+        double maxRadius = params.maxRadius();
+
+        for (BattleGroup group : levelGroups.values()) {
+            try {
+                electOne(level, group, margin, quorum, maxRadius, weights);
+            } catch (Throwable t) {
+                LOGGER.debug("[sewv-command] election failed for group {}: {}",
+                        group.groupId(), t.toString());
+            }
+        }
+    }
+
+    private static void electOne(ServerLevel level, BattleGroup group, double margin, int quorum,
+                                 double maxRadius, UtilityWeights weights) {
+        List<Election.Candidate> members = new ArrayList<>();
+        Integer designatedNetId = resolveCommanderEntity(level, group);
+
+        for (int memberId : group.memberIds()) {
+            var entity = level.getEntity(memberId);
+            double x = group.centroidX();
+            double z = group.centroidZ();
+            if (entity != null) {
+                x = entity.getX();
+                z = entity.getZ();
+            }
+            Facts facts = Facts.of(memberId);
+            boolean ready = facts != null && facts.ready();
+            double fitness = 0.0;
+            if (ready) {
+                // The sitting commander is scored as central: commander-back keeps it with the supporting
+                // element on purpose, and letting that cost it centrality had it out-voted every few seconds —
+                // each new commander was pulled back in turn, reshuffling roles across the group.
+                boolean sitting = group.hasCommander() && group.commanderId() == memberId;
+                fitness = CommanderFitness.score(facts,
+                        sitting ? group.fitnessCentroidX() : x, sitting ? group.fitnessCentroidZ() : z,
+                        group.fitnessCentroidX(), group.fitnessCentroidZ(), maxRadius, weights);
+            }
+            members.add(new Election.Candidate(memberId, ready, fitness));
+        }
+
+        Integer incumbent = group.hasCommander() ? group.commanderId() : null;
+        Integer elected = Election.electCommander(members, incumbent, margin, quorum);
+        if (elected == null) {
+            SewvDiag.command("election deferred: no ready Facts group={}", group.groupId());
+            return;
+        }
+        if (!group.hasCommander() || group.commanderId() != elected) {
+            int old = group.hasCommander() ? group.commanderId() : -1;
+            String reason = designatedNetId != null && designatedNetId.equals(elected) ? "commander"
+                    : (incumbent == null ? "no-incumbent"
+                    : (incumbent == elected ? "kept" : "beaten"));
+            double oldFit = fitnessOf(members, incumbent);
+            double newFit = fitnessOf(members, elected);
+            SewvDiag.command("command change group={} old={}({}) new={}({}) reason={}",
+                    group.groupId(), old, oldFit, elected, newFit, reason);
+            group.setCommanderId(elected);
+        }
+    }
+
+    private static double fitnessOf(List<Election.Candidate> members, @Nullable Integer id) {
+        if (id == null) return Double.NaN;
+        for (Election.Candidate c : members) {
+            if (c.id == id) return c.ready ? c.fitness : Double.NaN;
+        }
+        return Double.NaN;
+    }
+
+    /**
+     * A live, Facts-ready {@link PmcCommanderEntity} in the group wins election outright.
+     * Checked ahead of ordinary fitness scoring; an unready Commander
+     * simply defers to the next scan rather than forcing an election.
+     */
+    @Nullable
+    private static Integer resolveCommanderEntity(ServerLevel level, BattleGroup group) {
+        for (int memberId : group.memberIds()) {
+            if (!(level.getEntity(memberId) instanceof PmcCommanderEntity)) continue;
+            Facts facts = Facts.of(memberId);
+            if (facts != null && facts.ready()) return memberId;
+        }
+        return null;
+    }
+
+    private static void applyAssignments(Map<Integer, BattleGroup> levelGroups,
+                                         List<AssignedGroup> assigned,
+                                         List<ExistingGroup> previous) {
+        Set<Integer> previousIds = new HashSet<>();
+        Map<Integer, Set<Integer>> previousMembers = new HashMap<>();
+        for (ExistingGroup eg : previous) {
+            previousIds.add(eg.groupId);
+            Set<Integer> set = new HashSet<>();
+            for (int id : eg.memberIds) set.add(id);
+            previousMembers.put(eg.groupId, set);
+        }
+
+        Set<Integer> liveIds = new HashSet<>();
+        for (AssignedGroup ag : assigned) {
+            liveIds.add(ag.groupId);
+            BattleGroup existing = levelGroups.get(ag.groupId);
+            if (existing == null) {
+                BattleGroup created = new BattleGroup(ag.groupId, ag.faction, ag.memberIds,
+                        ag.centroidX, ag.centroidZ);
+                levelGroups.put(ag.groupId, created);
+                SewvDiag.command("form group {} faction={} members={}",
+                        ag.groupId, ag.faction, Arrays.toString(ag.memberIds));
+            } else {
+                Set<Integer> before = previousMembers.getOrDefault(ag.groupId, Set.of());
+                Set<Integer> after = new HashSet<>();
+                for (int id : ag.memberIds) after.add(id);
+                existing.apply(ag);
+                if (!before.equals(after)) {
+                    SewvDiag.command("membership group {} -> {}",
+                            ag.groupId, Arrays.toString(ag.memberIds));
+                }
+            }
+        }
+
+        for (int id : previousIds) {
+            if (!liveIds.contains(id) && levelGroups.remove(id) != null) {
+                SewvDiag.command("dissolve group {} (below min size / split)", id);
+            }
+        }
+    }
+
+    /**
+     * Idle ground drivers not in a battle group: clustered by position into hold rings, and — once a RU/US
+     * cluster has held long enough, or is too big to ring — formed into a march together ({@link IdleMarches}).
+     * A marching unit is never re-clustered: its march is its group until the march ends ({@link MarchRegistry}),
+     * which is what keeps a column from falling apart as it stretches.
+     */
+    private static void publishIdleAssignments(ServerLevel level, List<Candidate> drivers, Set<Integer> inBattle) {
+        long now = level.getGameTime();
+        // A battle takes an idle march's units away from it; the march ends and they fight as a battle group.
+        for (int id : inBattle) {
+            if (MarchRegistry.kindOf(id) == March.Kind.IDLE_TRAVEL) {
+                March m = MarchRegistry.marchOf(id);
+                if (m != null) MarchRegistry.end(m.id(), "battle unit=" + id);
+            }
+        }
+        MarchRegistry.tick(level, now);
+        if (!IdleGroupSupport.hybridEnabled()) {
+            publishMarches(level, now);
+            return;
+        }
+        double radius;
+        try {
+            radius = SewvConfig.IDLE_GROUP_RADIUS.get();
+        } catch (Throwable ignored) {
+            radius = 50.0;
+        }
+        double radiusSq = radius * radius;
+
+        List<Candidate> idle = new ArrayList<>();
+        for (Candidate c : drivers) {
+            if (MarchRegistry.isMarching(c.unitId)) continue;
+            if (!(level.getEntity(c.unitId) instanceof AbstractUnit unit)) continue;
+            if (unit.getTarget() != null) continue;
+            if (com.neoalive.tacz_sewv.entity.ai.core.VehicleTargeting.underStandingOrder(unit)) continue;
+            var type = com.neoalive.tacz_sewv.entity.ai.core.HullFacts.engineType(c.hull);
+            if (type != com.atsuishio.superbwarfare.data.vehicle.subdata.EngineType.WHEEL
+                    && type != com.atsuishio.superbwarfare.data.vehicle.subdata.EngineType.TRACK) {
+                continue;
+            }
+            idle.add(c);
+        }
+        idle.sort(Comparator.comparingInt(c -> c.unitId));
+        Set<Integer> seenIdle = new HashSet<>();
+
+        boolean[] used = new boolean[idle.size()];
+        for (int i = 0; i < idle.size(); i++) {
+            if (used[i]) continue;
+            List<Candidate> cluster = new ArrayList<>();
+            Candidate a = idle.get(i);
+            cluster.add(a);
+            used[i] = true;
+            // Running sums: the centroid used to be recomputed from scratch inside this loop, once per candidate.
+            double sumX = a.x;
+            double sumZ = a.z;
+            for (int j = i + 1; j < idle.size(); j++) {
+                if (used[j]) continue;
+                Candidate b = idle.get(j);
+                if (a.faction != b.faction) continue;
+                double dx = a.x - b.x;
+                double dz = a.z - b.z;
+                if (dx * dx + dz * dz > radiusSq) continue;
+                // Also require proximity to cluster centroid as it grows.
+                double dx2 = b.x - sumX / cluster.size();
+                double dz2 = b.z - sumZ / cluster.size();
+                if (dx2 * dx2 + dz2 * dz2 > radiusSq) continue;
+                cluster.add(b);
+                sumX += b.x;
+                sumZ += b.z;
+                used[j] = true;
+            }
+
+            double cx = sumX / cluster.size();
+            double cz = sumZ / cluster.size();
+            int[] ids = new int[cluster.size()];
+            for (int k = 0; k < ids.length; k++) {
+                ids[k] = cluster.get(k).unitId;
+                seenIdle.add(ids[k]);
+            }
+            IdleMarches.note(level, ids, now);
+
+            boolean oversize = cluster.size() > IdleGroupSupport.MAX_HOLD_SIZE;
+            if (IdleMarches.factionTravels(a.faction) && (oversize || IdleMarches.ready(level, ids, now))) {
+                List<AbstractUnit> units = new ArrayList<>(cluster.size());
+                for (Candidate c : cluster) {
+                    if (level.getEntity(c.unitId) instanceof AbstractUnit u) units.add(u);
+                }
+                if (IdleMarches.form(level, units, a.faction, now) != null) continue;
+            }
+
+            double[] centre = IdleGroupSupport.holdCentre(ids, cx, cz);
+            cx = centre[0];
+            cz = centre[1];
+            int[] slots = holdSlots(cluster, cx, cz);
+            IdleGroupSupport.publishCluster(ids, slots, cx, cz);
+            if (SewvDiag.collectiveAiVerbose()) {
+                SewvDiag.command("idle cluster dim={} role={} members={} slots={} centre={},{}",
+                        level.dimension().location(), Assignment.Role.IDLE_HOLD, Arrays.toString(ids),
+                        Arrays.toString(slots), String.format(Locale.ROOT, "%.0f", cx),
+                        String.format(Locale.ROOT, "%.0f", cz));
+            }
+            for (Candidate m : cluster) {
+                CrewAssignment.publish(new Assignment(
+                        m.unitId, Assignment.Role.IDLE_HOLD, null, null, cx, cz));
+                IDLE_TASKED_KEEP.add(m.unitId);
+            }
+        }
+        IdleMarches.retain(level, seenIdle);
+        publishMarches(level, now);
+    }
+
+    /** Every idle march's hulls, tasked IDLE_TRAVEL on their column slot and heading. */
+    private static void publishMarches(ServerLevel level, long now) {
+        for (March m : MarchRegistry.marchesOn(level)) {
+            if (m.kind() != March.Kind.IDLE_TRAVEL) continue;
+            for (int id : m.hullIds()) {
+                MarchRegistry.Slot slot = MarchRegistry.slotFor(id, now);
+                if (slot == null) continue;
+                CrewAssignment.publish(new Assignment(id, Assignment.Role.IDLE_TRAVEL, null, null,
+                        slot.x(), slot.z(), slot.index(), slot.fx(), slot.fz()));
+                IDLE_TASKED_KEEP.add(id);
+            }
+        }
+    }
+
+    /**
+     * Hold slots round the cluster centre, matched to members by least squared travel, with last pass's slot
+     * defended for one ring radius squared — the same hysteresis {@link PlayFormations} gives a battle line.
+     * Cluster members are in id order, which {@link IdleGroupSupport#publishCluster} relies on.
+     */
+    private static int[] holdSlots(List<Candidate> cluster, double cx, double cz) {
+        int n = cluster.size();
+        Vec3[] ring = IdleGroupSupport.holdRing(cx, cz, n);
+        double[] mx = new double[n];
+        double[] mz = new double[n];
+        double[] sx = new double[n];
+        double[] sz = new double[n];
+        int[] prev = new int[n];
+        for (int k = 0; k < n; k++) {
+            Candidate c = cluster.get(k);
+            mx[k] = c.x;
+            mz[k] = c.z;
+            sx[k] = ring[k].x;
+            sz[k] = ring[k].z;
+            int p = IdleGroupSupport.previousSlot(c.unitId);
+            prev[k] = p < n ? p : -1;
+        }
+        double r = IdleGroupSupport.holdRadius(n);
+        return SlotMatcher.match(mx, mz, sx, sz, prev, PlayFormations.STICKINESS * r * r);
+    }
+
+    private static List<Candidate> collectDrivers(ServerLevel level) {
+        List<Candidate> out = new ArrayList<>();
+        try {
+            Set<Integer> ids = new HashSet<>(Facts.liveUnitIds());
+            ids.addAll(SEATED_DRIVERS);
+            for (int unitId : ids) {
+                if (!(level.getEntity(unitId) instanceof AbstractUnit driver)
+                        || !(driver.getVehicle() instanceof VehicleEntity hull)
+                        || CommandEligibility.eligibleDriver(hull) != driver) {
+                    // Gone, dismounted, or simply in another dimension: only a unit no level knows is dropped.
+                    if (!(level.getEntity(unitId) instanceof AbstractUnit) && unknownEverywhere(level, unitId)) {
+                        SEATED_DRIVERS.remove(unitId);
+                    }
+                    continue;
+                }
+                CrewFacts.Faction faction = CrewFacts.factionOfCrew(driver);
+                if (faction == null) continue;
+                out.add(new Candidate(driver.getId(), faction, hull.getX(), hull.getZ(), hull));
+            }
+        } catch (Throwable t) {
+            LOGGER.debug("[sewv-command] driver scan failed: {}", t.toString());
+        }
+        return out;
+    }
+
+    private static boolean unknownEverywhere(ServerLevel level, int unitId) {
+        for (ServerLevel other : level.getServer().getAllLevels()) {
+            if (other.getEntity(unitId) != null) return false;
+        }
+        return true;
+    }
+
+    private static boolean hasOpposingNearby(ServerLevel level, Candidate c, double radiusSq) {
+        try {
+            double r = Math.sqrt(radiusSq);
+            if (r <= SewvConfig.VEHICLE_TARGET_SCAN_RADIUS.get()) {
+                for (AbstractUnit other : HullLocalScan.unitsInScanBox(c.hull)) {
+                    if (other.getId() == c.unitId || Math.abs(other.getY() - c.hull.getY()) > 32.0) continue;
+                    CrewFacts.Faction f = CrewFacts.factionOfCrew(other);
+                    if (f == null || f == c.faction) continue;
+                    double dx = other.getX() - c.x;
+                    double dz = other.getZ() - c.z;
+                    if (dx * dx + dz * dz <= radiusSq) return true;
+                }
+                return false;
+            }
+            for (AbstractUnit other : unitsAround(level, c.x, c.hull.getY(), c.z, r)) {
+                if (other.getId() == c.unitId) continue;
+                CrewFacts.Faction f = CrewFacts.factionOfCrew(other);
+                if (f == null || f == c.faction) continue;
+                double dx = other.getX() - c.x;
+                double dz = other.getZ() - c.z;
+                if (dx * dx + dz * dz <= radiusSq) return true;
+            }
+        } catch (Throwable ignored) {
+            return false;
+        }
+        return false;
+    }
+
+    private static boolean centroidHasOpposing(ServerLevel level, BattleGroup g, double radiusSq) {
+        try {
+            double r = Math.sqrt(radiusSq);
+            CrewFacts.Faction ours = CrewFacts.Faction.byId(g.faction());
+            for (AbstractUnit other : unitsAround(level, g.centroidX(), groupY(level, g), g.centroidZ(), r)) {
+                CrewFacts.Faction f = CrewFacts.factionOfCrew(other);
+                if (f == null || f == ours) continue;
+                double dx = other.getX() - g.centroidX();
+                double dz = other.getZ() - g.centroidZ();
+                if (dx * dx + dz * dz <= radiusSq) return true;
+            }
+        } catch (Throwable ignored) {
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * SEM units in the square of half-side {@code r} around {@code (x, z)}, ±32 in Y. Read from the combatant
+     * index's 64-block grid (positions up to one index interval old — fine for a 1.5 s command pass); a live AABB
+     * query only before the level's first index rebuild. At the scaled engagement radius (192) the per-driver AABB
+     * queries were the command tier's biggest cost.
+     */
+    private static List<AbstractUnit> unitsAround(ServerLevel level, double x, double y, double z, double r) {
+        CombatantIndex.Snapshot snap = CombatantIndex.snapshot(level);
+        if (snap == null) {
+            AABB box = new AABB(x - r, y - 32, z - r, x + r, y + 32, z + r);
+            return level.getEntities(EntityTypeTest.forClass(AbstractUnit.class), box, e -> true);
+        }
+        List<AbstractUnit> out = new ArrayList<>();
+        for (CombatantIndex.Entry e : snap.query(x, z, r, y - 32, y + 32)) {
+            if (e.living instanceof AbstractUnit u && u.isAlive()) out.add(u);
+        }
+        return out;
+    }
+
+    /** Y of the first loaded member, the vertical centre for the group's queries. */
+    private static double groupY(ServerLevel level, BattleGroup g) {
+        for (int memberId : g.memberIds()) {
+            var e = level.getEntity(memberId);
+            if (e != null) return e.getY();
+        }
+        return 64.0;
+    }
+
+    private record Candidate(int unitId, CrewFacts.Faction faction, double x, double z, VehicleEntity hull) {}
+}

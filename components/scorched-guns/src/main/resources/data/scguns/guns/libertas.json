@@ -1,0 +1,88 @@
+{
+  "display": {
+    "flash": {
+      "size": 1.2,
+      "yOffset": 5.5,
+      "zOffset": -9.2,
+      "textureLocation": "muzzle_flash_3"
+    }
+  },
+  "general": {
+    "weaponType": "plasma",
+    "fireMode": "scguns:semi_automatic",
+    "gripType": "scguns:two_handed",
+    "baseGripType": "scguns:two_handed",
+    "rate": 5,
+    "meleeDamage": 5,
+    "meleeCooldownTicks": 20,
+    "hotBarrelRate": 26,
+    "alwaysSpread": true,
+    "projectileAmount": 4,
+    "recoilAngle": 5,
+    "recoilKick": 2,
+    "spread": 5,
+    "criticalChance": 0.05
+  },
+  "modules": {
+    "attachments": {
+      "scope": {
+        "size": 0.8,
+        "yOffset": 7.2,
+        "zOffset": 5.2
+      },
+      "stock": {
+        "scale": 0
+      },
+      "magazine": {
+        "scale": 0
+      },
+      "underBarrel": {
+        "yOffset": 5.5,
+        "zOffset": -2.5
+      }
+    },
+    "zoom": {
+      "fovModifier": 0.6,
+      "yOffset": 7.6,
+      "zOffset": 0.75
+    }
+  },
+  "projectile": {
+    "projectileAmount": 4,
+    "alwaysSpread": true,
+    "recoilAngle": 5,
+    "recoilKick": 2,
+    "spread": 5,
+    "criticalChance": 0.05,
+    "knockbackStrength": 0.4,
+    "advantage": "scguns:none",
+    "damage": 21,
+    "damageFalloffStart": 10,
+    "damageFalloffEnd": 26,
+    "damageFalloffMinMultiplier": 0.48,
+    "ejectsCasing": true,
+    "gravity": true,
+    "item": "scguns:energy_cell",
+    "casingType": "scguns:empty_cell",
+    "casingParticle": "scguns:iron_casing",
+    "life": 45,
+    "size": 6,
+    "speed": 5,
+    "trailLengthMultiplier": 1,
+    "trailColor": 3329330,
+    "trailThickness": 0.5
+  },
+  "reloads": {
+    "emptyMagTimer": 30,
+    "maxAmmo": 8,
+    "reloadItem": "scguns:shotgun_shell",
+    "reloadTimer": 30,
+    "reloadType": "scguns:mag_fed"
+  },
+  "sounds": {
+    "cock": "scguns:item.pistol.cock",
+    "enchantedFire": "scguns:item.plasma_shotgun.fire",
+    "fire": "scguns:item.plasma_shotgun.fire",
+    "reload": "scguns:item.gauss.reload"
+  }
+}

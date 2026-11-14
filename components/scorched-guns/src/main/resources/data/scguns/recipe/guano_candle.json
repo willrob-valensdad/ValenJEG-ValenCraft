@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:bat_guano",
+    "S": "minecraft:string"
+  },
+  "pattern": [
+    " S ",
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "scguns:guano_candle"
+  }
+}

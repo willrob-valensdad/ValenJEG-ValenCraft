@@ -1,0 +1,1109 @@
+package com.neoalive.tacz_sewv.config;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.neoalive.tacz_sewv.entity.ai.utility.Doctrine;
+import com.neoalive.tacz_sewv.init.ModGameRules;
+
+final class ConfigRegistryBootstrap {
+
+    private static final String[] DOCTRINE_FACTIONS = {"ru", "us", "pmc"};
+
+    private ConfigRegistryBootstrap() {}
+
+    static void registerAll(ConfigRegistry.Builder b) {
+        registerClient(b);
+        registerShortcuts(b);
+        registerWorldRules(b);
+        registerBalancing(b);
+        registerEvents(b);
+        registerResources(b);
+        registerSoldiers(b);
+        registerStructures(b);
+        registerCrewAi(b);
+        registerCommand(b);
+        registerPlatoon(b);
+        registerFlight(b);
+        registerIndirectFire(b);
+        registerChunkTickets(b);
+        registerUnitLod(b);
+        registerVoicelines(b);
+        registerBoarding(b);
+        registerMapIntel(b);
+        registerSweep(b);
+        registerTerritory(b);
+        registerSpawnZones(b);
+        registerInvasion(b);
+        registerDoctrine(b);
+        registerCompat(b);
+        registerFob(b);
+    }
+
+    private static void registerFob(ConfigRegistry.Builder b) {
+        b.intRange(ConfigScope.SERVER, "fob", "fobMasterSize", 1, 256,
+                SewvConfig.FOB_MASTER_SIZE, SewvConfig.FOB_MASTER_SIZE::set);
+        b.intRange(ConfigScope.SERVER, "fob", "fobStockpileSize", 1, 64,
+                SewvConfig.FOB_STOCKPILE_SIZE, SewvConfig.FOB_STOCKPILE_SIZE::set);
+        b.intRange(ConfigScope.SERVER, "fob", "fobParkingSize", 1, 64,
+                SewvConfig.FOB_PARKING_SIZE, SewvConfig.FOB_PARKING_SIZE::set);
+        b.doubleRange(ConfigScope.SERVER, "fob", "fobBufferFactor", 1.0, 8.0,
+                SewvConfig.FOB_BUFFER_FACTOR, SewvConfig.FOB_BUFFER_FACTOR::set);
+        b.intRange(ConfigScope.SERVER, "fob", "fobThreatThreshold", 1, 10000,
+                SewvConfig.FOB_THREAT_THRESHOLD, SewvConfig.FOB_THREAT_THRESHOLD::set);
+        b.intRange(ConfigScope.SERVER, "fob", "fobThreatEvalIntervalTicks", 1, 200,
+                SewvConfig.FOB_THREAT_EVAL_INTERVAL_TICKS, SewvConfig.FOB_THREAT_EVAL_INTERVAL_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "fob", "fobPeriodicRefillTicks", 0, 999999,
+                SewvConfig.FOB_PERIODIC_REFILL_TICKS, SewvConfig.FOB_PERIODIC_REFILL_TICKS::set);
+    }
+
+    private static void registerClient(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.CLIENT, "interaction", "showOrderFeedback",
+                ClientConfig.SHOW_ORDER_FEEDBACK, ClientConfig.SHOW_ORDER_FEEDBACK::set);
+
+        b.bool(ConfigScope.CLIENT, "overlay", "factionColorsEnabled",
+                ClientConfig.FACTION_COLORS_ENABLED, ClientConfig.FACTION_COLORS_ENABLED::set);
+        b.hexColor(ConfigScope.CLIENT, "overlay", "colorRu",
+                ClientConfig.COLOR_RU, ClientConfig.COLOR_RU::set);
+        b.hexColor(ConfigScope.CLIENT, "overlay", "colorUs",
+                ClientConfig.COLOR_US, ClientConfig.COLOR_US::set);
+        b.hexColor(ConfigScope.CLIENT, "overlay", "colorPmc",
+                ClientConfig.COLOR_PMC, ClientConfig.COLOR_PMC::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "heliShowRunPhase",
+                ClientConfig.HELI_SHOW_RUN_PHASE, ClientConfig.HELI_SHOW_RUN_PHASE::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "notificationsEnabled",
+                ClientConfig.NOTIFICATIONS_ENABLED, ClientConfig.NOTIFICATIONS_ENABLED::set);
+        b.intRange(ConfigScope.CLIENT, "overlay", "notificationScreenSeconds", 1, 30,
+                ClientConfig.NOTIFICATION_SCREEN_SECONDS, ClientConfig.NOTIFICATION_SCREEN_SECONDS::set);
+        b.intRange(ConfigScope.CLIENT, "overlay", "notificationMaxVisible", 1, 8,
+                ClientConfig.NOTIFICATION_MAX_VISIBLE, ClientConfig.NOTIFICATION_MAX_VISIBLE::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "radioNotificationSound",
+                ClientConfig.RADIO_NOTIFICATION_SOUND, ClientConfig.RADIO_NOTIFICATION_SOUND::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "radioChatter",
+                ClientConfig.RADIO_CHATTER, ClientConfig.RADIO_CHATTER::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "radioVoiceEffect",
+                ClientConfig.RADIO_VOICE_EFFECT, ClientConfig.RADIO_VOICE_EFFECT::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "radioVoiceClicks",
+                ClientConfig.RADIO_VOICE_CLICKS, ClientConfig.RADIO_VOICE_CLICKS::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "helmetGrayscale",
+                ClientConfig.HELMET_GRAYSCALE, ClientConfig.HELMET_GRAYSCALE::set);
+        b.bool(ConfigScope.CLIENT, "overlay", "showLagTip",
+                ClientConfig.SHOW_LAG_TIP, ClientConfig.SHOW_LAG_TIP::set);
+
+        b.bool(ConfigScope.CLIENT, "map", "mapMarkersEnabled",
+                ClientConfig.MAP_MARKERS_ENABLED, ClientConfig.MAP_MARKERS_ENABLED::set);
+        b.bool(ConfigScope.CLIENT, "map", "mapLive",
+                ClientConfig.MAP_LIVE, ClientConfig.MAP_LIVE::set);
+        b.bool(ConfigScope.CLIENT, "map", "mapShowIcons",
+                ClientConfig.MAP_SHOW_ICONS, ClientConfig.MAP_SHOW_ICONS::set);
+        b.bool(ConfigScope.CLIENT, "map", "mapShowHealthBar",
+                ClientConfig.MAP_SHOW_HEALTH_BAR, ClientConfig.MAP_SHOW_HEALTH_BAR::set);
+        b.bool(ConfigScope.CLIENT, "map", "mapShowEnergyBar",
+                ClientConfig.MAP_SHOW_ENERGY_BAR, ClientConfig.MAP_SHOW_ENERGY_BAR::set);
+        b.bool(ConfigScope.CLIENT, "map", "minimapMarkersEnabled",
+                ClientConfig.MINIMAP_MARKERS_ENABLED, ClientConfig.MINIMAP_MARKERS_ENABLED::set);
+        b.doubleRange(ConfigScope.CLIENT, "map", "minimapIconScale", 0.2, 2.0,
+                ClientConfig.MINIMAP_ICON_SCALE, ClientConfig.MINIMAP_ICON_SCALE::set);
+        b.bool(ConfigScope.CLIENT, "map", "minimapShowOverlays",
+                ClientConfig.MINIMAP_SHOW_OVERLAYS, ClientConfig.MINIMAP_SHOW_OVERLAYS::set);
+        b.bool(ConfigScope.CLIENT, "map", "minimapEdgePins",
+                ClientConfig.MINIMAP_EDGE_PINS, ClientConfig.MINIMAP_EDGE_PINS::set);
+        b.bool(ConfigScope.CLIENT, "map", "minimapHideRadarForMarked",
+                ClientConfig.MINIMAP_HIDE_RADAR_FOR_MARKED, ClientConfig.MINIMAP_HIDE_RADAR_FOR_MARKED::set);
+
+        b.bool(ConfigScope.CLIENT, "compat", "gemrenderPartsPaletteLift",
+                ClientConfig.GEMRENDER_PARTS_PALETTE_LIFT, ClientConfig.GEMRENDER_PARTS_PALETTE_LIFT::set);
+        b.bool(ConfigScope.CLIENT, "compat", "dogTagIconCache",
+                ClientConfig.DOG_TAG_ICON_CACHE, ClientConfig.DOG_TAG_ICON_CACHE::set);
+        b.bool(ConfigScope.CLIENT, "compat", "vehicleRestSkip",
+                ClientConfig.VEHICLE_REST_SKIP, ClientConfig.VEHICLE_REST_SKIP::set);
+        b.intRange(ConfigScope.CLIENT, "compat", "vehicleFarSimDistance", 0, 1024,
+                ClientConfig.VEHICLE_FAR_SIM_DISTANCE, ClientConfig.VEHICLE_FAR_SIM_DISTANCE::set);
+        b.intRange(ConfigScope.CLIENT, "compat", "vehicleTurnSoundDistance", 0, 1024,
+                ClientConfig.VEHICLE_TURN_SOUND_DISTANCE, ClientConfig.VEHICLE_TURN_SOUND_DISTANCE::set);
+        b.bool(ConfigScope.CLIENT, "compat", "semUnitFrustumCull",
+                ClientConfig.SEM_UNIT_FRUSTUM_CULL, ClientConfig.SEM_UNIT_FRUSTUM_CULL::set);
+        b.bool(ConfigScope.CLIENT, "compat", "taczThirdPersonFlushSkip",
+                ClientConfig.TACZ_THIRD_PERSON_FLUSH_SKIP, ClientConfig.TACZ_THIRD_PERSON_FLUSH_SKIP::set);
+        b.bool(ConfigScope.CLIENT, "compat", "taczFastCubeEmit",
+                ClientConfig.TACZ_FAST_CUBE_EMIT, ClientConfig.TACZ_FAST_CUBE_EMIT::set);
+        b.bool(ConfigScope.CLIENT, "compat", "semAttachmentLod",
+                ClientConfig.SEM_ATTACHMENT_LOD, ClientConfig.SEM_ATTACHMENT_LOD::set);
+        b.intRange(ConfigScope.CLIENT, "compat", "semAttachmentLodDistance", 0, 1024,
+                ClientConfig.SEM_ATTACHMENT_LOD_DISTANCE, ClientConfig.SEM_ATTACHMENT_LOD_DISTANCE::set);
+        b.bool(ConfigScope.CLIENT, "compat", "semArmorLod",
+                ClientConfig.SEM_ARMOR_LOD, ClientConfig.SEM_ARMOR_LOD::set);
+        b.intRange(ConfigScope.CLIENT, "compat", "semArmorLodDistance", 0, 1024,
+                ClientConfig.SEM_ARMOR_LOD_DISTANCE, ClientConfig.SEM_ARMOR_LOD_DISTANCE::set);
+
+        b.bool(ConfigScope.CLIENT, "debug", "groundPathingDebug",
+                ClientConfig.GROUND_PATHING_DEBUG, ClientConfig.GROUND_PATHING_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "shipPathingDebug",
+                ClientConfig.SHIP_PATHING_DEBUG, ClientConfig.SHIP_PATHING_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "sewvDiagDebug",
+                ClientConfig.SEWV_DIAG_DEBUG, ClientConfig.SEWV_DIAG_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "heliCombatDebug",
+                ClientConfig.HELI_COMBAT_DEBUG, ClientConfig.HELI_COMBAT_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "heliFlightDebug",
+                ClientConfig.HELI_FLIGHT_DEBUG, ClientConfig.HELI_FLIGHT_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "planeCombatDebug",
+                ClientConfig.PLANE_COMBAT_DEBUG, ClientConfig.PLANE_COMBAT_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "mortarDebugLogging",
+                ClientConfig.MORTAR_DEBUG_LOGGING, ClientConfig.MORTAR_DEBUG_LOGGING::set);
+        b.bool(ConfigScope.CLIENT, "debug", "ballisticTranslationDebug",
+                ClientConfig.BALLISTIC_TRANSLATION_DEBUG, ClientConfig.BALLISTIC_TRANSLATION_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "orderFailureDebug",
+                ClientConfig.ORDER_FAILURE_DEBUG, ClientConfig.ORDER_FAILURE_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "showSpawnProbes",
+                ClientConfig.SHOW_SPAWN_PROBES, ClientConfig.SHOW_SPAWN_PROBES::set);
+        b.bool(ConfigScope.CLIENT, "debug", "individualTacticsDebug",
+                ClientConfig.INDIVIDUAL_TACTICS_DEBUG, ClientConfig.INDIVIDUAL_TACTICS_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "collectiveAiDebug",
+                ClientConfig.COLLECTIVE_AI_DEBUG, ClientConfig.COLLECTIVE_AI_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "individualAiDebug",
+                ClientConfig.INDIVIDUAL_AI_DEBUG, ClientConfig.INDIVIDUAL_AI_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "fobDebug",
+                ClientConfig.FOB_DEBUG, ClientConfig.FOB_DEBUG::set);
+        b.bool(ConfigScope.CLIENT, "debug", "mapShowCommandDebug",
+                ClientConfig.MAP_SHOW_COMMAND_DEBUG, ClientConfig.MAP_SHOW_COMMAND_DEBUG::set);
+    }
+
+    private static void registerShortcuts(ConfigRegistry.Builder b) {
+        b.shortcut(ConfigScope.SERVER, "shortcuts", "pool", "pool");
+        b.shortcut(ConfigScope.SERVER, "shortcuts", "misc", "misc");
+        b.shortcut(ConfigScope.SERVER, "shortcuts", "target_priority", "target_priority");
+    }
+
+    private static void registerBalancing(ConfigRegistry.Builder b) {
+        final String cat = "balancing";
+        final String req = "easyMode";
+        b.bool(ConfigScope.SERVER, cat, "easyMode",
+                SewvConfig.EASY_MODE, SewvConfig.EASY_MODE::set);
+        b.bool(ConfigScope.SERVER, cat, "easyDisableShelling",
+                SewvConfig.EASY_DISABLE_SHELLING, SewvConfig.EASY_DISABLE_SHELLING::set,
+                req, "balancing.ambient");
+        b.bool(ConfigScope.SERVER, cat, "easyDisableLargeCombat",
+                SewvConfig.EASY_DISABLE_LARGE_COMBAT, SewvConfig.EASY_DISABLE_LARGE_COMBAT::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyNoFarCombatVehicles",
+                SewvConfig.EASY_NO_FAR_COMBAT_VEHICLES, SewvConfig.EASY_NO_FAR_COMBAT_VEHICLES::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyNoWorldArmor",
+                SewvConfig.EASY_NO_WORLD_ARMOR, SewvConfig.EASY_NO_WORLD_ARMOR::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyLowerEventEscalation",
+                SewvConfig.EASY_LOWER_EVENT_ESCALATION, SewvConfig.EASY_LOWER_EVENT_ESCALATION::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easySoftAiAim",
+                SewvConfig.EASY_SOFT_AI_AIM, SewvConfig.EASY_SOFT_AI_AIM::set,
+                req, "balancing.lethality");
+        b.bool(ConfigScope.SERVER, cat, "easySoftAiRoF",
+                SewvConfig.EASY_SOFT_AI_ROF, SewvConfig.EASY_SOFT_AI_ROF::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyFiniteEnemyLogistics",
+                SewvConfig.EASY_FINITE_ENEMY_LOGISTICS, SewvConfig.EASY_FINITE_ENEMY_LOGISTICS::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easySoftAtDismounts",
+                SewvConfig.EASY_SOFT_AT_DISMOUNTS, SewvConfig.EASY_SOFT_AT_DISMOUNTS::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyNoReconDrones",
+                SewvConfig.EASY_NO_RECON_DRONES, SewvConfig.EASY_NO_RECON_DRONES::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easySoftSupportCalls",
+                SewvConfig.EASY_SOFT_SUPPORT_CALLS, SewvConfig.EASY_SOFT_SUPPORT_CALLS::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyTighterEngageRings",
+                SewvConfig.EASY_TIGHTER_ENGAGE_RINGS, SewvConfig.EASY_TIGHTER_ENGAGE_RINGS::set,
+                req, "balancing.engagement");
+        b.bool(ConfigScope.SERVER, cat, "easyKeepLosGates",
+                SewvConfig.EASY_KEEP_LOS_GATES, SewvConfig.EASY_KEEP_LOS_GATES::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyPlayerDamageScaleEnabled",
+                SewvConfig.EASY_PLAYER_DAMAGE_SCALE_ENABLED, SewvConfig.EASY_PLAYER_DAMAGE_SCALE_ENABLED::set,
+                req, "balancing.player");
+        b.doubleRange(ConfigScope.SERVER, cat, "easyPlayerDamageTaken", 0.1, 1.0,
+                SewvConfig.EASY_PLAYER_DAMAGE_SCALE, SewvConfig.EASY_PLAYER_DAMAGE_SCALE::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyPlayerPrioritySoft",
+                SewvConfig.EASY_PLAYER_PRIORITY_SOFT, SewvConfig.EASY_PLAYER_PRIORITY_SOFT::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyPlayerSustain",
+                SewvConfig.EASY_PLAYER_SUSTAIN, SewvConfig.EASY_PLAYER_SUSTAIN::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyProtectVehicles",
+                SewvConfig.EASY_PROTECT_VEHICLES, SewvConfig.EASY_PROTECT_VEHICLES::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easySoftTripodHeatRay",
+                SewvConfig.EASY_SOFT_TRIPOD_HEAT_RAY, SewvConfig.EASY_SOFT_TRIPOD_HEAT_RAY::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyBuffPmc",
+                SewvConfig.EASY_BUFF_PMC, SewvConfig.EASY_BUFF_PMC::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easyHighlightThreats",
+                SewvConfig.EASY_HIGHLIGHT_THREATS, SewvConfig.EASY_HIGHLIGHT_THREATS::set,
+                req, null);
+        b.bool(ConfigScope.SERVER, cat, "easySlowAi",
+                SewvConfig.EASY_SLOW_AI, SewvConfig.EASY_SLOW_AI::set,
+                req, "balancing.mobility");
+        b.bool(ConfigScope.SERVER, cat, "easyTimidAi",
+                SewvConfig.EASY_TIMID_AI, SewvConfig.EASY_TIMID_AI::set,
+                req, "balancing.morale");
+        b.bool(ConfigScope.SERVER, cat, "easySoftInfantry",
+                SewvConfig.EASY_SOFT_INFANTRY, SewvConfig.EASY_SOFT_INFANTRY::set,
+                req, "balancing.infantry");
+        b.bool(ConfigScope.SERVER, cat, "easyFewerEvents",
+                SewvConfig.EASY_FEWER_EVENTS, SewvConfig.EASY_FEWER_EVENTS::set,
+                req, "balancing.events");
+    }
+
+    private static void registerWorldRules(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "world_rules", "diplomacyRequiresOp",
+                SewvConfig.DIPLOMACY_REQUIRES_OP, SewvConfig.DIPLOMACY_REQUIRES_OP::set);
+        b.gamerule(ConfigScope.SERVER, "world_rules", "world_rules.ambient_spawns", ModGameRules.AMBIENT_SPAWNS);
+        b.gamerule(ConfigScope.SERVER, "world_rules", "world_rules.ru_spawns", ModGameRules.RU_SPAWNS);
+        b.gamerule(ConfigScope.SERVER, "world_rules", "world_rules.us_spawns", ModGameRules.US_SPAWNS);
+        b.gamerule(ConfigScope.SERVER, "world_rules", "world_rules.pmc_ambient_spawns",
+                ModGameRules.PMC_AMBIENT_SPAWNS);
+        b.gamerule(ConfigScope.SERVER, "world_rules", "world_rules.can_mobs_damage_vehicles",
+                ModGameRules.CAN_MOBS_DAMAGE_VEHICLES);
+    }
+
+    private static void registerEvents(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "events", "groundInEvents",
+                SewvConfig.GROUND_IN_EVENTS, SewvConfig.GROUND_IN_EVENTS::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "groundSpawnChanceRu", 0.0, 1.0,
+                SewvConfig.GROUND_SPAWN_CHANCE_RU, SewvConfig.GROUND_SPAWN_CHANCE_RU::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "groundSpawnChanceUs", 0.0, 1.0,
+                SewvConfig.GROUND_SPAWN_CHANCE_US, SewvConfig.GROUND_SPAWN_CHANCE_US::set);
+        b.bool(ConfigScope.SERVER, "events", "rotorInEvents",
+                SewvConfig.ROTOR_IN_EVENTS, SewvConfig.ROTOR_IN_EVENTS::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "rotorSpawnChanceRu", 0.0, 1.0,
+                SewvConfig.ROTOR_SPAWN_CHANCE_RU, SewvConfig.ROTOR_SPAWN_CHANCE_RU::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "rotorSpawnChanceUs", 0.0, 1.0,
+                SewvConfig.ROTOR_SPAWN_CHANCE_US, SewvConfig.ROTOR_SPAWN_CHANCE_US::set);
+        b.bool(ConfigScope.SERVER, "events", "farEventSpawns",
+                SewvConfig.FAR_EVENT_SPAWNS, SewvConfig.FAR_EVENT_SPAWNS::set);
+        b.bool(ConfigScope.SERVER, "events", "planesInEvents",
+                SewvConfig.PLANES_IN_EVENTS, SewvConfig.PLANES_IN_EVENTS::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "planeSpawnChanceRu", 0.0, 1.0,
+                SewvConfig.PLANE_SPAWN_CHANCE_RU, SewvConfig.PLANE_SPAWN_CHANCE_RU::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "planeSpawnChanceUs", 0.0, 1.0,
+                SewvConfig.PLANE_SPAWN_CHANCE_US, SewvConfig.PLANE_SPAWN_CHANCE_US::set);
+        b.bool(ConfigScope.SERVER, "events", "structuresGenerate",
+                SewvConfig.STRUCTURES_GENERATE, SewvConfig.STRUCTURES_GENERATE::set);
+        b.bool(ConfigScope.SERVER, "events", "nativeStructuresEnabled",
+                SewvConfig.NATIVE_STRUCTURES_ENABLED, SewvConfig.NATIVE_STRUCTURES_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "events", "convoyEventsEnabled",
+                SewvConfig.CONVOY_EVENTS_ENABLED, SewvConfig.CONVOY_EVENTS_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "convoyBaseChance", 0.0, 1.0,
+                SewvConfig.CONVOY_BASE_CHANCE, SewvConfig.CONVOY_BASE_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "convoyFailureMultiplier", 0.0, 1.0,
+                SewvConfig.CONVOY_FAILURE_MULTIPLIER, SewvConfig.CONVOY_FAILURE_MULTIPLIER::set);
+        b.bool(ConfigScope.SERVER, "events", "largeCombatEventsEnabled",
+                SewvConfig.LARGE_COMBAT_EVENTS_ENABLED, SewvConfig.LARGE_COMBAT_EVENTS_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "largeCombatBaseChance", 0.0, 1.0,
+                SewvConfig.LARGE_COMBAT_BASE_CHANCE, SewvConfig.LARGE_COMBAT_BASE_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "largeCombatFailureMultiplier", 0.0, 1.0,
+                SewvConfig.LARGE_COMBAT_FAILURE_MULTIPLIER, SewvConfig.LARGE_COMBAT_FAILURE_MULTIPLIER::set);
+        b.intRange(ConfigScope.SERVER, "events", "largeCombatGroundVehicles", 0, 8,
+                SewvConfig.LARGE_COMBAT_GROUND_VEHICLES, SewvConfig.LARGE_COMBAT_GROUND_VEHICLES::set);
+        b.intRange(ConfigScope.SERVER, "events", "largeCombatRotorVehicles", 0, 8,
+                SewvConfig.LARGE_COMBAT_ROTOR_VEHICLES, SewvConfig.LARGE_COMBAT_ROTOR_VEHICLES::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "largeCombatEmplacementChance", 0.0, 1.0,
+                SewvConfig.LARGE_COMBAT_EMPLACEMENT_CHANCE, SewvConfig.LARGE_COMBAT_EMPLACEMENT_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "largeCombatPlaneChance", 0.0, 1.0,
+                SewvConfig.LARGE_COMBAT_PLANE_CHANCE, SewvConfig.LARGE_COMBAT_PLANE_CHANCE::set);
+        b.bool(ConfigScope.SERVER, "events", "navalEventsEnabled",
+                SewvConfig.NAVAL_EVENTS_ENABLED, SewvConfig.NAVAL_EVENTS_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "navalBaseChance", 0.0, 1.0,
+                SewvConfig.NAVAL_BASE_CHANCE, SewvConfig.NAVAL_BASE_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "navalFailureMultiplier", 0.0, 1.0,
+                SewvConfig.NAVAL_FAILURE_MULTIPLIER, SewvConfig.NAVAL_FAILURE_MULTIPLIER::set);
+        b.intRange(ConfigScope.SERVER, "events", "gracePeriodDays", 0, 365,
+                SewvConfig.GRACE_PERIOD_DAYS, SewvConfig.GRACE_PERIOD_DAYS::set);
+        b.intRange(ConfigScope.SERVER, "events", "navalSurfacePerSide", 0, 12,
+                SewvConfig.NAVAL_SURFACE_PER_SIDE, SewvConfig.NAVAL_SURFACE_PER_SIDE::set);
+        b.bool(ConfigScope.SERVER, "events", "invasionEventsEnabled",
+                SewvConfig.INVASION_EVENTS_ENABLED, SewvConfig.INVASION_EVENTS_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "invasionBaseChance", 0.0, 1.0,
+                SewvConfig.INVASION_BASE_CHANCE, SewvConfig.INVASION_BASE_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "invasionFailureMultiplier", 0.0, 1.0,
+                SewvConfig.INVASION_FAILURE_MULTIPLIER, SewvConfig.INVASION_FAILURE_MULTIPLIER::set);
+        b.intRange(ConfigScope.SERVER, "events", "invasionDefenderInfantry", 0, 32,
+                SewvConfig.INVASION_DEFENDER_INFANTRY, SewvConfig.INVASION_DEFENDER_INFANTRY::set);
+        b.intRange(ConfigScope.SERVER, "events", "invasionDefenderTows", 0, 8,
+                SewvConfig.INVASION_DEFENDER_TOWS, SewvConfig.INVASION_DEFENDER_TOWS::set);
+        b.intRange(ConfigScope.SERVER, "events", "invasionDefenderMortars", 0, 8,
+                SewvConfig.INVASION_DEFENDER_MORTARS, SewvConfig.INVASION_DEFENDER_MORTARS::set);
+        b.bool(ConfigScope.SERVER, "events", "shellingEventsEnabled",
+                SewvConfig.SHELLING_EVENTS_ENABLED, SewvConfig.SHELLING_EVENTS_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "shellingBaseChance", 0.0, 1.0,
+                SewvConfig.SHELLING_BASE_CHANCE, SewvConfig.SHELLING_BASE_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "shellingFailureMultiplier", 0.0, 1.0,
+                SewvConfig.SHELLING_FAILURE_MULTIPLIER, SewvConfig.SHELLING_FAILURE_MULTIPLIER::set);
+        b.intRange(ConfigScope.SERVER, "events", "shellingBaseRadius", 8, 256,
+                SewvConfig.SHELLING_BASE_RADIUS, SewvConfig.SHELLING_BASE_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "events", "shellingMortars", 0, 6,
+                SewvConfig.SHELLING_MORTARS, SewvConfig.SHELLING_MORTARS::set);
+        b.intRange(ConfigScope.SERVER, "events", "shellingGuards", 0, 12,
+                SewvConfig.SHELLING_GUARDS, SewvConfig.SHELLING_GUARDS::set);
+        b.intRange(ConfigScope.SERVER, "events", "shellingDurationMinTicks", 20, 24000,
+                SewvConfig.SHELLING_DURATION_MIN_TICKS, SewvConfig.SHELLING_DURATION_MIN_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "events", "shellingDurationMaxTicks", 20, 24000,
+                SewvConfig.SHELLING_DURATION_MAX_TICKS, SewvConfig.SHELLING_DURATION_MAX_TICKS::set);
+        b.resourceId(ConfigScope.SERVER, "events", "highChanceMortarShell",
+                SewvConfig.HIGH_CHANCE_MORTAR_SHELL, SewvConfig.HIGH_CHANCE_MORTAR_SHELL::set);
+        b.resourceId(ConfigScope.SERVER, "events", "lowChanceMortarShell",
+                SewvConfig.LOW_CHANCE_MORTAR_SHELL, SewvConfig.LOW_CHANCE_MORTAR_SHELL::set);
+        b.resourceId(ConfigScope.SERVER, "events", "highChanceType63Rocket",
+                SewvConfig.HIGH_CHANCE_TYPE63_ROCKET, SewvConfig.HIGH_CHANCE_TYPE63_ROCKET::set);
+        b.resourceId(ConfigScope.SERVER, "events", "lowChanceType63Rocket",
+                SewvConfig.LOW_CHANCE_TYPE63_ROCKET, SewvConfig.LOW_CHANCE_TYPE63_ROCKET::set);
+        b.bool(ConfigScope.SERVER, "events", "derelictEventsEnabled",
+                SewvConfig.DERELICT_EVENTS_ENABLED, SewvConfig.DERELICT_EVENTS_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "derelictBaseChance", 0.0, 1.0,
+                SewvConfig.DERELICT_BASE_CHANCE, SewvConfig.DERELICT_BASE_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "derelictFailureMultiplier", 0.0, 1.0,
+                SewvConfig.DERELICT_FAILURE_MULTIPLIER, SewvConfig.DERELICT_FAILURE_MULTIPLIER::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "derelictHealthFraction", 0.01, 1.0,
+                SewvConfig.DERELICT_HEALTH_FRACTION, SewvConfig.DERELICT_HEALTH_FRACTION::set);
+        b.intRange(ConfigScope.SERVER, "events", "derelictGuards", 0, 12,
+                SewvConfig.DERELICT_GUARDS, SewvConfig.DERELICT_GUARDS::set);
+        b.intRange(ConfigScope.SERVER, "events", "derelictAmmoCount", 0, 64,
+                SewvConfig.DERELICT_AMMO_COUNT, SewvConfig.DERELICT_AMMO_COUNT::set);
+        b.bool(ConfigScope.SERVER, "events", "overflightEventsEnabled",
+                SewvConfig.OVERFLIGHT_EVENTS_ENABLED, SewvConfig.OVERFLIGHT_EVENTS_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "overflightBaseChance", 0.0, 1.0,
+                SewvConfig.OVERFLIGHT_BASE_CHANCE, SewvConfig.OVERFLIGHT_BASE_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "overflightFailureMultiplier", 0.0, 1.0,
+                SewvConfig.OVERFLIGHT_FAILURE_MULTIPLIER, SewvConfig.OVERFLIGHT_FAILURE_MULTIPLIER::set);
+        b.intRange(ConfigScope.SERVER, "events", "overflightPlanes", 1, 3,
+                SewvConfig.OVERFLIGHT_PLANES, SewvConfig.OVERFLIGHT_PLANES::set);
+        b.bool(ConfigScope.SERVER, "events", "garrisonVehiclesEnabled",
+                SewvConfig.GARRISON_VEHICLES_ENABLED, SewvConfig.GARRISON_VEHICLES_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "events", "garrisonVehicleChance", 0.0, 1.0,
+                SewvConfig.GARRISON_VEHICLE_CHANCE, SewvConfig.GARRISON_VEHICLE_CHANCE::set);
+    }
+
+    private static void registerResources(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "resources", "creativeAmmoFallback",
+                SewvConfig.CREATIVE_AMMO_FALLBACK, SewvConfig.CREATIVE_AMMO_FALLBACK::set);
+        b.bool(ConfigScope.SERVER, "resources", "factionInfiniteEnergy",
+                SewvConfig.FACTION_INFINITE_ENERGY, SewvConfig.FACTION_INFINITE_ENERGY::set);
+        b.bool(ConfigScope.SERVER, "resources", "factionInfiniteAmmo",
+                SewvConfig.FACTION_INFINITE_AMMO, SewvConfig.FACTION_INFINITE_AMMO::set);
+        b.enumChoice(ConfigScope.SERVER, "resources", "vehicleDeathDrops",
+                List.of("disable", "reduced", "everything"),
+                SewvConfig.VEHICLE_DEATH_DROPS, SewvConfig.VEHICLE_DEATH_DROPS::set);
+        b.bool(ConfigScope.SERVER, "resources", "vehicleAmmoLoot",
+                SewvConfig.VEHICLE_AMMO_LOOT, SewvConfig.VEHICLE_AMMO_LOOT::set);
+        b.bool(ConfigScope.SERVER, "resources", "unitCorpseCompat",
+                SewvConfig.UNIT_CORPSE_COMPAT, SewvConfig.UNIT_CORPSE_COMPAT::set);
+        b.bool(ConfigScope.SERVER, "resources", "unitCorpseRu",
+                SewvConfig.UNIT_CORPSE_RU, SewvConfig.UNIT_CORPSE_RU::set);
+        b.bool(ConfigScope.SERVER, "resources", "unitCorpseUs",
+                SewvConfig.UNIT_CORPSE_US, SewvConfig.UNIT_CORPSE_US::set);
+        b.bool(ConfigScope.SERVER, "resources", "unitCorpsePmc",
+                SewvConfig.UNIT_CORPSE_PMC, SewvConfig.UNIT_CORPSE_PMC::set);
+        b.intRange(ConfigScope.SERVER, "resources", "unitCorpseDespawnMinutes", 0, 1440,
+                SewvConfig.UNIT_CORPSE_DESPAWN_MINUTES, SewvConfig.UNIT_CORPSE_DESPAWN_MINUTES::set);
+        b.intRange(ConfigScope.SERVER, "resources", "unitCorpseMaxPerDimension", 0, 4096,
+                SewvConfig.UNIT_CORPSE_MAX_PER_DIMENSION, SewvConfig.UNIT_CORPSE_MAX_PER_DIMENSION::set);
+    }
+
+    private static void registerSoldiers(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "soldiers", "npcArmorEnabled",
+                SewvConfig.NPC_ARMOR_ENABLED, SewvConfig.NPC_ARMOR_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "soldiers", "nameAssignmentEnabled",
+                SewvConfig.NAME_ASSIGNMENT_ENABLED, SewvConfig.NAME_ASSIGNMENT_ENABLED::set);
+        b.string(ConfigScope.SERVER, "soldiers", "defaultNameCategory",
+                SewvConfig.DEFAULT_NAME_CATEGORY, SewvConfig.DEFAULT_NAME_CATEGORY::set);
+        b.multilineIds(ConfigScope.SERVER, "soldiers", "nvgEligibleItems",
+                () -> List.copyOf(SewvConfig.NVG_ELIGIBLE_ITEMS.get()),
+                v -> SewvConfig.NVG_ELIGIBLE_ITEMS.set(v));
+        b.doubleRange(ConfigScope.SERVER, "soldiers", "nvgSpawnChance", 0.0, 1.0,
+                SewvConfig.NVG_SPAWN_CHANCE, SewvConfig.NVG_SPAWN_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "soldiers", "darkAccuracyFraction", 0.05, 1.0,
+                SewvConfig.DARK_ACCURACY_FRACTION, SewvConfig.DARK_ACCURACY_FRACTION::set);
+        b.doubleRange(ConfigScope.SERVER, "soldiers", "nvgAccuracyFraction", 0.05, 1.0,
+                SewvConfig.NVG_ACCURACY_FRACTION, SewvConfig.NVG_ACCURACY_FRACTION::set);
+        b.doubleRange(ConfigScope.SERVER, "soldiers", "darkSpreadScaleMax", 1.0, 10.0,
+                SewvConfig.DARK_SPREAD_SCALE_MAX, SewvConfig.DARK_SPREAD_SCALE_MAX::set);
+        b.intRange(ConfigScope.SERVER, "soldiers", "darkBlockLightMax", 0, 15,
+                SewvConfig.DARK_BLOCK_LIGHT_MAX, SewvConfig.DARK_BLOCK_LIGHT_MAX::set);
+    }
+
+    private static void registerStructures(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "structures", "structureVehiclesEnabled",
+                SewvConfig.STRUCTURE_VEHICLES_ENABLED, SewvConfig.STRUCTURE_VEHICLES_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "structures", "structureVehicleMaxCount", 1, 16,
+                SewvConfig.STRUCTURE_VEHICLE_MAX_COUNT, SewvConfig.STRUCTURE_VEHICLE_MAX_COUNT::set);
+        b.intRange(ConfigScope.SERVER, "structures", "structureVehicleRampDays", 0, 1000,
+                SewvConfig.STRUCTURE_VEHICLE_RAMP_DAYS, SewvConfig.STRUCTURE_VEHICLE_RAMP_DAYS::set);
+        b.multilineIds(ConfigScope.SERVER, "structures", "ruVehicleStructures",
+                () -> List.copyOf(SewvConfig.RU_VEHICLE_STRUCTURES.get()),
+                v -> SewvConfig.RU_VEHICLE_STRUCTURES.set(v));
+        b.multilineIds(ConfigScope.SERVER, "structures", "usVehicleStructures",
+                () -> List.copyOf(SewvConfig.US_VEHICLE_STRUCTURES.get()),
+                v -> SewvConfig.US_VEHICLE_STRUCTURES.set(v));
+        b.multilineIds(ConfigScope.SERVER, "structures", "pmcVehicleStructures",
+                () -> List.copyOf(SewvConfig.PMC_VEHICLE_STRUCTURES.get()),
+                v -> SewvConfig.PMC_VEHICLE_STRUCTURES.set(v));
+    }
+
+    private static void registerCrewAi(ConfigRegistry.Builder b) {
+        b.intRange(ConfigScope.SERVER, "crew_ai", "aiFireCooldownTicks", 1, 200,
+                SewvConfig.AI_FIRE_COOLDOWN_TICKS, SewvConfig.AI_FIRE_COOLDOWN_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "aiFireHesitationTicks", 0, 200,
+                SewvConfig.AI_FIRE_HESITATION_TICKS, SewvConfig.AI_FIRE_HESITATION_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "aiFireHesitationJitter", 0.0, 1.0,
+                SewvConfig.AI_FIRE_HESITATION_JITTER, SewvConfig.AI_FIRE_HESITATION_JITTER::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "aiLosCacheTicks", 1, 40,
+                SewvConfig.AI_LOS_CACHE_TICKS, SewvConfig.AI_LOS_CACHE_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "aiFireAssistConeDeg", 4.0, 90.0,
+                SewvConfig.AI_FIRE_ASSIST_CONE_DEG, SewvConfig.AI_FIRE_ASSIST_CONE_DEG::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "smokeBlockRadius", 1.0, 16.0,
+                SewvConfig.SMOKE_BLOCK_RADIUS, SewvConfig.SMOKE_BLOCK_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "friendlyFireVehicleRadius", 0.0, 32.0,
+                SewvConfig.FRIENDLY_FIRE_VEHICLE_RADIUS, SewvConfig.FRIENDLY_FIRE_VEHICLE_RADIUS::set);
+        b.enumChoice(ConfigScope.SERVER, "crew_ai", "aiAimAccuracy",
+                Arrays.asList("realistic", "scaled", "accurate"),
+                SewvConfig.AI_AIM_ACCURACY, SewvConfig.AI_AIM_ACCURACY::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "aiAimSpreadDegrees", 0.0, 30.0,
+                SewvConfig.AI_AIM_SPREAD_DEG, SewvConfig.AI_AIM_SPREAD_DEG::set);
+        b.enumChoice(ConfigScope.SERVER, "crew_ai", "grenadeThrowCadence",
+                Arrays.asList("default", "rare", "aggressive", "none"),
+                SewvConfig.GRENADE_THROW_CADENCE, SewvConfig.GRENADE_THROW_CADENCE::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "grenadeMaxHand", 0, 64,
+                SewvConfig.GRENADE_MAX_HAND, SewvConfig.GRENADE_MAX_HAND::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "grenadeMaxRgo", 0, 64,
+                SewvConfig.GRENADE_MAX_RGO, SewvConfig.GRENADE_MAX_RGO::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "grenadeMaxSmoke", 0, 64,
+                SewvConfig.GRENADE_MAX_SMOKE, SewvConfig.GRENADE_MAX_SMOKE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "vehicleSkinMountChance", 0.0, 1.0,
+                SewvConfig.VEHICLE_SKIN_MOUNT_CHANCE, SewvConfig.VEHICLE_SKIN_MOUNT_CHANCE::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "camoBiomeSelection",
+                SewvConfig.CAMO_BIOME_SELECTION, SewvConfig.CAMO_BIOME_SELECTION::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "ifvDismountsEnabled",
+                SewvConfig.IFV_DISMOUNTS_ENABLED, SewvConfig.IFV_DISMOUNTS_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "semCrewDisableInertiaRotate",
+                SewvConfig.SEM_CREW_DISABLE_INERTIA_ROTATE, SewvConfig.SEM_CREW_DISABLE_INERTIA_ROTATE::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "tankRiderDismountEnabled",
+                SewvConfig.TANK_RIDER_DISMOUNT_ENABLED, SewvConfig.TANK_RIDER_DISMOUNT_ENABLED::set);
+        b.resourceId(ConfigScope.SERVER, "crew_ai", "atWeaponRu",
+                SewvConfig.AT_WEAPON_RU, SewvConfig.AT_WEAPON_RU::set);
+        b.resourceId(ConfigScope.SERVER, "crew_ai", "atWeaponUs",
+                SewvConfig.AT_WEAPON_US, SewvConfig.AT_WEAPON_US::set);
+        b.resourceId(ConfigScope.SERVER, "crew_ai", "atAirWeaponRu",
+                SewvConfig.AT_AIR_WEAPON_RU, SewvConfig.AT_AIR_WEAPON_RU::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "atAirGunnerChance", 0.0, 1.0,
+                SewvConfig.AT_AIR_GUNNER_CHANCE, SewvConfig.AT_AIR_GUNNER_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "atSecondGunnerChance", 0.0, 1.0,
+                SewvConfig.AT_SECOND_GUNNER_CHANCE, SewvConfig.AT_SECOND_GUNNER_CHANCE::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "atBackupAmmo", 1, 64,
+                SewvConfig.AT_BACKUP_AMMO, SewvConfig.AT_BACKUP_AMMO::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "atEngageRange", 8.0, 200.0,
+                SewvConfig.AT_ENGAGE_RANGE, SewvConfig.AT_ENGAGE_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "sbwSmallArmsRange", 8.0, 200.0,
+                SewvConfig.SBW_SMALL_ARMS_RANGE, SewvConfig.SBW_SMALL_ARMS_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "sbwSniperRange", 8.0, 300.0,
+                SewvConfig.SBW_SNIPER_RANGE, SewvConfig.SBW_SNIPER_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "sbwAaRange", 16.0, 400.0,
+                SewvConfig.SBW_AA_RANGE, SewvConfig.SBW_AA_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "sbwAiSpread", 0.0, 10.0,
+                SewvConfig.SBW_AI_SPREAD, SewvConfig.SBW_AI_SPREAD::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "medicEnabled",
+                SewvConfig.MEDIC_ENABLED, SewvConfig.MEDIC_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "medicSearchRadius", 2.0, 48.0,
+                SewvConfig.MEDIC_SEARCH_RADIUS, SewvConfig.MEDIC_SEARCH_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "medicHealPerTreat", 0.5, 20.0,
+                SewvConfig.MEDIC_HEAL_PER_TREAT, SewvConfig.MEDIC_HEAL_PER_TREAT::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "pmcReviveEnabled",
+                SewvConfig.PMC_REVIVE_ENABLED, SewvConfig.PMC_REVIVE_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "pmcReviveSearchRadius", 2.0, 64.0,
+                SewvConfig.PMC_REVIVE_SEARCH_RADIUS, SewvConfig.PMC_REVIVE_SEARCH_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pmcReviveChannelTicks", 20, 400,
+                SewvConfig.PMC_REVIVE_CHANNEL_TICKS, SewvConfig.PMC_REVIVE_CHANNEL_TICKS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "pmcReviveForceSingleplayer",
+                SewvConfig.PMC_REVIVE_FORCE_SINGLEPLAYER, SewvConfig.PMC_REVIVE_FORCE_SINGLEPLAYER::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "pmcDownedEnabled",
+                SewvConfig.PMC_DOWNED_ENABLED, SewvConfig.PMC_DOWNED_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "pmcDownedHealth", 1.0, 20.0,
+                SewvConfig.PMC_DOWNED_HEALTH, SewvConfig.PMC_DOWNED_HEALTH::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pmcDownedBleedTicks", 100, 6000,
+                SewvConfig.PMC_DOWNED_BLEED_TICKS, SewvConfig.PMC_DOWNED_BLEED_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "pmcDownedReviveHealth", 1.0, 40.0,
+                SewvConfig.PMC_DOWNED_REVIVE_HEALTH, SewvConfig.PMC_DOWNED_REVIVE_HEALTH::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "medicFleeDetectionRadius", 4.0, 64.0,
+                SewvConfig.MEDIC_FLEE_DETECTION_RADIUS, SewvConfig.MEDIC_FLEE_DETECTION_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "medicFleeMinDistance", 2.0, 32.0,
+                SewvConfig.MEDIC_FLEE_MIN_DISTANCE, SewvConfig.MEDIC_FLEE_MIN_DISTANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "medicFleeMaxDistance", 4.0, 64.0,
+                SewvConfig.MEDIC_FLEE_MAX_DISTANCE, SewvConfig.MEDIC_FLEE_MAX_DISTANCE::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "healthMobilityEnabled",
+                SewvConfig.HEALTH_MOBILITY_ENABLED, SewvConfig.HEALTH_MOBILITY_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "healthMobilityFloor", 0.05, 1.0,
+                SewvConfig.HEALTH_MOBILITY_FLOOR, SewvConfig.HEALTH_MOBILITY_FLOOR::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "medicSpawnChance", 0.0, 1.0,
+                SewvConfig.MEDIC_SPAWN_CHANCE, SewvConfig.MEDIC_SPAWN_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "engineerSpawnChance", 0.0, 1.0,
+                SewvConfig.ENGINEER_SPAWN_CHANCE, SewvConfig.ENGINEER_SPAWN_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "supportDedupeRadius", 4.0, 128.0,
+                SewvConfig.SUPPORT_DEDUPE_RADIUS, SewvConfig.SUPPORT_DEDUPE_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "engineerSearchRadius", 4.0, 96.0,
+                SewvConfig.ENGINEER_SEARCH_RADIUS, SewvConfig.ENGINEER_SEARCH_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "engineerRepairPerTreat", 0.5, 100.0,
+                SewvConfig.ENGINEER_REPAIR_PER_TREAT, SewvConfig.ENGINEER_REPAIR_PER_TREAT::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "engineerRepairCooldown", 1, 200,
+                SewvConfig.ENGINEER_REPAIR_COOLDOWN, SewvConfig.ENGINEER_REPAIR_COOLDOWN::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "engineerRepairSpeedBoost", 1.0, 3.0,
+                SewvConfig.ENGINEER_REPAIR_SPEED_BOOST, SewvConfig.ENGINEER_REPAIR_SPEED_BOOST::set);
+        b.multilineIds(ConfigScope.SERVER, "crew_ai", "engineerSidearmPool",
+                () -> List.copyOf(SewvConfig.ENGINEER_SIDEARM_POOL.get()),
+                v -> SewvConfig.ENGINEER_SIDEARM_POOL.set(v));
+        b.multilineIds(ConfigScope.SERVER, "crew_ai", "commanderSidearmPool",
+                () -> List.copyOf(SewvConfig.COMMANDER_SIDEARM_POOL.get()),
+                v -> SewvConfig.COMMANDER_SIDEARM_POOL.set(v));
+        b.bool(ConfigScope.SERVER, "crew_ai", "engineerDronesEnabled",
+                SewvConfig.ENGINEER_DRONES_ENABLED, SewvConfig.ENGINEER_DRONES_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "droneMaxPerEngineer", 0, 8,
+                SewvConfig.DRONE_MAX_PER_ENGINEER, SewvConfig.DRONE_MAX_PER_ENGINEER::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "droneDeployCheckIntervalTicks", 20, 12000,
+                SewvConfig.DRONE_DEPLOY_CHECK_INTERVAL_TICKS, SewvConfig.DRONE_DEPLOY_CHECK_INTERVAL_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "droneDeployChance", 0.0, 1.0,
+                SewvConfig.DRONE_DEPLOY_CHANCE, SewvConfig.DRONE_DEPLOY_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "droneScanAltitude", 5.0, 60.0,
+                SewvConfig.DRONE_SCAN_ALTITUDE, SewvConfig.DRONE_SCAN_ALTITUDE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "droneBroadcastRadius", 16.0, 384.0,
+                SewvConfig.DRONE_BROADCAST_RADIUS, SewvConfig.DRONE_BROADCAST_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "droneScanIntervalTicks", 5, 200,
+                SewvConfig.DRONE_SCAN_INTERVAL_TICKS, SewvConfig.DRONE_SCAN_INTERVAL_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "droneLeashRadius", 16.0, 512.0,
+                SewvConfig.DRONE_LEASH_RADIUS, SewvConfig.DRONE_LEASH_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "droneTargetRadius", 32.0, 384.0,
+                SewvConfig.DRONE_TARGET_RADIUS, SewvConfig.DRONE_TARGET_RADIUS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "autoBoardEnabled",
+                SewvConfig.AUTO_BOARD_ENABLED, SewvConfig.AUTO_BOARD_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "autoBoardScanRadius", 4.0, 128.0,
+                SewvConfig.AUTO_BOARD_SCAN_RADIUS, SewvConfig.AUTO_BOARD_SCAN_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "autoBoardMinHealthFraction", 0.0, 1.0,
+                SewvConfig.AUTO_BOARD_MIN_HEALTH_FRACTION, SewvConfig.AUTO_BOARD_MIN_HEALTH_FRACTION::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "autoBoardStealsPlayerVehicles",
+                SewvConfig.AUTO_BOARD_STEALS_PLAYER_VEHICLES, SewvConfig.AUTO_BOARD_STEALS_PLAYER_VEHICLES::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "towAutoEnabled",
+                SewvConfig.TOW_AUTO_ENABLED, SewvConfig.TOW_AUTO_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "towAutoScanRadius", 8.0, 128.0,
+                SewvConfig.TOW_AUTO_SCAN_RADIUS, SewvConfig.TOW_AUTO_SCAN_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "towSubmergedRequestTicks", 20, 600,
+                SewvConfig.TOW_SUBMERGED_REQUEST_TICKS, SewvConfig.TOW_SUBMERGED_REQUEST_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "towStuckRequestCycles", 1, 10,
+                SewvConfig.TOW_STUCK_REQUEST_CYCLES, SewvConfig.TOW_STUCK_REQUEST_CYCLES::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "towPlayerOrderMaxDistance", 4.0, 128.0,
+                SewvConfig.TOW_PLAYER_ORDER_MAX_DISTANCE, SewvConfig.TOW_PLAYER_ORDER_MAX_DISTANCE::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "autoManMortarEnabled",
+                SewvConfig.AUTO_MAN_MORTAR_ENABLED, SewvConfig.AUTO_MAN_MORTAR_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "autoManMortarScanRadius", 4.0, 128.0,
+                SewvConfig.AUTO_MAN_MORTAR_SCAN_RADIUS, SewvConfig.AUTO_MAN_MORTAR_SCAN_RADIUS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "combatEngineerDigEnabled",
+                SewvConfig.COMBAT_ENGINEER_DIG_ENABLED, SewvConfig.COMBAT_ENGINEER_DIG_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "autoEntrenchEnabled",
+                SewvConfig.AUTO_ENTRENCH_ENABLED, SewvConfig.AUTO_ENTRENCH_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "autoEntrenchScanRadius", 8.0, 128.0,
+                SewvConfig.AUTO_ENTRENCH_SCAN_RADIUS, SewvConfig.AUTO_ENTRENCH_SCAN_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "vehicleTargetScanRadius", 8.0, 128.0,
+                SewvConfig.VEHICLE_TARGET_SCAN_RADIUS, SewvConfig.VEHICLE_TARGET_SCAN_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "vehicleTargetScanHeight", 4.0, 128.0,
+                SewvConfig.VEHICLE_TARGET_SCAN_HEIGHT, SewvConfig.VEHICLE_TARGET_SCAN_HEIGHT::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "vehicleTargetScanIntervalTicks", 1, 200,
+                SewvConfig.VEHICLE_TARGET_SCAN_INTERVAL_TICKS, SewvConfig.VEHICLE_TARGET_SCAN_INTERVAL_TICKS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "vehicleTargetRequireLineOfSight",
+                SewvConfig.VEHICLE_TARGET_REQUIRE_LOS, SewvConfig.VEHICLE_TARGET_REQUIRE_LOS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "contactBoardEnabled",
+                SewvConfig.CONTACT_BOARD_ENABLED, SewvConfig.CONTACT_BOARD_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "contactBoardTtlTicks", 40, 1200,
+                SewvConfig.CONTACT_BOARD_TTL_TICKS, SewvConfig.CONTACT_BOARD_TTL_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "contactBoardCloseBand", 0.0, 96.0,
+                SewvConfig.CONTACT_BOARD_CLOSE_BAND, SewvConfig.CONTACT_BOARD_CLOSE_BAND::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "contactBoardMoveThreshold", 1.0, 32.0,
+                SewvConfig.CONTACT_BOARD_MOVE_THRESHOLD, SewvConfig.CONTACT_BOARD_MOVE_THRESHOLD::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "wideScanEnabled",
+                SewvConfig.WIDE_SCAN_ENABLED, SewvConfig.WIDE_SCAN_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "wideScanRadius", 96.0, 512.0,
+                SewvConfig.WIDE_SCAN_RADIUS, SewvConfig.WIDE_SCAN_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "wideScanCadenceTicks", 10, 100,
+                SewvConfig.WIDE_SCAN_CADENCE_TICKS, SewvConfig.WIDE_SCAN_CADENCE_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "combatantIndexIntervalTicks", 5, 100,
+                SewvConfig.COMBATANT_INDEX_INTERVAL_TICKS, SewvConfig.COMBATANT_INDEX_INTERVAL_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathSearchesPerTick", 0, 16,
+                SewvConfig.PATH_SEARCHES_PER_TICK, SewvConfig.PATH_SEARCHES_PER_TICK::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathMaxWaitTicks", 1, 100,
+                SewvConfig.PATH_MAX_WAIT_TICKS, SewvConfig.PATH_MAX_WAIT_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathMaxVisitedNodes", 128, 1024,
+                SewvConfig.PATH_MAX_VISITED_NODES, SewvConfig.PATH_MAX_VISITED_NODES::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathSearchRange", 16, 48,
+                SewvConfig.PATH_SEARCH_RANGE, SewvConfig.PATH_SEARCH_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "pathwayEntryRadius", 4.0, 64.0,
+                SewvConfig.PATHWAY_ENTRY_RADIUS, SewvConfig.PATHWAY_ENTRY_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "pathwayCoaxRadius", 4.0, 128.0,
+                SewvConfig.PATHWAY_COAX_RADIUS, SewvConfig.PATHWAY_COAX_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "pathwayDetourTolerance", 1.0, 4.0,
+                SewvConfig.PATHWAY_DETOUR_TOLERANCE, SewvConfig.PATHWAY_DETOUR_TOLERANCE::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathDestQuantum", 0, 8,
+                SewvConfig.PATH_DEST_QUANTUM, SewvConfig.PATH_DEST_QUANTUM::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "sensorColumnTtlTicks", 1, 20,
+                SewvConfig.SENSOR_COLUMN_TTL_TICKS, SewvConfig.SENSOR_COLUMN_TTL_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "treeScanIntervalTicks", 1, 10,
+                SewvConfig.TREE_SCAN_INTERVAL_TICKS, SewvConfig.TREE_SCAN_INTERVAL_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "coverBakeNanosPerTick", 0, 5_000_000,
+                SewvConfig.COVER_BAKE_NANOS_PER_TICK, SewvConfig.COVER_BAKE_NANOS_PER_TICK::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "coverMaxRange", 16, 48,
+                SewvConfig.COVER_MAX_RANGE, SewvConfig.COVER_MAX_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "groundFarLodBlocks", 0.0, 512.0,
+                SewvConfig.GROUND_FAR_LOD_BLOCKS, SewvConfig.GROUND_FAR_LOD_BLOCKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "vehicleAllyAssistRange", 0.0, 256.0,
+                SewvConfig.VEHICLE_ALLY_ASSIST_RANGE, SewvConfig.VEHICLE_ALLY_ASSIST_RANGE::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "stalemateBreakerEnabled",
+                SewvConfig.STALEMATE_BREAKER_ENABLED, SewvConfig.STALEMATE_BREAKER_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "stalemateSilenceTicks", 40, 2400,
+                SewvConfig.STALEMATE_SILENCE_TICKS, SewvConfig.STALEMATE_SILENCE_TICKS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "vehicleTerrainAvoidance",
+                SewvConfig.VEHICLE_TERRAIN_AVOIDANCE, SewvConfig.VEHICLE_TERRAIN_AVOIDANCE::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathRecalcCooldownTicks", 5, 200,
+                SewvConfig.PATH_RECALC_COOLDOWN_TICKS, SewvConfig.PATH_RECALC_COOLDOWN_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathFailCooldownTicks", 10, 400,
+                SewvConfig.PATH_FAIL_COOLDOWN_TICKS, SewvConfig.PATH_FAIL_COOLDOWN_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "pathMaxAgeTicks", 20, 600,
+                SewvConfig.PATH_MAX_AGE_TICKS, SewvConfig.PATH_MAX_AGE_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "pathTargetDriftBlocks", 1.0, 32.0,
+                SewvConfig.PATH_TARGET_DRIFT_BLOCKS, SewvConfig.PATH_TARGET_DRIFT_BLOCKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "patrolRotateIntervalTicks", 200, 24000,
+                SewvConfig.PATROL_ROTATE_INTERVAL_TICKS, SewvConfig.PATROL_ROTATE_INTERVAL_TICKS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "idleWanderEnabled",
+                SewvConfig.IDLE_WANDER_ENABLED, SewvConfig.IDLE_WANDER_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "idleWanderRadius", 4, 64,
+                SewvConfig.IDLE_WANDER_RADIUS, SewvConfig.IDLE_WANDER_RADIUS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "idleHybridEnabled",
+                SewvConfig.IDLE_HYBRID_ENABLED, SewvConfig.IDLE_HYBRID_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleGroupRadius", 8.0, 128.0,
+                SewvConfig.IDLE_GROUP_RADIUS, SewvConfig.IDLE_GROUP_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleFormationBaseRadius", 5.0, 40.0,
+                SewvConfig.IDLE_FORMATION_BASE_RADIUS, SewvConfig.IDLE_FORMATION_BASE_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleFormationRadiusMin", 5.0, 40.0,
+                SewvConfig.IDLE_FORMATION_RADIUS_MIN, SewvConfig.IDLE_FORMATION_RADIUS_MIN::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleFormationRadiusMax", 15.0, 80.0,
+                SewvConfig.IDLE_FORMATION_RADIUS_MAX, SewvConfig.IDLE_FORMATION_RADIUS_MAX::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleScrambleRadius", 0.0, 16.0,
+                SewvConfig.IDLE_SCRAMBLE_RADIUS, SewvConfig.IDLE_SCRAMBLE_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "idleHoldMinTicks", 20, 24000,
+                SewvConfig.IDLE_HOLD_MIN_TICKS, SewvConfig.IDLE_HOLD_MIN_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "idleHoldMaxTicks", 20, 48000,
+                SewvConfig.IDLE_HOLD_MAX_TICKS, SewvConfig.IDLE_HOLD_MAX_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleTravelLeadDistance", 64.0, 2000.0,
+                SewvConfig.IDLE_TRAVEL_LEAD_DISTANCE, SewvConfig.IDLE_TRAVEL_LEAD_DISTANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleTravelSpacingMin", 2.0, 32.0,
+                SewvConfig.IDLE_TRAVEL_SPACING_MIN, SewvConfig.IDLE_TRAVEL_SPACING_MIN::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleTravelSpacingMax", 2.0, 32.0,
+                SewvConfig.IDLE_TRAVEL_SPACING_MAX, SewvConfig.IDLE_TRAVEL_SPACING_MAX::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "idleTravelDetectRadius", 4.0, 64.0,
+                SewvConfig.IDLE_TRAVEL_DETECT_RADIUS, SewvConfig.IDLE_TRAVEL_DETECT_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "idleTravelStuckTicks", 100, 6000,
+                SewvConfig.IDLE_TRAVEL_STUCK_TICKS, SewvConfig.IDLE_TRAVEL_STUCK_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "marchPace", 0.04, 0.6,
+                SewvConfig.MARCH_PACE, SewvConfig.MARCH_PACE::set);
+        b.doubleRange(ConfigScope.SERVER, "crew_ai", "marchStraggleDistance", 4.0, 64.0,
+                SewvConfig.MARCH_STRAGGLE_DISTANCE, SewvConfig.MARCH_STRAGGLE_DISTANCE::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "utilityRefreshIntervalTicks", 5, 200,
+                SewvConfig.UTILITY_REFRESH_INTERVAL_TICKS, SewvConfig.UTILITY_REFRESH_INTERVAL_TICKS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "factionOrganicComms",
+                SewvConfig.FACTION_ORGANIC_COMMS, SewvConfig.FACTION_ORGANIC_COMMS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "notificationsRequireRadio",
+                SewvConfig.NOTIFICATIONS_REQUIRE_RADIO, SewvConfig.NOTIFICATIONS_REQUIRE_RADIO::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "radioVoiceEnabled",
+                SewvConfig.RADIO_VOICE_ENABLED, SewvConfig.RADIO_VOICE_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "supportCallIntervalTicks", 20, 2400,
+                SewvConfig.SUPPORT_CALL_INTERVAL_TICKS, SewvConfig.SUPPORT_CALL_INTERVAL_TICKS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "awarenessCuesEnabled",
+                SewvConfig.AWARENESS_CUES_ENABLED, SewvConfig.AWARENESS_CUES_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "suppressionBusEnabled",
+                SewvConfig.SUPPRESSION_BUS_ENABLED, SewvConfig.SUPPRESSION_BUS_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "infantryArmorAwareness",
+                SewvConfig.INFANTRY_ARMOR_AWARENESS, SewvConfig.INFANTRY_ARMOR_AWARENESS::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "acquisitionDelayEnabled",
+                SewvConfig.ACQUISITION_DELAY_ENABLED, SewvConfig.ACQUISITION_DELAY_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "suppressiveFireEnabled",
+                SewvConfig.SUPPRESSIVE_FIRE_ENABLED, SewvConfig.SUPPRESSIVE_FIRE_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "coverCacheEnabled",
+                SewvConfig.COVER_CACHE_ENABLED, SewvConfig.COVER_CACHE_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "coverCacheBakeCellsPerTick", 8, 256,
+                SewvConfig.COVER_CACHE_BAKE_CELLS_PER_TICK, SewvConfig.COVER_CACHE_BAKE_CELLS_PER_TICK::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "individualTacticsEnabled",
+                SewvConfig.INDIVIDUAL_TACTICS_ENABLED, SewvConfig.INDIVIDUAL_TACTICS_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "crew_ai", "battlePositionsEnabled",
+                SewvConfig.BATTLE_POSITIONS_ENABLED, SewvConfig.BATTLE_POSITIONS_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "crew_ai", "battlePositionLeaseTicks", 100, 6000,
+                SewvConfig.BATTLE_POSITION_LEASE_TICKS, SewvConfig.BATTLE_POSITION_LEASE_TICKS::set);
+    }
+
+    private static void registerCommand(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "command", "commandSystemEnabled",
+                SewvConfig.COMMAND_SYSTEM_ENABLED, SewvConfig.COMMAND_SYSTEM_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "commandGroupJoinRadius", 8.0, 256.0,
+                SewvConfig.COMMAND_GROUP_JOIN_RADIUS, SewvConfig.COMMAND_GROUP_JOIN_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "commandGroupLeaveRadius", 8.0, 256.0,
+                SewvConfig.COMMAND_GROUP_LEAVE_RADIUS, SewvConfig.COMMAND_GROUP_LEAVE_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "commandGroupMaxDiameter", 16.0, 512.0,
+                SewvConfig.COMMAND_GROUP_MAX_DIAMETER, SewvConfig.COMMAND_GROUP_MAX_DIAMETER::set);
+        b.intRange(ConfigScope.SERVER, "command", "commandGroupMinSize", 2, 32,
+                SewvConfig.COMMAND_GROUP_MIN_SIZE, SewvConfig.COMMAND_GROUP_MIN_SIZE::set);
+        b.intRange(ConfigScope.SERVER, "command", "commandMaxUnits", 4, 256,
+                SewvConfig.COMMAND_MAX_UNITS, SewvConfig.COMMAND_MAX_UNITS::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "commandEngagementRadius", 16.0, 256.0,
+                SewvConfig.COMMAND_ENGAGEMENT_RADIUS, SewvConfig.COMMAND_ENGAGEMENT_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "commandMargin", 0.0, 2.0,
+                SewvConfig.COMMAND_MARGIN, SewvConfig.COMMAND_MARGIN::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "influenceCellSize", 8.0, 16.0,
+                SewvConfig.INFLUENCE_CELL_SIZE, SewvConfig.INFLUENCE_CELL_SIZE::set);
+        b.intRange(ConfigScope.SERVER, "command", "influenceMaxCells", 64, 1024,
+                SewvConfig.INFLUENCE_MAX_CELLS, SewvConfig.INFLUENCE_MAX_CELLS::set);
+        b.intRange(ConfigScope.SERVER, "command", "minPlayTicks", 20, 2400,
+                SewvConfig.MIN_PLAY_TICKS, SewvConfig.MIN_PLAY_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "playSwitchMargin", 0.0, 100.0,
+                SewvConfig.PLAY_SWITCH_MARGIN, SewvConfig.PLAY_SWITCH_MARGIN::set);
+        b.doubleRange(ConfigScope.SERVER, "command", "tacticalScale", 0.5, 4.0,
+                SewvConfig.TACTICAL_SCALE, SewvConfig.TACTICAL_SCALE::set);
+    }
+
+    private static void registerPlatoon(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "platoon", "platoonEnabled",
+                SewvConfig.PLATOON_ENABLED, SewvConfig.PLATOON_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "platoon", "platoonCohesionRadius", 8.0, 128.0,
+                SewvConfig.PLATOON_COHESION_RADIUS, SewvConfig.PLATOON_COHESION_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "platoon", "platoonMaxSize", 2, 12,
+                SewvConfig.PLATOON_MAX_SIZE, SewvConfig.PLATOON_MAX_SIZE::set);
+        b.intRange(ConfigScope.SERVER, "platoon", "platoonMinSize", 2, 8,
+                SewvConfig.PLATOON_MIN_SIZE, SewvConfig.PLATOON_MIN_SIZE::set);
+    }
+
+    private static void registerFlight(ConfigRegistry.Builder b) {
+        b.doubleRange(ConfigScope.SERVER, "flight", "heliEngageRadius", 12.0, 64.0,
+                SewvConfig.HELI_ENGAGE_RADIUS, SewvConfig.HELI_ENGAGE_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "heliMinStandoff", 16.0, 96.0,
+                SewvConfig.HELI_MIN_STANDOFF, SewvConfig.HELI_MIN_STANDOFF::set);
+        b.bool(ConfigScope.SERVER, "flight", "heliChunkLoading",
+                SewvConfig.HELI_CHUNK_LOADING, SewvConfig.HELI_CHUNK_LOADING::set);
+        b.bool(ConfigScope.SERVER, "flight", "playerCrewRappelAllSeats",
+                SewvConfig.PLAYER_CREW_RAPPEL_ALL_SEATS, SewvConfig.PLAYER_CREW_RAPPEL_ALL_SEATS::set);
+        b.bool(ConfigScope.SERVER, "flight", "playerSelfRappelWithUnits",
+                SewvConfig.PLAYER_SELF_RAPPEL_WITH_UNITS, SewvConfig.PLAYER_SELF_RAPPEL_WITH_UNITS::set);
+        b.bool(ConfigScope.SERVER, "flight", "planeChunkLoading",
+                SewvConfig.PLANE_CHUNK_LOADING, SewvConfig.PLANE_CHUNK_LOADING::set);
+        b.bool(ConfigScope.SERVER, "flight", "wingFlightModel",
+                SewvConfig.WING_FLIGHT_MODEL, SewvConfig.WING_FLIGHT_MODEL::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeFarLodBlocks", 64.0, 1024.0,
+                SewvConfig.PLANE_FAR_LOD_BLOCKS, SewvConfig.PLANE_FAR_LOD_BLOCKS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "heliFarLodBlocks", 64.0, 1024.0,
+                SewvConfig.HELI_FAR_LOD_BLOCKS, SewvConfig.HELI_FAR_LOD_BLOCKS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeCommandRadius", 32.0, 4096.0,
+                SewvConfig.PLANE_COMMAND_RADIUS, SewvConfig.PLANE_COMMAND_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeMaxRange", 192.0, 2048.0,
+                SewvConfig.PLANE_MAX_RANGE, SewvConfig.PLANE_MAX_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeGunConeDeg", 1.0, 45.0,
+                SewvConfig.PLANE_GUN_CONE_DEG, SewvConfig.PLANE_GUN_CONE_DEG::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeMissileConeDeg", 1.0, 45.0,
+                SewvConfig.PLANE_MISSILE_CONE_DEG, SewvConfig.PLANE_MISSILE_CONE_DEG::set);
+        b.intRange(ConfigScope.SERVER, "flight", "planeMissileLockTicks", 0, 200,
+                SewvConfig.PLANE_MISSILE_LOCK_TICKS, SewvConfig.PLANE_MISSILE_LOCK_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeMinConeDeg", 0.5, 20.0,
+                SewvConfig.PLANE_MIN_CONE_DEG, SewvConfig.PLANE_MIN_CONE_DEG::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeAutoRocketRange", 0.0, 320.0,
+                SewvConfig.PLANE_AUTO_ROCKET_RANGE, SewvConfig.PLANE_AUTO_ROCKET_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeAutoHeavyRange", 0.0, 1024.0,
+                SewvConfig.PLANE_AUTO_HEAVY_RANGE, SewvConfig.PLANE_AUTO_HEAVY_RANGE::set);
+        b.intRange(ConfigScope.SERVER, "flight", "planeBombStick", 1, 12,
+                SewvConfig.PLANE_BOMB_STICK, SewvConfig.PLANE_BOMB_STICK::set);
+        b.intRange(ConfigScope.SERVER, "flight", "planeBombStickIntervalTicks", 1, 40,
+                SewvConfig.PLANE_BOMB_STICK_INTERVAL, SewvConfig.PLANE_BOMB_STICK_INTERVAL::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeBombSightRadius", 1.0, 32.0,
+                SewvConfig.PLANE_BOMB_SIGHT_RADIUS, SewvConfig.PLANE_BOMB_SIGHT_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeEngageRadius", 32.0, 1024.0,
+                SewvConfig.PLANE_ENGAGE_RADIUS, SewvConfig.PLANE_ENGAGE_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeAttackRunLength", 40.0, 1024.0,
+                SewvConfig.PLANE_ATTACK_RUN_LENGTH, SewvConfig.PLANE_ATTACK_RUN_LENGTH::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeMaxAltitude", 64.0, 1024.0,
+                SewvConfig.PLANE_MAX_ALTITUDE, SewvConfig.PLANE_MAX_ALTITUDE::set);
+        b.bool(ConfigScope.SERVER, "flight", "planeDiveSnap",
+                SewvConfig.PLANE_DIVE_SNAP, SewvConfig.PLANE_DIVE_SNAP::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeLandTransitAgl", 16.0, 160.0,
+                SewvConfig.PLANE_LAND_TRANSIT_AGL, SewvConfig.PLANE_LAND_TRANSIT_AGL::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeLandFlareAgl", 2.0, 32.0,
+                SewvConfig.PLANE_LAND_FLARE_AGL, SewvConfig.PLANE_LAND_FLARE_AGL::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeLandFlareRadius", 8.0, 96.0,
+                SewvConfig.PLANE_LAND_FLARE_RADIUS, SewvConfig.PLANE_LAND_FLARE_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "planeLandSettleRadius", 4.0, 64.0,
+                SewvConfig.PLANE_LAND_SETTLE_RADIUS, SewvConfig.PLANE_LAND_SETTLE_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportMinAspectRatio", 1.5, 20.0,
+                SewvConfig.AIRPORT_MIN_ASPECT_RATIO, SewvConfig.AIRPORT_MIN_ASPECT_RATIO::set);
+        b.intRange(ConfigScope.SERVER, "flight", "airportMinLengthBlocks", 32, 512,
+                SewvConfig.AIRPORT_MIN_LENGTH_BLOCKS, SewvConfig.AIRPORT_MIN_LENGTH_BLOCKS::set);
+        b.intRange(ConfigScope.SERVER, "flight", "airportMaxAreaBlocks", 1024, 1048576,
+                SewvConfig.AIRPORT_MAX_AREA_BLOCKS, SewvConfig.AIRPORT_MAX_AREA_BLOCKS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportLandingSearchRadius", 0.0, 16384.0,
+                SewvConfig.AIRPORT_LANDING_SEARCH_RADIUS, SewvConfig.AIRPORT_LANDING_SEARCH_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportAlignmentDistance", 60.0, 512.0,
+                SewvConfig.AIRPORT_ALIGNMENT_DISTANCE, SewvConfig.AIRPORT_ALIGNMENT_DISTANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportAlignmentSnapRadius", 8.0, 256.0,
+                SewvConfig.AIRPORT_ALIGNMENT_SNAP_RADIUS, SewvConfig.AIRPORT_ALIGNMENT_SNAP_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "dubinsAlignToleranceDeg", 5.0, 45.0,
+                SewvConfig.DUBINS_ALIGN_TOLERANCE_DEG, SewvConfig.DUBINS_ALIGN_TOLERANCE_DEG::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "dubinsFallbackMultiplier", 1.5, 4.0,
+                SewvConfig.DUBINS_FALLBACK_MULTIPLIER, SewvConfig.DUBINS_FALLBACK_MULTIPLIER::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "dubinsDeviationThreshold", 4.0, 64.0,
+                SewvConfig.DUBINS_DEVIATION_THRESHOLD, SewvConfig.DUBINS_DEVIATION_THRESHOLD::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportSlotSizeFactor", 0.02, 0.5,
+                SewvConfig.AIRPORT_SLOT_SIZE_FACTOR, SewvConfig.AIRPORT_SLOT_SIZE_FACTOR::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportSlotBufferFactor", 0.0, 0.2,
+                SewvConfig.AIRPORT_SLOT_BUFFER_FACTOR, SewvConfig.AIRPORT_SLOT_BUFFER_FACTOR::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportExtraTakeoffFactor", 0.0, 0.5,
+                SewvConfig.AIRPORT_EXTRA_TAKEOFF_FACTOR, SewvConfig.AIRPORT_EXTRA_TAKEOFF_FACTOR::set);
+        b.doubleRange(ConfigScope.SERVER, "flight", "airportTaxiSpeed", 0.02, 1.0,
+                SewvConfig.AIRPORT_TAXI_SPEED, SewvConfig.AIRPORT_TAXI_SPEED::set);
+    }
+
+    private static void registerIndirectFire(ConfigRegistry.Builder b) {
+        b.doubleRange(ConfigScope.SERVER, "indirect_fire", "mortarUseDistance", 1.0, 6.0,
+                SewvConfig.MORTAR_USE_DISTANCE, SewvConfig.MORTAR_USE_DISTANCE::set);
+        b.intRange(ConfigScope.SERVER, "indirect_fire", "mortarFireCooldownTicks", 1, 1200,
+                SewvConfig.MORTAR_FIRE_COOLDOWN_TICKS, SewvConfig.MORTAR_FIRE_COOLDOWN_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "indirect_fire", "type63FireCooldownTicks", 1, 1200,
+                SewvConfig.TYPE63_FIRE_COOLDOWN_TICKS, SewvConfig.TYPE63_FIRE_COOLDOWN_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "indirect_fire", "mortarDispersionRadius", 0, 16,
+                SewvConfig.MORTAR_DISPERSION_RADIUS, SewvConfig.MORTAR_DISPERSION_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "indirect_fire", "friendlyFireMortarRadius", 0.0, 48.0,
+                SewvConfig.FRIENDLY_FIRE_MORTAR_RADIUS, SewvConfig.FRIENDLY_FIRE_MORTAR_RADIUS::set);
+        b.bool(ConfigScope.SERVER, "indirect_fire", "mortarRequiresAmmo",
+                SewvConfig.MORTAR_REQUIRES_AMMO, SewvConfig.MORTAR_REQUIRES_AMMO::set);
+        b.bool(ConfigScope.SERVER, "indirect_fire", "mortarChunkLoading",
+                SewvConfig.MORTAR_CHUNK_LOADING, SewvConfig.MORTAR_CHUNK_LOADING::set);
+        b.bool(ConfigScope.SERVER, "indirect_fire", "artilleryChunkLoading",
+                SewvConfig.ARTILLERY_CHUNK_LOADING, SewvConfig.ARTILLERY_CHUNK_LOADING::set);
+        b.doubleRange(ConfigScope.SERVER, "indirect_fire", "artilleryAimToleranceDeg", 0.5, 15.0,
+                SewvConfig.ARTILLERY_AIM_TOLERANCE_DEG, SewvConfig.ARTILLERY_AIM_TOLERANCE_DEG::set);
+        b.bool(ConfigScope.SERVER, "indirect_fire", "artilleryReducedCharge",
+                SewvConfig.ARTILLERY_REDUCED_CHARGE, SewvConfig.ARTILLERY_REDUCED_CHARGE::set);
+        b.doubleRange(ConfigScope.SERVER, "indirect_fire", "artilleryArcElevationDeg", 10.0, 85.0,
+                SewvConfig.ARTILLERY_ARC_ELEVATION_DEG, SewvConfig.ARTILLERY_ARC_ELEVATION_DEG::set);
+        b.doubleRange(ConfigScope.SERVER, "indirect_fire", "mortarRadioRange", 16.0, 2048.0,
+                SewvConfig.MORTAR_RADIO_RANGE, SewvConfig.MORTAR_RADIO_RANGE::set);
+    }
+
+    private static void registerChunkTickets(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "chunk_tickets", "ticketSkipWhenPlayerTicking",
+                SewvConfig.TICKET_SKIP_WHEN_PLAYER_TICKING, SewvConfig.TICKET_SKIP_WHEN_PLAYER_TICKING::set);
+        b.intRange(ConfigScope.SERVER, "chunk_tickets", "ticketReleaseMarginChunks", 2, 8,
+                SewvConfig.TICKET_RELEASE_MARGIN_CHUNKS, SewvConfig.TICKET_RELEASE_MARGIN_CHUNKS::set);
+        b.intRange(ConfigScope.SERVER, "chunk_tickets", "ticketAcquireMarginChunks", 1, 6,
+                SewvConfig.TICKET_ACQUIRE_MARGIN_CHUNKS, SewvConfig.TICKET_ACQUIRE_MARGIN_CHUNKS::set);
+        b.intRange(ConfigScope.SERVER, "chunk_tickets", "ticketLingerTicks", 0, 1200,
+                SewvConfig.TICKET_LINGER_TICKS, SewvConfig.TICKET_LINGER_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "chunk_tickets", "ticketMaxLingering", 0, 4,
+                SewvConfig.TICKET_MAX_LINGERING, SewvConfig.TICKET_MAX_LINGERING::set);
+    }
+
+    private static void registerUnitLod(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "unit_lod", "unitLodEnabled",
+                SewvConfig.UNIT_LOD_ENABLED, SewvConfig.UNIT_LOD_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "unit_lod", "unitLodNearBlocks", 32.0, 512.0,
+                SewvConfig.UNIT_LOD_NEAR_BLOCKS, SewvConfig.UNIT_LOD_NEAR_BLOCKS::set);
+        b.doubleRange(ConfigScope.SERVER, "unit_lod", "unitLodFarBlocks", 64.0, 1024.0,
+                SewvConfig.UNIT_LOD_FAR_BLOCKS, SewvConfig.UNIT_LOD_FAR_BLOCKS::set);
+        b.intRange(ConfigScope.SERVER, "unit_lod", "unitLodMidStride", 2, 16,
+                SewvConfig.UNIT_LOD_MID_STRIDE, SewvConfig.UNIT_LOD_MID_STRIDE::set);
+        b.intRange(ConfigScope.SERVER, "unit_lod", "unitLodFarStride", 2, 16,
+                SewvConfig.UNIT_LOD_FAR_STRIDE, SewvConfig.UNIT_LOD_FAR_STRIDE::set);
+        b.intRange(ConfigScope.SERVER, "unit_lod", "unitLodWakeTicks", 0, 200,
+                SewvConfig.UNIT_LOD_WAKE_TICKS, SewvConfig.UNIT_LOD_WAKE_TICKS::set);
+    }
+
+    private static void registerVoicelines(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "voicelines", "vehicleVoicelinesEnabled",
+                SewvConfig.VEHICLE_VOICELINES_ENABLED, SewvConfig.VEHICLE_VOICELINES_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "voicelines", "idleVoicelineDelayTicks", 20, 12000,
+                SewvConfig.IDLE_VOICELINE_DELAY_TICKS, SewvConfig.IDLE_VOICELINE_DELAY_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "voicelines", "idleVoicelineInitialJitterTicks", 0, 12000,
+                SewvConfig.IDLE_VOICELINE_INITIAL_JITTER_TICKS, SewvConfig.IDLE_VOICELINE_INITIAL_JITTER_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "voicelines", "idleVoicelineRepeatBaseTicks", 40, 12000,
+                SewvConfig.IDLE_VOICELINE_REPEAT_BASE_TICKS, SewvConfig.IDLE_VOICELINE_REPEAT_BASE_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "voicelines", "idleVoicelineRepeatJitterTicks", 0, 12000,
+                SewvConfig.IDLE_VOICELINE_REPEAT_JITTER_TICKS, SewvConfig.IDLE_VOICELINE_REPEAT_JITTER_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "voicelines", "idleVoicelineHealthFraction", 0.0, 1.0,
+                SewvConfig.IDLE_VOICELINE_HEALTH_FRACTION, SewvConfig.IDLE_VOICELINE_HEALTH_FRACTION::set);
+    }
+
+
+    private static void registerBoarding(ConfigRegistry.Builder b) {
+        b.doubleRange(ConfigScope.SERVER, "boarding", "boardScanRadius", 8.0, 128.0,
+                SewvConfig.BOARD_SCAN_RADIUS, SewvConfig.BOARD_SCAN_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "quickEvacHeliSearchRadius", 16.0, 512.0,
+                SewvConfig.QUICK_EVAC_HELI_SEARCH_RADIUS, SewvConfig.QUICK_EVAC_HELI_SEARCH_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "quickEvacBoardRadius", 8.0, 128.0,
+                SewvConfig.QUICK_EVAC_BOARD_RADIUS, SewvConfig.QUICK_EVAC_BOARD_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "quickEvacBoardTimeoutTicks", 40, 2400,
+                SewvConfig.QUICK_EVAC_BOARD_TIMEOUT_TICKS, SewvConfig.QUICK_EVAC_BOARD_TIMEOUT_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeTimeoutTicks", 40, 6000,
+                SewvConfig.SCAVENGE_TIMEOUT_TICKS, SewvConfig.SCAVENGE_TIMEOUT_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "scavengeRadius", 4.0, 128.0,
+                SewvConfig.SCAVENGE_RADIUS, SewvConfig.SCAVENGE_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeAmmoStacks", 1, 12,
+                SewvConfig.SCAVENGE_AMMO_STACKS, SewvConfig.SCAVENGE_AMMO_STACKS::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeEmplacementCap", 0, 9,
+                SewvConfig.SCAVENGE_EMPLACEMENT_CAP, SewvConfig.SCAVENGE_EMPLACEMENT_CAP::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeMineCap", 0, 32,
+                SewvConfig.SCAVENGE_MINE_CAP, SewvConfig.SCAVENGE_MINE_CAP::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeGrenadeCap", 0, 16,
+                SewvConfig.SCAVENGE_GRENADE_CAP, SewvConfig.SCAVENGE_GRENADE_CAP::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeMedkitCap", 0, 16,
+                SewvConfig.SCAVENGE_MEDKIT_CAP, SewvConfig.SCAVENGE_MEDKIT_CAP::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeShovelCap", 0, 4,
+                SewvConfig.SCAVENGE_SHOVEL_CAP, SewvConfig.SCAVENGE_SHOVEL_CAP::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeRepairToolCap", 0, 4,
+                SewvConfig.SCAVENGE_REPAIR_TOOL_CAP, SewvConfig.SCAVENGE_REPAIR_TOOL_CAP::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "scavengeRadioCap", 0, 4,
+                SewvConfig.SCAVENGE_RADIO_CAP, SewvConfig.SCAVENGE_RADIO_CAP::set);
+        b.bool(ConfigScope.SERVER, "boarding", "scavengeArmor",
+                SewvConfig.SCAVENGE_ARMOR, SewvConfig.SCAVENGE_ARMOR::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "quickLandRadius", 8.0, 256.0,
+                SewvConfig.QUICK_LAND_RADIUS, SewvConfig.QUICK_LAND_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "quickGearSearchRadius", 4.0, 128.0,
+                SewvConfig.QUICK_GEAR_SEARCH_RADIUS, SewvConfig.QUICK_GEAR_SEARCH_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "quickGearSearchTimeoutTicks", 40, 2400,
+                SewvConfig.QUICK_GEAR_SEARCH_TIMEOUT_TICKS, SewvConfig.QUICK_GEAR_SEARCH_TIMEOUT_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "minefieldMaxMines", 1, 48,
+                SewvConfig.MINEFIELD_MAX_MINES, SewvConfig.MINEFIELD_MAX_MINES::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "minefieldMaxRange", 8.0, 128.0,
+                SewvConfig.MINEFIELD_MAX_RANGE, SewvConfig.MINEFIELD_MAX_RANGE::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "minefieldStandoff", 0.0, 32.0,
+                SewvConfig.MINEFIELD_STANDOFF, SewvConfig.MINEFIELD_STANDOFF::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "minefieldThreatRadius", 16.0, 256.0,
+                SewvConfig.MINEFIELD_THREAT_RADIUS, SewvConfig.MINEFIELD_THREAT_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "boarding", "minefieldMoveSpeed", 1.0, 2.0,
+                SewvConfig.MINEFIELD_MOVE_SPEED, SewvConfig.MINEFIELD_MOVE_SPEED::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "minefieldPlantTicks", 5, 100,
+                SewvConfig.MINEFIELD_PLANT_TICKS, SewvConfig.MINEFIELD_PLANT_TICKS::set);
+        b.intRange(ConfigScope.SERVER, "boarding", "minefieldTimeoutTicks", 200, 6000,
+                SewvConfig.MINEFIELD_TIMEOUT_TICKS, SewvConfig.MINEFIELD_TIMEOUT_TICKS::set);
+    }
+
+    private static void registerMapIntel(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "map_intel", "mapInfantryEnabled",
+                SewvConfig.MAP_INFANTRY_ENABLED, SewvConfig.MAP_INFANTRY_ENABLED::set);
+        b.intRange(ConfigScope.SERVER, "map_intel", "mapSyncIntervalTicks", 5, 200,
+                SewvConfig.MAP_SYNC_INTERVAL_TICKS, SewvConfig.MAP_SYNC_INTERVAL_TICKS::set);
+        b.doubleRange(ConfigScope.SERVER, "map_intel", "mapSpotRadius", 0.0, 512.0,
+                SewvConfig.MAP_SPOT_RADIUS, SewvConfig.MAP_SPOT_RADIUS::set);
+        b.bool(ConfigScope.SERVER, "map_intel", "mapFogOfWarEnabled",
+                SewvConfig.MAP_FOG_OF_WAR_ENABLED, SewvConfig.MAP_FOG_OF_WAR_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "map_intel", "mapIdentityRadius", 0.0, 512.0,
+                SewvConfig.MAP_IDENTITY_RADIUS, SewvConfig.MAP_IDENTITY_RADIUS::set);
+        b.intRange(ConfigScope.SERVER, "map_intel", "mapIdentityTtlTicks", 40, 6000,
+                SewvConfig.MAP_IDENTITY_TTL_TICKS, SewvConfig.MAP_IDENTITY_TTL_TICKS::set);
+    }
+
+    private static void registerSweep(ConfigRegistry.Builder b) {
+    }
+
+    private static void registerTerritory(ConfigRegistry.Builder b) {
+        b.intRange(ConfigScope.SERVER, "territory", "advancePlanMaxChunks", 1, 1024,
+                SewvConfig.ADVANCE_PLAN_MAX_CHUNKS, SewvConfig.ADVANCE_PLAN_MAX_CHUNKS::set);
+    }
+
+    private static void registerSpawnZones(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "spawn_zones", "zonesEnabled", SewvConfig.ZONES_ENABLED,
+                SewvConfig.ZONES_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "spawn_zones", "onlySpawnInPrioritization",
+                SewvConfig.ONLY_SPAWN_IN_PRIORITIZATION, SewvConfig.ONLY_SPAWN_IN_PRIORITIZATION::set);
+        b.doubleRange(ConfigScope.SERVER, "spawn_zones", "prioritizationRerollChance", 0.0, 1.0,
+                SewvConfig.PRIORITIZATION_REROLL_CHANCE, SewvConfig.PRIORITIZATION_REROLL_CHANCE::set);
+        b.doubleRange(ConfigScope.SERVER, "spawn_zones", "zoneBeaconUpkeepPerChunk", 0.0, 10000.0,
+                SewvConfig.ZONE_BEACON_FE_PER_CHUNK, SewvConfig.ZONE_BEACON_FE_PER_CHUNK::set);
+        b.intRange(ConfigScope.SERVER, "spawn_zones", "zoneBeaconBufferCapacity", 1000, 100000000,
+                SewvConfig.ZONE_BEACON_BUFFER_FE, SewvConfig.ZONE_BEACON_BUFFER_FE::set);
+        b.intRange(ConfigScope.SERVER, "spawn_zones", "zoneBeaconMaxRadius", 2, 10,
+                SewvConfig.ZONE_BEACON_MAX_RADIUS, SewvConfig.ZONE_BEACON_MAX_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "spawn_zones", "zoneBeaconMtiUpkeepMultiplier", 0.0, 100.0,
+                SewvConfig.ZONE_BEACON_MTI_UPKEEP_MULT, SewvConfig.ZONE_BEACON_MTI_UPKEEP_MULT::set);
+        b.bool(ConfigScope.SERVER, "spawn_zones", "signalInfantryEngagesVehicles",
+                SewvConfig.SIGNAL_INFANTRY_ENGAGES_VEHICLES, SewvConfig.SIGNAL_INFANTRY_ENGAGES_VEHICLES::set);
+        b.doubleRange(ConfigScope.SERVER, "spawn_zones", "signalAllyRadius", 16.0, 512.0,
+                SewvConfig.SIGNAL_ALLY_RADIUS, SewvConfig.SIGNAL_ALLY_RADIUS::set);
+        b.doubleRange(ConfigScope.SERVER, "spawn_zones", "signalInfantryRange", 8.0, 96.0,
+                SewvConfig.SIGNAL_INFANTRY_RANGE, SewvConfig.SIGNAL_INFANTRY_RANGE::set);
+        b.intRange(ConfigScope.SERVER, "spawn_zones", "signalMoveSeconds", 15, 600,
+                SewvConfig.SIGNAL_MOVE_SECONDS, SewvConfig.SIGNAL_MOVE_SECONDS::set);
+    }
+
+    private static void registerInvasion(ConfigRegistry.Builder b) {
+        b.bool(ConfigScope.SERVER, "invasion", "unlimitedTeamBases",
+                SewvConfig.UNLIMITED_TEAM_BASES, SewvConfig.UNLIMITED_TEAM_BASES::set);
+        b.hexColor(ConfigScope.SERVER, "invasion", "hudTeamAColor",
+                SewvConfig.INVASION_HUD_TEAM_A_COLOR, SewvConfig.INVASION_HUD_TEAM_A_COLOR::set);
+        b.hexColor(ConfigScope.SERVER, "invasion", "hudTeamBColor",
+                SewvConfig.INVASION_HUD_TEAM_B_COLOR, SewvConfig.INVASION_HUD_TEAM_B_COLOR::set);
+        b.hexColor(ConfigScope.SERVER, "invasion", "hudNeutralColor",
+                SewvConfig.INVASION_HUD_NEUTRAL_COLOR, SewvConfig.INVASION_HUD_NEUTRAL_COLOR::set);
+    }
+
+    private static void registerDoctrine(ConfigRegistry.Builder b) {
+        for (int f = 0; f < DOCTRINE_FACTIONS.length; f++) {
+            String faction = DOCTRINE_FACTIONS[f];
+            for (Doctrine.Axis axis : Doctrine.Axis.VALUES) {
+                int fi = f;
+                int ai = axis.ordinal();
+                String key = "doctrine." + faction + "." + axis.key;
+                b.intRange(ConfigScope.SERVER, "doctrine", key, -Doctrine.AXIS_LIMIT, Doctrine.AXIS_LIMIT,
+                        SewvConfig.DOCTRINE[fi][ai], SewvConfig.DOCTRINE[fi][ai]::set);
+            }
+        }
+    }
+
+    private static void registerCompat(ConfigRegistry.Builder b) {
+        // TaCZ ballistics
+        b.bool(ConfigScope.SERVER, "compat", "tacZBallisticTranslationEnabled",
+                SewvConfig.TACZ_BALLISTIC_TRANSLATION_ENABLED, SewvConfig.TACZ_BALLISTIC_TRANSLATION_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "compat", "tacZBallisticGlobalScale", 0.0, 10.0,
+                SewvConfig.TACZ_BALLISTIC_GLOBAL_SCALE, SewvConfig.TACZ_BALLISTIC_GLOBAL_SCALE::set);
+
+        // Enhanced Falling Trees
+        b.bool(ConfigScope.SERVER, "compat", "vehicleTreeFellingEnabled",
+                SewvConfig.VEHICLE_TREE_FELLING_ENABLED, SewvConfig.VEHICLE_TREE_FELLING_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "compat", "vehicleTreeFellDamage", 0.0, 20.0,
+                SewvConfig.VEHICLE_TREE_FELL_DAMAGE, SewvConfig.VEHICLE_TREE_FELL_DAMAGE::set);
+        b.doubleRange(ConfigScope.SERVER, "compat", "vehicleTreePathMalus", 0.0, 50.0,
+                SewvConfig.VEHICLE_TREE_PATH_MALUS, SewvConfig.VEHICLE_TREE_PATH_MALUS::set);
+        b.doubleRange(ConfigScope.SERVER, "compat", "vehicleTreeSensorDanger", 0.0, 0.99,
+                SewvConfig.VEHICLE_TREE_SENSOR_DANGER, SewvConfig.VEHICLE_TREE_SENSOR_DANGER::set);
+        b.bool(ConfigScope.SERVER, "compat", "vehicleTreeFellingExemptGiantTrunks",
+                SewvConfig.VEHICLE_TREE_FELLING_EXEMPT_GIANT_TRUNKS, SewvConfig.VEHICLE_TREE_FELLING_EXEMPT_GIANT_TRUNKS::set);
+        b.intRange(ConfigScope.SERVER, "compat", "vehicleTreeContactTicks", 0, 200,
+                SewvConfig.VEHICLE_TREE_CONTACT_TICKS, SewvConfig.VEHICLE_TREE_CONTACT_TICKS::set);
+
+        // MineColonies
+        b.bool(ConfigScope.SERVER, "compat", "minecoloniesCompatEnabled",
+                SewvConfig.MINECOLONIES_COMPAT_ENABLED, SewvConfig.MINECOLONIES_COMPAT_ENABLED::set);
+        b.bool(ConfigScope.SERVER, "compat", "minecoloniesProtectOwnedPmc",
+                SewvConfig.MINECOLONIES_PROTECT_PMC, SewvConfig.MINECOLONIES_PROTECT_PMC::set);
+        b.bool(ConfigScope.SERVER, "compat", "minecoloniesSpawnExclusion",
+                SewvConfig.MINECOLONIES_SPAWN_EXCLUSION, SewvConfig.MINECOLONIES_SPAWN_EXCLUSION::set);
+        b.bool(ConfigScope.SERVER, "compat", "minecoloniesVehicleRetaliation",
+                SewvConfig.MINECOLONIES_VEHICLE_RETALIATION, SewvConfig.MINECOLONIES_VEHICLE_RETALIATION::set);
+        b.doubleRange(ConfigScope.SERVER, "compat", "minecoloniesRaidChance", 0.0, 1.0,
+                SewvConfig.MINECOLONIES_RAID_CHANCE, SewvConfig.MINECOLONIES_RAID_CHANCE::set);
+        b.intRange(ConfigScope.SERVER, "compat", "minecoloniesRaidMaxVehicles", 1, 12,
+                SewvConfig.MINECOLONIES_RAID_MAX_VEHICLES, SewvConfig.MINECOLONIES_RAID_MAX_VEHICLES::set);
+
+        // Komodo (client mixin, value lives in server/common toml)
+        b.bool(ConfigScope.SERVER, "compat", "komodoRenderFixEnabled",
+                SewvConfig.KOMODO_RENDER_FIX_ENABLED, SewvConfig.KOMODO_RENDER_FIX_ENABLED::set);
+        b.doubleRange(ConfigScope.SERVER, "compat", "tripodStandoffDistance", 16.0, 256.0,
+                SewvConfig.TRIPOD_STANDOFF_DISTANCE, SewvConfig.TRIPOD_STANDOFF_DISTANCE::set);
+    }
+}

@@ -1,0 +1,104 @@
+package com.atsuishio.superbwarfare.client.particle
+
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.particle.*
+import net.minecraft.util.Mth
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
+import kotlin.math.max
+
+@Environment(EnvType.CLIENT)
+open class CannonMuzzleFlareParticle protected constructor(
+    world: ClientLevel,
+    x: Double,
+    y: Double,
+    z: Double,
+    vx: Double,
+    vy: Double,
+    vz: Double,
+    private val spriteSet: SpriteSet,
+    rCol: Float,
+    gCol: Float,
+    bCol: Float,
+    life: Int,
+    fade: Float,
+    animationSpeed: Int,
+    sizeAdd: Float
+) : SingleQuadParticle(world, x, y, z, spriteSet.first()) {
+    var fade: Float
+    var animationSpeed: Int
+    var sizeAdd: Float
+
+    @Environment(EnvType.CLIENT)
+    @JvmRecord
+    data class Provider(val spriteSet: SpriteSet) : ParticleProvider<CannonMuzzleFlareOption> {
+        override fun createParticle(
+            pType: CannonMuzzleFlareOption,
+            pLevel: ClientLevel,
+            x: Double,
+            y: Double,
+            z: Double,
+            xSpeed: Double,
+            ySpeed: Double,
+            zSpeed: Double,
+            randomSource: net.minecraft.util.RandomSource
+        ): Particle {
+            return CannonMuzzleFlareParticle(
+                pLevel,
+                x,
+                y,
+                z,
+                xSpeed,
+                ySpeed,
+                zSpeed,
+                this.spriteSet,
+                pType.red,
+                pType.green,
+                pType.blue,
+                pType.life,
+                pType.fade,
+                pType.animationSpeed,
+                pType.sizeAdd
+            )
+        }
+    }
+
+    init {
+        this.setSize(0.35f, 0.35f)
+        this.quadSize *= 11f
+        this.lifetime = max(1, life + (this.random.nextInt(1)))
+        this.gravity = -0.05f
+        this.hasPhysics = false
+        this.xd = vx * 0.6
+        this.yd = vy * 0.6
+        this.zd = vz * 0.6
+        this.setSpriteFromAge(spriteSet)
+        this.rCol = rCol
+        this.gCol = gCol
+        this.bCol = bCol
+        this.roll = Math.random().toFloat() * (Math.PI.toFloat() * 0.01f)
+        this.fade = fade
+        this.animationSpeed = animationSpeed
+        this.sizeAdd = sizeAdd
+    }
+
+    public override fun getLightCoords(partialTick: Float): Int {
+        return 15728880
+    }
+
+    override fun getLayer(): SingleQuadParticle.Layer {
+        return SingleQuadParticle.Layer.TRANSLUCENT
+    }
+
+    override fun tick() {
+        super.tick()
+        if (!this.removed) {
+            this.setSprite(this.spriteSet.get(Mth.clamp((this.age / animationSpeed) % 12 + 1, 0, 12), 12))
+        }
+        this.quadSize += sizeAdd
+        this.alpha *= fade
+        this.rCol *= 0.93f
+        this.gCol *= 0.93f
+        this.bCol *= 0.93f
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "S": "scguns:anthralite_ingot",
+    "L": "scguns:anthralite_nugget",
+    "X": "minecraft:porkchop"
+  },
+  "pattern": [
+    "LS ",
+    " X ",
+    " S "
+  ],
+  "result": {
+    "id": "scguns:suit_grease"
+  }
+}

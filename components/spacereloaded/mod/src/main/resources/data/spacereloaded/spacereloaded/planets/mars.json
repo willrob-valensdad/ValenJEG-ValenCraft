@@ -1,0 +1,34 @@
+{
+	"dimension": "spacereloaded:mars",
+	"gravity": 3.72,
+	"breathable": false,
+	"solar_efficiency": 0.6,
+	"coordinate_scale": 8.0,
+	"transition_altitude": 240,
+	"transition_targets": [
+		"spacereloaded:earth_orbit"
+	],
+	"arrival": "descend",
+	"atmosphere": "co2",
+	"requires_coverage": true,
+	"temperature": -60,
+	"temperature_amplitude": 25,
+	"atmosphere_density": 0.02,
+	"scale_height": 150.0,
+	"datum_y": 64.0,
+	"body_radius": 3389500.0,
+	"parking_altitude": 200000.0,
+	"transfer_delta_v": {
+		"spacereloaded:earth_orbit": 2103.0
+	},
+	"orbit": {
+		"a_au": 1.52371034,
+		"e": 0.0933941,
+		"i_deg": 1.84969142,
+		"node_deg": 49.55953891,
+		"peri_deg": -23.94362959,
+		"mean_lon_deg": -4.55343205
+	},
+	"mu": 42828370000000.0,
+	"aerocapture": true
+}

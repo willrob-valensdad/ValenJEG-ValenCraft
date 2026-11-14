@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 8
+  },
+  "gives": {
+    "id": "scguns:extended_mag"
+  },
+  "max_uses": 10,
+  "xp": 10,
+  "reputation_discount": 0.05
+}

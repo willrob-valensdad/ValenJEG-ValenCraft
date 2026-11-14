@@ -1,0 +1,13 @@
+{
+  "type": "hbm:crafting_shaped",
+  "key": {
+    "X": "#c:ingots/cmbsteel"
+  },
+  "pattern": [
+    "XXX",
+    "X X"
+  ],
+  "result": {
+    "id": "hbm:cmb_helmet"
+  }
+}

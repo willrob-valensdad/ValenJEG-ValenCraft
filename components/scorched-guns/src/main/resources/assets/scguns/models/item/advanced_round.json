@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/advanced_round_3d",
+  "textures": {
+    "0": "scguns:item/advanced_round",
+    "particle": "scguns:item/advanced_round"
+  }
+}

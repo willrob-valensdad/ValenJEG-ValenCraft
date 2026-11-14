@@ -1,0 +1,14 @@
+{
+  "type": "scguns:macerating",
+  "processingTime": 200,
+  "ingredients": [
+    "#c:ingots/brass",
+    "minecraft:redstone",
+    "minecraft:blaze_powder",
+    "minecraft:quartz"
+  ],
+  "result": {
+    "id": "scguns:treated_brass_blend",
+    "count": 3
+  }
+}

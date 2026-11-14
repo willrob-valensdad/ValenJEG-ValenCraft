@@ -1,0 +1,21 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "M": {
+      "preserve": "result"
+    }
+  },
+  "key": {
+    "C": "hbm:circuit_advanced",
+    "M": "hbm:mass_storage_desh",
+    "P": "#hbm:ingots/any_resistant_alloy"
+  },
+  "pattern": [
+    " C ",
+    "PMP",
+    " P "
+  ],
+  "result": {
+    "id": "hbm:mass_storage_tcalloy"
+  }
+}

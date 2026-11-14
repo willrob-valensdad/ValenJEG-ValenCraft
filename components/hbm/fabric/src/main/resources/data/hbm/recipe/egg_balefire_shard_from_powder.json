@@ -1,0 +1,13 @@
+{
+  "type": "hbm:crafting_shaped",
+  "key": {
+    "#": "hbm:powder_balefire"
+  },
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "result": {
+    "id": "hbm:egg_balefire_shard"
+  }
+}

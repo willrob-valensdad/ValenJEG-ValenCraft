@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/coltan"
+    }
+  ],
+  "order": 110592,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

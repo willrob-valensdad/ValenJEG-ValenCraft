@@ -1,0 +1,2932 @@
+--- a/core/build.gradle
++++ b/core/build.gradle
+@@ -32,3 +32,11 @@
+ 		events 'passed', 'failed', 'skipped'
+ 	}
+ }
++
++// Preserve the author license in distributed binaries and source archives.
++tasks.withType(Jar).configureEach {
++    from(rootProject.file("LICENSE")) {
++        into "META-INF/licenses"
++        rename { "SpaceReloaded-LICENSE" }
++    }
++}
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,15 +6,15 @@
+ org.gradle.configuration-cache=false
+ 
+ # Fabric — версии сверять на https://fabricmc.net/develop (зафиксировано в specs/001-space-mod-core/research.md, R1)
+-minecraft_version=26.2
+-loader_version=0.19.3
+-loom_version=1.17-SNAPSHOT
++minecraft_version=26.3
++loader_version=0.20.1
++loom_version=1.18.4
+ 
+ # Мод
+-mod_version=1.0.2
++mod_version=1.0.2-valen26.3.1
+ maven_group=org.alex_melan.spacereloaded
+ 
+ # Зависимости
+-fabric_api_version=0.154.2+26.2
++fabric_api_version=0.165.0+26.3
+ tr_energy_version=5.0.0
+-jade_version=26.2.9+fabric
++jade_version=26.3.5+fabric
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -1,6 +1,6 @@
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-9.5.1-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-9.7.1-bin.zip
+ networkTimeout=10000
+ retries=0
+ retryBackOffMs=500
+--- a/mod/build.gradle
++++ b/mod/build.gradle
+@@ -10,6 +10,7 @@
+ }
+ 
+ loom {
++	accessWidenerPath = file("src/main/resources/spacereloaded.classtweaker")
+ 	splitEnvironmentSourceSets()
+ 
+ 	mods {
+@@ -53,6 +54,8 @@
+ 	// (entrypoint "jade" в fabric.mod.json), поэтому в jar её не кладём
+ 	compileOnly "maven.modrinth:jade:${project.jade_version}"
+ 	clientCompileOnly "maven.modrinth:jade:${project.jade_version}"
++	// Optional, exact pinned Iris draw-wrapper API; never included in this mod.
++	clientCompileOnly "maven.modrinth:iris:vTN4NRGW"
+ 
+ 	// Вычислительное ядро (чистая Java, без Minecraft) — кладётся внутрь jar мода (jar-in-jar)
+ 	api project(':core')
+@@ -79,3 +82,11 @@
+ 	sourceCompatibility = JavaVersion.VERSION_25
+ 	targetCompatibility = JavaVersion.VERSION_25
+ }
++
++// Preserve the author license in distributed binaries and source archives.
++tasks.withType(Jar).configureEach {
++    from(rootProject.file("LICENSE")) {
++        into "META-INF/licenses"
++        rename { "SpaceReloaded-LICENSE" }
++    }
++}
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/SpaceReloadedClient.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/SpaceReloadedClient.java
+@@ -183,8 +183,8 @@
+ 		net.minecraft.client.KeyMapping key = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
+ 				.registerKeyMapping(new net.minecraft.client.KeyMapping(
+ 						"key.spacereloaded.stage",
+-						com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM,
+-						org.lwjgl.glfw.GLFW.GLFW_KEY_X,
++						com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD,
++						com.mojang.blaze3d.platform.InputConstants.KEY_X,
+ 						net.minecraft.client.KeyMapping.Category.GAMEPLAY));
+ 		net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(client -> {
+ 			while (key.consumeClick()) {
+@@ -202,8 +202,8 @@
+ 		net.minecraft.client.KeyMapping key = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
+ 				.registerKeyMapping(new net.minecraft.client.KeyMapping(
+ 						"key.spacereloaded.planet_map",
+-						com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM,
+-						org.lwjgl.glfw.GLFW.GLFW_KEY_M,
++						com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD,
++						com.mojang.blaze3d.platform.InputConstants.KEY_M,
+ 						net.minecraft.client.KeyMapping.Category.GAMEPLAY));
+ 		net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(client -> {
+ 			while (key.consumeClick()) {
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/gui/CabinGasHud.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/gui/CabinGasHud.java
+@@ -39,7 +39,7 @@
+     public void extractRenderState(GuiGraphicsExtractor gfx, DeltaTracker delta) {
+         Minecraft mc = Minecraft.getInstance();
+         CabinGasPayload gas = last;
+-        if (mc.player == null || gas == null || System.currentTimeMillis() - receivedMs > 3000) {
++        if (mc.gui.screen() != null || mc.player == null || gas == null || System.currentTimeMillis() - receivedMs > 3000) {
+             return;
+         }
+         var font = mc.font;
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/gui/OxygenHud.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/gui/OxygenHud.java
+@@ -24,7 +24,7 @@
+     @Override
+     public void extractRenderState(GuiGraphicsExtractor gfx, DeltaTracker delta) {
+         Minecraft mc = Minecraft.getInstance();
+-        if (mc.player == null
++        if (mc.gui.screen() != null || mc.player == null
+                 || !mc.player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.OXYGEN_MASK)) {
+             return;
+         }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/gui/RocketHud.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/gui/RocketHud.java
+@@ -30,7 +30,7 @@
+     @Override
+     public void extractRenderState(GuiGraphicsExtractor gfx, DeltaTracker delta) {
+         Minecraft mc = Minecraft.getInstance();
+-        if (mc.player == null || mc.level == null
++        if (mc.gui.screen() != null || mc.player == null || mc.level == null
+                 || !(mc.player.getVehicle() instanceof RocketEntity rocket)) {
+             return;
+         }
+@@ -44,7 +44,6 @@
+         double verticalSpeed = rocket.getDeltaMovement().y * 20.0;
+ 
+         int x = 8;
+-        int y = 8;
+         int width = 170;
+         int line = font.lineHeight + 2;
+         boolean multiStage = rocket.clientStageCount() > 1;
+@@ -54,6 +53,7 @@
+         boolean showTransfer = transferCost > 0;
+         int lines = 5 + (multiStage ? 1 : 0) + (launched ? 1 : 0) + (heating ? 1 : 0) + (showTransfer ? 1 : 0);
+         int height = 8 + 10 + 4 + line * lines + 4;
++        int y = Math.max(8, mc.getWindow().getGuiScaledHeight() - height - 50);
+ 
+         gfx.fill(x - 4, y - 4, x + width + 4, y + height, PANEL_BG);
+         gfx.text(font, Component.translatable(launched
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/mixin/SkyRendererMixin.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/mixin/SkyRendererMixin.java
+@@ -1,6 +1,7 @@
+ package org.alex_melan.spacereloaded.client.mixin;
+ 
+ import com.mojang.blaze3d.vertex.PoseStack;
++import com.mojang.renderpearl.api.commands.RenderPass;
+ import com.mojang.math.Axis;
+ import net.minecraft.client.renderer.SkyRenderer;
+ import net.minecraft.world.level.MoonPhase;
+@@ -15,18 +16,18 @@
+ public abstract class SkyRendererMixin {
+ 
+     @Inject(method = "renderSunMoonAndStars", at = @At("HEAD"))
+-    private void spacereloaded$spinPush(PoseStack pose, float a, float b, float c, MoonPhase phase, float d, float e,
++    private void spacereloaded$spinPush(RenderPass renderPass, PoseStack pose, float a, float b, float c, MoonPhase phase, float d, float e,
+                                         CallbackInfo ci) {
+         pose.pushPose();
+         int axis = SpinSky.axis();
+         if (axis != 0) {
+             float angle = SpinSky.angle();
+-            pose.mulPose(axis == 1 ? Axis.XP.rotation(angle) : Axis.ZP.rotation(angle));
++            pose.rotate(axis == 1 ? Axis.XP : Axis.ZP, angle);
+         }
+     }
+ 
+     @Inject(method = "renderSunMoonAndStars", at = @At("RETURN"))
+-    private void spacereloaded$spinPop(PoseStack pose, float a, float b, float c, MoonPhase phase, float d, float e,
++    private void spacereloaded$spinPop(RenderPass renderPass, PoseStack pose, float a, float b, float c, MoonPhase phase, float d, float e,
+                                        CallbackInfo ci) {
+         pose.popPose();
+     }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/AirColumnRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/AirColumnRenderer.java
+@@ -7,7 +7,6 @@
+ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+-import net.minecraft.client.renderer.rendertype.RenderTypes;
+ import net.minecraft.client.renderer.state.level.CameraRenderState;
+ import net.minecraft.client.renderer.texture.OverlayTexture;
+ import net.minecraft.core.BlockPos;
+@@ -92,7 +91,7 @@
+         // крыльчатка детандера
+         pose.pushPose();
+         pose.translate(state.exchanger[0] + 0.5f, state.exchanger[1], state.exchanger[2] + 0.5f);
+-        pose.mulPose(Axis.YP.rotation(state.wheel));
++        pose.rotate(Axis.YP, state.wheel);
+         pose.translate(-0.5f, 0, -0.5f);
+         state.wheelModel.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+         pose.popPose();
+@@ -101,10 +100,10 @@
+             float yRot = -(state.facing.toYRot() + 180);
+             pose.pushPose();
+             pose.translate(0.5f, 0.5f, 0.5f);
+-            pose.mulPose(Axis.YP.rotationDegrees(yRot));
++            pose.rotateDegrees(Axis.YP, yRot);
+             pose.translate(-0.5f, -0.5f, -0.5f);
+             float top = (3 + 9 * state.lox) / 16f;
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> {
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> {
+                 float z = 1.9f / 16;
+                 GlowGeometry.quad(p, vc, 3 / 16f, 3 / 16f, z, 3 / 16f, top, z, 13 / 16f, top, z, 13 / 16f, 3 / 16f, z,
+                         GlowGeometry.argb(0.45f, 0x9FD6FF));
+@@ -114,7 +113,7 @@
+         // иней на кожухе испарителя и тарелок
+         if (state.frost > 0.02f) {
+             int argb = GlowGeometry.argb(0.22f * state.frost, 0xE8F4FF);
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> {
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> {
+                 for (int k = 1; k <= state.trays; k++) {
+                     GlowGeometry.cube(p, vc, 1.9f / 16, k, 1.9f / 16, 14.1f / 16, k + 1, 14.1f / 16, argb);
+                 }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/ArcFurnaceRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/ArcFurnaceRenderer.java
+@@ -7,7 +7,6 @@
+ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+-import net.minecraft.client.renderer.rendertype.RenderTypes;
+ import net.minecraft.client.renderer.state.level.CameraRenderState;
+ import net.minecraft.client.renderer.texture.OverlayTexture;
+ import net.minecraft.core.BlockPos;
+@@ -103,18 +102,18 @@
+         }
+         pose.pushPose();
+         pose.translate(state.cx + 0.5f, 0, state.cz + 0.5f);
+-        pose.mulPose(Axis.YP.rotation(state.yaw));
++        pose.rotate(Axis.YP, state.yaw);
+         pose.translate(-0.5f, 0, -0.5f);
+         // наклон вокруг ребра носка
+         pose.translate(PIVOT_X, 0, 0);
+-        pose.mulPose(Axis.ZP.rotationDegrees(-state.tilt));
++        pose.rotateDegrees(Axis.ZP, -state.tilt);
+         pose.translate(-PIVOT_X, 0, 0);
+         state.vessel.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+         // расплав в ванне
+         if (state.melt > 0.02f) {
+             float a = 0.25f + 0.55f * state.melt;
+             float y = (4 + 10 * state.melt) / 16f;
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> GlowGeometry.quad(p, vc,
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> GlowGeometry.quad(p, vc,
+                     -8 / 16f, y, -8 / 16f, -8 / 16f, y, 24 / 16f, 24 / 16f, y, 24 / 16f, 24 / 16f, y, -8 / 16f,
+                     GlowGeometry.argb(a, 0xFF7A20)));
+         }
+@@ -123,7 +122,7 @@
+         pose.pushPose();
+         pose.translate(0, 30 / 16f + lift, 0);
+         pose.translate(-14 / 16f, 0, 22 / 16f);
+-        pose.mulPose(Axis.YP.rotationDegrees(-100 * state.roofOpen));
++        pose.rotateDegrees(Axis.YP, -100 * state.roofOpen);
+         pose.translate(14 / 16f, 0, -22 / 16f);
+         state.roof.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+         // электроды в держателях свода: подняты над сводом или опущены к ванне
+@@ -137,7 +136,7 @@
+             state.electrode.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+             if (state.arc) {
+                 float flick = 0.5f + 0.5f * (float) Math.abs(Math.sin(state.time * 3.7f + i * 1.9f) * Math.sin(state.time * 1.3f + i));
+-                collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> GlowGeometry.cube(p, vc,
++                collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> GlowGeometry.cube(p, vc,
+                         6 / 16f, -2 / 16f, 6 / 16f, 10 / 16f, 1 / 16f, 10 / 16f, GlowGeometry.argb(0.9f * flick, 0xDDE8FF)));
+             }
+             pose.popPose();
+@@ -147,14 +146,14 @@
+         // струя металла — после корпуса, в раме без наклона (падает вертикально)
+         pose.pushPose();
+         pose.translate(state.cx + 0.5f, 0, state.cz + 0.5f);
+-        pose.mulPose(Axis.YP.rotation(state.yaw));
++        pose.rotate(Axis.YP, state.yaw);
+         pose.translate(-0.5f, 0, -0.5f);
+         if (state.tilt > 12) {
+             double t = Math.toRadians(state.tilt);
+             float lipX = (float) (PIVOT_X + 2 / 16.0 * Math.cos(t) + 23 / 16.0 * Math.sin(t));
+             float lipY = (float) (-2 / 16.0 * Math.sin(t) + 23 / 16.0 * Math.cos(t));
+             float w = 0.07f + 0.02f * (float) Math.sin(state.time * 0.9f);
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) ->
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) ->
+                     GlowGeometry.cube(p, vc, lipX - w + 0.1f, -1f, 0.5f - w, lipX + w + 0.1f, lipY, 0.5f + w,
+                             GlowGeometry.argb(0.9f, 0xFFB040)));
+         }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/CascadeRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/CascadeRenderer.java
+@@ -68,7 +68,7 @@
+         for (int k = 0; k < state.count; k++) {
+             pose.pushPose();
+             pose.translate(state.dx[k] + 0.5f, 0, state.dz[k] + 0.5f);
+-            pose.mulPose(Axis.YP.rotation(state.angle + k * 0.7f));
++            pose.rotate(Axis.YP, state.angle + k * 0.7f);
+             pose.translate(-0.5f, 0, -0.5f);
+             state.rotor.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+             pose.popPose();
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/DsnRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/DsnRenderer.java
+@@ -135,7 +135,7 @@
+         float f = state.focal;
+         pose.pushPose();
+         pose.translate(0.5f, PIVOT_Y, 0.5f);
+-        pose.mulPose(Axis.ZP.rotationDegrees(state.tilt));
++        pose.rotateDegrees(Axis.ZP, state.tilt);
+         float lift = 0.3f;
+         // зеркало — сплошная оболочка по параболоиду y = r²/4f: вершины в углах клеток общие для
+         // соседних панелей, поэтому поверхность без щелей и ступенек; торцы — только по кромке
+@@ -185,12 +185,12 @@
+         });
+         pose.pushPose();
+         pose.translate(0, lift + f, 0);
+-        pose.mulPose(Axis.XP.rotationDegrees(180));
++        pose.rotateDegrees(Axis.XP, 180);
+         pose.translate(-0.5f, 0, -0.5f);
+         state.horn.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+         if (state.session) {
+             float a = 0.35f + 0.15f * (float) Math.sin(state.time * 0.2f);
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> GlowGeometry.quad(p, vc,
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> GlowGeometry.quad(p, vc,
+                     6.2f / 16, -0.01f, 6.2f / 16, 9.8f / 16, -0.01f, 6.2f / 16, 9.8f / 16, -0.01f, 9.8f / 16,
+                     6.2f / 16, -0.01f, 9.8f / 16, GlowGeometry.argb(a, 0x6FD5E8)));
+         }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/EclssRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/EclssRenderer.java
+@@ -7,7 +7,6 @@
+ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+-import net.minecraft.client.renderer.rendertype.RenderTypes;
+ import net.minecraft.client.renderer.state.level.CameraRenderState;
+ import net.minecraft.client.renderer.texture.OverlayTexture;
+ import net.minecraft.core.BlockPos;
+@@ -91,13 +90,13 @@
+             }
+             pose.pushPose();
+             pose.translate(state.offset[i][0] + 0.5f, state.offset[i][1] + 0.5f, state.offset[i][2] + 0.5f);
+-            pose.mulPose(Axis.YP.rotationDegrees(yRot));
++            pose.rotateDegrees(Axis.YP, yRot);
+             pose.translate(-0.5f, -0.5f, -0.5f);
+             switch (kind) {
+                 case EclssControllerBlockEntity.CDRA -> {
+                     pose.pushPose();
+                     pose.translate(0.5f, 0.5f, 0);
+-                    pose.mulPose(Axis.ZP.rotation(state.fanAngle[i]));
++                    pose.rotate(Axis.ZP, state.fanAngle[i]);
+                     pose.translate(-0.5f, -0.5f, 0);
+                     state.fan.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+                     pose.popPose();
+@@ -116,7 +115,7 @@
+                 case EclssControllerBlockEntity.SABATIER -> {
+                     if (lvl > 0.01f) {
+                         float pulse = (0.25f + 0.12f * (float) Math.sin(state.time * 0.08f + i)) * lvl;
+-                        collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> {
++                        collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> {
+                             float z = 2.9f / 16;
+                             GlowGeometry.quad(p, vc, 2 / 16f, 2 / 16f, z, 2 / 16f, 14 / 16f, z, 14 / 16f, 14 / 16f, z,
+                                     14 / 16f, 2 / 16f, z, GlowGeometry.argb(pulse, 0xFF8A30));
+@@ -132,7 +131,7 @@
+ 
+     /** Пузыри O₂ и H₂ у электродов: поднимаются к поверхности и исчезают, скорость ∝ работе модуля. */
+     private static void bubbles(PoseStack pose, SubmitNodeCollector collector, float time, float lvl) {
+-        collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> {
++        collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> {
+             float z = 2.2f / 16;
+             for (int b = 0; b < 10; b++) {
+                 float speed = 0.09f + 0.03f * (b % 3);
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/GlowGeometry.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/GlowGeometry.java
+@@ -2,12 +2,60 @@
+ 
+ import com.mojang.blaze3d.vertex.PoseStack;
+ import com.mojang.blaze3d.vertex.VertexConsumer;
++import net.fabricmc.loader.api.FabricLoader;
++import net.minecraft.client.renderer.RenderPipelines;
++import net.minecraft.client.renderer.rendertype.RenderSetup;
++import net.minecraft.client.renderer.rendertype.RenderType;
+ 
+ /**
+  * Светящаяся геометрия для анимаций мультиблоков 004 (RenderTypes.lightning — позиция + цвет,
+  * аддитивно, без текстуры и освещения): кубы-«ореолы» чуть больше блока и квады окон.
+  */
+ final class GlowGeometry {
++    // Keep native additive geometry without identifying every plume as a lightning bolt.
++    static final RenderType RENDER_TYPE = createRenderType();
++
++    private static RenderType createRenderType() {
++        RenderType nativeType = RenderType.create("spacereloaded:glow",
++                RenderSetup.builder(RenderPipelines.LIGHTNING)
++                        .setOitPipelines(RenderPipelines.OIT_LIGHTNING).sortOnUpload().createRenderSetup());
++        return FabricLoader.getInstance().isModLoaded("iris") ? IrisGlow.wrap(nativeType) : nativeType;
++    }
++
++    // Loaded only with Iris. Keep the producer identity through its final buffered draw.
++    private static final class IrisGlow implements net.irisshaders.iris.layer.RenderingWrapper {
++        private static final net.irisshaders.iris.shaderpack.materialmap.NamespacedId ROCKET =
++                new net.irisshaders.iris.shaderpack.materialmap.NamespacedId("spacereloaded", "rocket");
++        private int previousEntity;
++        private boolean active;
++
++        static RenderType wrap(RenderType nativeType) {
++            return net.irisshaders.iris.layer.OuterWrappedRenderType.wrapExactlyOnce(
++                    "spacereloaded:glow", nativeType, new IrisGlow());
++        }
++
++        @Override
++        public void setup() {
++            var ids = net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings.INSTANCE.getEntityIds();
++            active = ids != null;
++            if (active) {
++                var state = net.irisshaders.iris.uniforms.CapturedRenderingState.INSTANCE;
++                previousEntity = state.getCurrentRenderedEntity();
++                state.setCurrentEntity(ids.applyAsInt(ROCKET));
++                net.irisshaders.iris.layer.GbufferPrograms.runFallbackEntityListener();
++            }
++        }
++
++        @Override
++        public void clear() {
++            if (active) {
++                net.irisshaders.iris.uniforms.CapturedRenderingState.INSTANCE.setCurrentEntity(previousEntity);
++                net.irisshaders.iris.layer.GbufferPrograms.runFallbackEntityListener();
++                active = false;
++            }
++        }
++    }
++
+ 
+     private GlowGeometry() {
+     }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/KineticRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/KineticRenderer.java
+@@ -139,12 +139,12 @@
+         pose.pushPose();
+         pose.translate(0.5f, 0.5f, 0.5f);
+         switch (axis) {
+-            case X -> pose.mulPose(Axis.ZP.rotationDegrees(-90));
+-            case Z -> pose.mulPose(Axis.XP.rotationDegrees(90));
++            case X -> pose.rotateDegrees(Axis.ZP, -90);
++            case Z -> pose.rotateDegrees(Axis.XP, 90);
+             default -> {
+             }
+         }
+-        pose.mulPose(Axis.YP.rotationDegrees(state.angleDeg));
++        pose.rotateDegrees(Axis.YP, state.angleDeg);
+         pose.translate(-0.5f, -0.5f, -0.5f);
+         model.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+         pose.popPose();
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/MassDriverRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/MassDriverRenderer.java
+@@ -6,7 +6,6 @@
+ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+-import net.minecraft.client.renderer.rendertype.RenderTypes;
+ import net.minecraft.client.renderer.state.level.CameraRenderState;
+ import net.minecraft.client.renderer.texture.OverlayTexture;
+ import net.minecraft.world.phys.Vec3;
+@@ -79,7 +78,7 @@
+         if (!firing && chargeSections == 0) {
+             return;
+         }
+-        collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> {
++        collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> {
+             if (firing) {
+                 float head = wave / state.waveTicks * state.railLength;
+                 int from = Math.max(1, (int) Math.floor(head - 4));
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/OrbitalCannonRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/OrbitalCannonRenderer.java
+@@ -6,7 +6,6 @@
+ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+-import net.minecraft.client.renderer.rendertype.RenderTypes;
+ import net.minecraft.client.renderer.state.level.CameraRenderState;
+ import net.minecraft.client.renderer.texture.OverlayTexture;
+ import net.minecraft.core.particles.ParticleTypes;
+@@ -63,13 +62,13 @@
+         // кольцо накопителя на башне: голубое по доле заряда, пульсирует при полном
+         if (state.charge > 0.02f) {
+             float a = 0.12f + 0.35f * state.charge * (state.charge >= 0.99f ? 0.8f + 0.2f * (float) Math.sin(state.time * 0.3) : 1);
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> GlowGeometry.cube(p, vc,
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> GlowGeometry.cube(p, vc,
+                     2.9f / 16, 12.2f / 16, 2.9f / 16, 13.1f / 16, 13.2f / 16, 13.1f / 16, GlowGeometry.argb(a, 0x6FD5E8)));
+         }
+         if (state.flash > 0.01f) {
+             float f = state.flash;
+             float r = (1.5f + 3 * f) / 16;
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> GlowGeometry.cube(p, vc,
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> GlowGeometry.cube(p, vc,
+                     0.5f - r, 27 / 16f, 0.5f - r, 0.5f + r, 27 / 16f + 4 * r, 0.5f + r, GlowGeometry.argb(0.9f * f, 0xDDE8FF)));
+         }
+     }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/ReactorRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/ReactorRenderer.java
+@@ -6,7 +6,6 @@
+ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+-import net.minecraft.client.renderer.rendertype.RenderTypes;
+ import net.minecraft.client.renderer.state.level.CameraRenderState;
+ import net.minecraft.client.renderer.texture.OverlayTexture;
+ import net.minecraft.core.BlockPos;
+@@ -113,7 +112,7 @@
+             float a = (float) (0.15 + 0.6 * glow);
+             pose.pushPose();
+             pose.translate(state.hotPipe[0], state.hotPipe[1], state.hotPipe[2]);
+-            collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) ->
++            collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) ->
+                     GlowGeometry.cube(p, vc, 5.8f / 16, 0, 5.8f / 16, 10.2f / 16, 1, 10.2f / 16, GlowGeometry.argb(a, rgb)));
+             pose.popPose();
+         }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/RegolithReactorRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/RegolithReactorRenderer.java
+@@ -5,7 +5,6 @@
+ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+-import net.minecraft.client.renderer.rendertype.RenderTypes;
+ import net.minecraft.client.renderer.state.level.CameraRenderState;
+ import net.minecraft.world.phys.Vec3;
+ import org.alex_melan.spacereloaded.industry.RegolithReactorBlock;
+@@ -48,10 +47,10 @@
+         float pulse = 0.55f + 0.2f * (float) Math.sin(state.time * 0.12f);
+         pose.pushPose();
+         pose.translate(0.5f, 0.5f, 0.5f);
+-        pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-state.facing.toYRot()));
++        pose.rotateDegrees(com.mojang.math.Axis.YP, -state.facing.toYRot());
+         pose.translate(-0.5f, -0.5f, -0.5f);
+         // Фасад после поворота — грань z = 1 (юг); окно 0.25..0.75, чуть снаружи
+-        collector.submitCustomGeometry(pose, RenderTypes.lightning(), (p, vc) -> {
++        collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> {
+             float z = 1.002f;
+             GlowGeometry.quad(p, vc, 0.25f, 0.3f, z, 0.75f, 0.3f, z, 0.75f, 0.7f, z, 0.25f, 0.7f, z,
+                     GlowGeometry.argb(pulse, MELT_RGB));
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/RocketRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/RocketRenderer.java
+@@ -112,8 +112,8 @@
+         poseStack.pushPose();
+         // Поворот структуры вокруг центра масс
+         poseStack.translate(0.0f, state.comY, 0.0f);
+-        poseStack.mulPose(Axis.XP.rotationDegrees(state.pitchDeg));
+-        poseStack.mulPose(Axis.ZP.rotationDegrees(state.rollDeg));
++        poseStack.rotateDegrees(Axis.XP, state.pitchDeg);
++        poseStack.rotateDegrees(Axis.ZP, state.rollDeg);
+         poseStack.translate(0.0f, -state.comY, 0.0f);
+ 
+         if (state.thrusting) {
+@@ -146,7 +146,7 @@
+         float flicker = 0.85f + 0.15f * (float) Math.sin(time * 2.7 + plume[0] * 3) * (float) Math.sin(time * 1.3 + plume[2]);
+         float length = (2.2f + 0.6f * flicker) * (1 + 1.5f * spreadTan);
+         float y0 = plume[1];
+-        collector.submitCustomGeometry(pose, net.minecraft.client.renderer.rendertype.RenderTypes.lightning(), (p, vc) -> {
++        collector.submitCustomGeometry(pose, GlowGeometry.RENDER_TYPE, (p, vc) -> {
+             cone(p, vc, plume[0], y0, plume[2], 0.30f, 0.30f + length * spreadTan, length,
+                     GlowGeometry.argb(ALPHA[kind] * 0.45f * flicker, COLORS[kind][1]));
+             cone(p, vc, plume[0], y0, plume[2], 0.16f, 0.10f + length * spreadTan * 0.5f, length * 0.6f,
+@@ -178,7 +178,7 @@
+     }
+ 
+     @Override
+-    protected AABB getBoundingBoxForCulling(RocketEntity entity) {
++    protected AABB getBoundingBoxForCulling(RocketEntity entity, float partialTicks) {
+         return entity.getBoundingBox().inflate(3.0);
+     }
+ }
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/RoverRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/RoverRenderer.java
+@@ -45,7 +45,7 @@
+     @Override
+     public void submit(RoverRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+         pose.pushPose();
+-        pose.mulPose(Axis.YP.rotationDegrees(-state.yaw));
++        pose.rotateDegrees(Axis.YP, -state.yaw);
+         pose.translate(-0.5f, 0f, -0.5f);
+         state.body.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
+         if (state.battery) {
+@@ -59,7 +59,7 @@
+             pose.pushPose();
+             pose.translate(corners[i][0], 0f, corners[i][1]);
+             pose.translate(0.5f, 0.5f, 0.5f);
+-            pose.mulPose(Axis.XP.rotation(state.wheelAngle));
++            pose.rotate(Axis.XP, state.wheelAngle);
+             pose.translate(-0.5f, -0.5f, -0.5f);
+             state.wheel.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
+             pose.popPose();
+--- a/mod/src/client/java/org/alex_melan/spacereloaded/client/render/SolarPanelRenderer.java
++++ b/mod/src/client/java/org/alex_melan/spacereloaded/client/render/SolarPanelRenderer.java
+@@ -62,7 +62,7 @@
+     public void submit(State state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+         pose.pushPose();
+         pose.translate(0.5f, 0.72f, 0.5f);
+-        pose.mulPose(Axis.ZP.rotationDegrees(state.tilt));
++        pose.rotateDegrees(Axis.ZP, state.tilt);
+         pose.translate(-0.5f, -0.72f, -0.5f);
+         state.array.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+         pose.popPose();
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/cryo/AirColumnBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/cryo/AirColumnBlockEntity.java
+@@ -218,7 +218,7 @@
+             if (n > 0) {
+                 ItemStack s = new ItemStack(ModItems.ARGON_CANISTER, n);
+                 if (!player.getInventory().add(s)) {
+-                    player.drop(s, false);
++                    player.drop(s, false, net.minecraft.util.Prediction.SERVER_ONLY);
+                 }
+                 argonKg -= n * ARGON_KG_PER_CANISTER;
+             }
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/electronics/CrystalPullerBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/electronics/CrystalPullerBlockEntity.java
+@@ -66,7 +66,7 @@
+     private static final long HEATER_PER_TICK = 60;
+     private static final double PULL_TORQUE = 150;
+ 
+-    private final SimpleEnergyStorage energy = new SimpleEnergyStorage(20_000, 400, 0);
++    private final SimpleEnergyStorage energy = EnergyUtil.storage(this, 20_000, 400, 0);
+     private int work;
+     private double mean;
+     private double m2;
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/electronics/ProcessMachineBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/electronics/ProcessMachineBlockEntity.java
+@@ -64,7 +64,7 @@
+         super(type, pos, state);
+         this.layout = layout;
+         this.items = NonNullList.withSize(layout.size(), ItemStack.EMPTY);
+-        this.energy = new SimpleEnergyStorage(capacity, maxInsert, 0);
++        this.energy = EnergyUtil.storage(this, capacity, maxInsert, 0);
+     }
+ 
+     public EnergyStorage energyStorage() {
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/energy/EnergyUtil.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/energy/EnergyUtil.java
+@@ -4,12 +4,21 @@
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.server.level.ServerLevel;
++import net.minecraft.world.level.block.entity.BlockEntity;
+ import org.alex_melan.spacereloaded.registry.ModTags;
+ import team.reborn.energy.api.EnergyStorage;
+ import team.reborn.energy.api.EnergyStorageUtil;
++import team.reborn.energy.api.base.SimpleEnergyStorage;
+ 
+ /** Общие энергооперации машин (устраняет дубли между иерархиями BE). */
+ public final class EnergyUtil {
++
++    /** External transfers must persist just like the machine's own work. */
++    public static SimpleEnergyStorage storage(BlockEntity owner, long capacity, long insert, long extract) {
++        return new SimpleEnergyStorage(capacity, insert, extract) {
++            @Override protected void onFinalCommit() { owner.setChanged(); }
++        };
++    }
+ 
+     public static void pushToNeighbors(ServerLevel level, BlockPos pos, EnergyStorage from) {
+         for (Direction dir : Direction.values()) {
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/energy/MachineBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/energy/MachineBlockEntity.java
+@@ -25,7 +25,7 @@
+     protected MachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
+                                  long capacity, long maxInsert, long maxExtract) {
+         super(type, pos, state);
+-        this.energy = new SimpleEnergyStorage(capacity, maxInsert, maxExtract);
++        this.energy = EnergyUtil.storage(this, capacity, maxInsert, maxExtract);
+     }
+ 
+     public EnergyStorage energyStorage() {
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/fluid/ModFluids.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/fluid/ModFluids.java
+@@ -124,7 +124,7 @@
+                         .replaceable()
+                         .noCollision()
+                         .strength(100.0f)
+-                        .pushReaction(PushReaction.DESTROY)
++                        .pushReaction(PushReaction.POPPED)
+                         .noLootTable()
+                         .sound(SoundType.EMPTY)
+                         .setId(blockKey)));
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/industry/RegolithReactorBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/industry/RegolithReactorBlockEntity.java
+@@ -61,7 +61,7 @@
+     private static final long ENERGY_MAX_INSERT = 200L;
+ 
+     private NonNullList<ItemStack> items = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
+-    private final SimpleEnergyStorage energy = new SimpleEnergyStorage(ENERGY_CAPACITY, ENERGY_MAX_INSERT, 0);
++    private final SimpleEnergyStorage energy = EnergyUtil.storage(this, ENERGY_CAPACITY, ENERGY_MAX_INSERT, 0);
+     private final org.alex_melan.spacereloaded.machine.ChemicalProcess melt =
+             new org.alex_melan.spacereloaded.machine.ChemicalProcess(
+                     org.alex_melan.spacereloaded.machine.recipe.ChemicalRecipe.REGOLITH_REACTOR);
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/kinetics/KineticMachineBlock.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/kinetics/KineticMachineBlock.java
+@@ -47,7 +47,7 @@
+             if (!level.isClientSide() && level.getBlockEntity(pos) instanceof KineticMachineBlockEntity<?> machine) {
+                 ItemStack out = machine.takeOutput();
+                 if (!out.isEmpty() && !player.getInventory().add(out)) {
+-                    player.drop(out, false);
++                    player.drop(out, false, net.minecraft.util.Prediction.SERVER_ONLY);
+                 }
+             }
+             return InteractionResult.SUCCESS;
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/kinetics/MotorBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/kinetics/MotorBlockEntity.java
+@@ -40,7 +40,7 @@
+     public MotorBlockEntity(BlockPos pos, BlockState state) {
+         super(ModBlockEntities.MOTOR, pos, state);
+         long buffer = SpaceReloaded.config().motorEnergyBuffer;
+-        this.energy = new SimpleEnergyStorage(buffer, buffer, buffer);
++        this.energy = EnergyUtil.storage(this, buffer, buffer, buffer);
+     }
+ 
+     public EnergyStorage energyStorage() {
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/lifesupport/HydroponicTrayBlock.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/lifesupport/HydroponicTrayBlock.java
+@@ -145,7 +145,7 @@
+ 
+     private static void give(ServerPlayer player, ItemStack stack) {
+         if (!stack.isEmpty() && !player.getInventory().add(stack)) {
+-            player.drop(stack, false);
++            player.drop(stack, false, net.minecraft.util.Prediction.SERVER_ONLY);
+         }
+     }
+ }
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/machine/ChemMachineBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/machine/ChemMachineBlockEntity.java
+@@ -1,4 +1,6 @@
+ package org.alex_melan.spacereloaded.machine;
++
++import org.alex_melan.spacereloaded.energy.EnergyUtil;
+ 
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.NonNullList;
+@@ -52,7 +54,7 @@
+         super(type, pos, state);
+         this.items = NonNullList.withSize(slots, ItemStack.EMPTY);
+         long cap = SpaceReloaded.config().chemMachineEnergyCapacity;
+-        this.energy = new SimpleEnergyStorage(cap, cap, 0); // только приём
++        this.energy = EnergyUtil.storage(this, cap, cap, 0); // только приём
+     }
+ 
+     public EnergyStorage energyStorage() {
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/machine/CoalGeneratorBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/machine/CoalGeneratorBlockEntity.java
+@@ -16,7 +16,7 @@
+ 
+ /**
+  * Угольный генератор — стартовая энергетика: жжёт любое печное топливо
+- * (данные из ванильного FuelValues) и выталкивает энергию соседям/в сеть.
++ * (данные из ванильного компонента COOKING_FUEL) и выталкивает энергию соседям/в сеть.
+  */
+ public class CoalGeneratorBlockEntity extends ProcessingMachineBlockEntity {
+ 
+@@ -73,7 +73,9 @@
+         }
+         if (burnTime == 0 && energy.amount < energy.capacity) {
+             ItemStack fuel = items.get(0);
+-            int duration = fuel.isEmpty() ? 0 : level.fuelValues().burnDuration(fuel);
++            int duration = fuel.isEmpty() ? 0 : net.minecraft.world.level.storage.loot.providers.number.ints.ResolvableInt.getFromItem(
++                    fuel, net.minecraft.core.component.DataComponents.COOKING_FUEL,
++                    net.minecraft.world.item.component.CookingFuel::burnTime, getLootContext(level), 0);
+             if (duration > 0) {
+                 burnDuration = duration;
+                 burnTime = duration;
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/machine/ProcessingMachineBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/machine/ProcessingMachineBlockEntity.java
+@@ -1,4 +1,6 @@
+ package org.alex_melan.spacereloaded.machine;
++
++import org.alex_melan.spacereloaded.energy.EnergyUtil;
+ 
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+@@ -99,8 +101,8 @@
+         long capacity = SpaceReloaded.config().generatorBufferCapacity;
+         // Потребитель: приём извне без отдачи; генератор — наоборот
+         this.energy = generator
+-                ? new SimpleEnergyStorage(capacity, 0, Long.MAX_VALUE)
+-                : new SimpleEnergyStorage(capacity, capacity, 0);
++                ? EnergyUtil.storage(this, capacity, 0, Long.MAX_VALUE)
++                : EnergyUtil.storage(this, capacity, capacity, 0);
+     }
+ 
+     /** Длительность одной операции, тики. */
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/nuclear/CascadeBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/nuclear/CascadeBlockEntity.java
+@@ -281,7 +281,7 @@
+ 
+     private static void give(ServerPlayer player, ItemStack stack) {
+         if (!player.getInventory().add(stack)) {
+-            player.drop(stack, false);
++            player.drop(stack, false, net.minecraft.util.Prediction.SERVER_ONLY);
+         }
+     }
+ 
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/nuclear/ReactorBlockEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/nuclear/ReactorBlockEntity.java
+@@ -378,7 +378,7 @@
+                     ItemStack b = basket(u235, enrichment);
+                     b.set(ModDataComponents.FUEL_BURNUP, (float) burnupMwd);
+                     if (!player.getInventory().add(b)) {
+-                        player.drop(b, false);
++                        player.drop(b, false, net.minecraft.util.Prediction.SERVER_ONLY);
+                     }
+                     u235 = -1;
+                     power = 0;
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/orbit/OrbitalImages.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/orbit/OrbitalImages.java
+@@ -193,7 +193,7 @@
+         ItemStack image = new ItemStack(ModItems.ORBITAL_IMAGE);
+         image.set(ModDataComponents.IMAGE_ORDER, order);
+         if (!player.getInventory().add(image)) {
+-            player.drop(image, false);
++            player.drop(image, false, net.minecraft.util.Prediction.SERVER_ONLY);
+         }
+         player.sendSystemMessage(Component.translatable("message.spacereloaded.imaging.ordered", scale, 1 << scale,
+                 String.format(Locale.ROOT, "%.0f", OrbitalImaging.LINE_PIXELS * (1 << scale) / 1000.0), sats,
+@@ -316,6 +316,7 @@
+                                       MapColor surface) {
+         var generator = level.getChunkSource().getGenerator();
+         var random = level.getChunkSource().randomState();
++        var biomes = generator.getBiomeSource().createCachingResolver(random);
+         for (int pz = 0; pz < SIZE; pz++) {
+             for (int px = 0; px < SIZE; px++) {
+                 int i = pz * SIZE + px;
+@@ -332,8 +333,8 @@
+                 } else if (surface != null) {
+                     color[i] = surface;
+                 } else {
+-                    color[i] = biomeColor(generator.getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x),
+-                            QuartPos.fromBlock(top), QuartPos.fromBlock(z), random.sampler()));
++                    color[i] = biomeColor(biomes.getNoiseBiome(QuartPos.fromBlock(x),
++                            QuartPos.fromBlock(top), QuartPos.fromBlock(z)));
+                 }
+             }
+         }
+@@ -362,7 +363,7 @@
+             }
+         }
+         if (!inventory.add(map)) {
+-            player.drop(map, false);
++            player.drop(map, false, net.minecraft.util.Prediction.SERVER_ONLY);
+         }
+     }
+ 
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/planet/PlanetEffects.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/planet/PlanetEffects.java
+@@ -42,17 +42,30 @@
+                         org.alex_melan.spacereloaded.industry.IndustryAdvancements.CORIOLIS);
+             }
+             crew.update(player, gravity, 20 / 24000.0);
+-            double amount = gravity / PlanetManager.EARTH_GRAVITY - 1.0; // ADD_MULTIPLIED_TOTAL
+-            AttributeModifier current = attribute.getModifier(GRAVITY_MODIFIER_ID);
+-            boolean needed = Math.abs(amount) > 0.001;
+-            if (current != null && (!needed || Math.abs(current.amount() - amount) > 1e-4)) {
+-                attribute.removeModifier(GRAVITY_MODIFIER_ID);
+-                current = null;
+-            }
+-            if (needed && current == null) {
+-                attribute.addTransientModifier(new AttributeModifier(GRAVITY_MODIFIER_ID,
+-                        amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+-            }
++            applyGravity(attribute, gravity);
++        }
++    }
++
++    /** Refresh only gravity after travel/respawn or another mod's ambient update; no crew-time advancement. */
++    public static boolean refreshGravity(ServerPlayer player) {
++        ServerLevel level = player.level();
++        var ring = org.alex_melan.spacereloaded.station.SpinRings.gravityFor(level, player);
++        AttributeInstance attribute = player.getAttribute(Attributes.GRAVITY);
++        if (attribute != null) applyGravity(attribute, ring.orElse(PlanetManager.gravity(level)));
++        return ring.isPresent();
++    }
++
++    private static void applyGravity(AttributeInstance attribute, double gravity) {
++        double amount = gravity / PlanetManager.EARTH_GRAVITY - 1.0; // ADD_MULTIPLIED_TOTAL
++        AttributeModifier current = attribute.getModifier(GRAVITY_MODIFIER_ID);
++        boolean needed = Math.abs(amount) > 0.001;
++        if (current != null && (!needed || Math.abs(current.amount() - amount) > 1e-4)) {
++            attribute.removeModifier(GRAVITY_MODIFIER_ID);
++            current = null;
++        }
++        if (needed && current == null) {
++            attribute.addTransientModifier(new AttributeModifier(GRAVITY_MODIFIER_ID,
++                    amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+         }
+     }
+ }
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/registry/ModWorldgen.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/registry/ModWorldgen.java
+@@ -1,4 +1,6 @@
+ package org.alex_melan.spacereloaded.registry;
++
++import com.mojang.serialization.MapCodec;
+ 
+ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+ import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
+@@ -8,6 +10,9 @@
+ import net.minecraft.world.level.levelgen.GenerationStep;
+ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+ import org.alex_melan.spacereloaded.SpaceReloaded;
++import org.alex_melan.spacereloaded.worldgen.CrashedProbeFeature;
++import org.alex_melan.spacereloaded.worldgen.LavaTubeFeature;
++import org.alex_melan.spacereloaded.worldgen.CraterFeature;
+ 
+ /**
+  * Генерация руд (T040): configured/placed features лежат датапаком в
+@@ -29,23 +34,13 @@
+     public static final ResourceKey<PlacedFeature> ORE_GALENA = placed("ore_galena");
+ 
+     /** Ударный кратер безатмосферного тела: рельеф, а не разрушение. */
+-    public static final net.minecraft.world.level.levelgen.feature.Feature<
+-            net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration> CRATER =
+-            new org.alex_melan.spacereloaded.worldgen.CraterFeature(
+-                    net.minecraft.world.level.levelgen.feature.configurations
+-                            .NoneFeatureConfiguration.CODEC);
++    public static final MapCodec<CraterFeature> CRATER = CraterFeature.CODEC;
+ 
+     /** Лавовые трубки Луны (004): chunk-local вырезание детерминированных трубок регионов. */
+-    public static final net.minecraft.world.level.levelgen.feature.Feature<
+-            net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration> LAVA_TUBE =
+-            new org.alex_melan.spacereloaded.worldgen.LavaTubeFeature(
+-                    net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.CODEC);
++    public static final MapCodec<LavaTubeFeature> LAVA_TUBE = LavaTubeFeature.CODEC;
+ 
+     /** Место крушения зонда (004): кратер, обломки, контейнер с добычей. */
+-    public static final net.minecraft.world.level.levelgen.feature.Feature<
+-            net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration> CRASHED_PROBE =
+-            new org.alex_melan.spacereloaded.worldgen.CrashedProbeFeature(
+-                    net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.CODEC);
++    public static final MapCodec<CrashedProbeFeature> CRASHED_PROBE = CrashedProbeFeature.CODEC;
+ 
+     private static ResourceKey<PlacedFeature> placed(String name) {
+         return ResourceKey.create(Registries.PLACED_FEATURE,
+@@ -54,13 +49,13 @@
+ 
+     public static void init() {
+         net.minecraft.core.Registry.register(
+-                net.minecraft.core.registries.BuiltInRegistries.FEATURE,
++                net.minecraft.core.registries.BuiltInRegistries.FEATURE_TYPE,
+                 Identifier.fromNamespaceAndPath(SpaceReloaded.MOD_ID, "crater"), CRATER);
+         net.minecraft.core.Registry.register(
+-                net.minecraft.core.registries.BuiltInRegistries.FEATURE,
++                net.minecraft.core.registries.BuiltInRegistries.FEATURE_TYPE,
+                 Identifier.fromNamespaceAndPath(SpaceReloaded.MOD_ID, "lava_tube"), LAVA_TUBE);
+         net.minecraft.core.Registry.register(
+-                net.minecraft.core.registries.BuiltInRegistries.FEATURE,
++                net.minecraft.core.registries.BuiltInRegistries.FEATURE_TYPE,
+                 Identifier.fromNamespaceAndPath(SpaceReloaded.MOD_ID, "crashed_probe"), CRASHED_PROBE);
+         BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(),
+                 GenerationStep.Decoration.UNDERGROUND_ORES, ORE_TITANIUM);
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/rocket/FuelTankBlock.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/rocket/FuelTankBlock.java
+@@ -102,7 +102,7 @@
+         stack.shrink(1);
+         var filled = new net.minecraft.world.item.ItemStack(propellant.bucket());
+         if (!player.getInventory().add(filled)) {
+-            player.drop(filled, false);
++            player.drop(filled, false, net.minecraft.util.Prediction.SERVER_ONLY);
+         }
+         level.playSound(null, pos, net.minecraft.sounds.SoundEvents.BUCKET_FILL,
+                 net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/rocket/RocketEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/rocket/RocketEntity.java
+@@ -90,15 +90,6 @@
+     private static final double CRASH_SPEED = 15.0; // м/с — жёсткая посадка
+     private static final double CAPSULE_CRASH_SPEED = 25.0; // капсула: теплозащита+амортизация
+ 
+-    /**
+-     * Клиентская интерполяция (26.2): сервер шлёт позицию раз в 2 тика, без
+-     * сглаживания ракета дёргается, а пассажир прыгает вместе с ней
+-     * (positionRider берёт координаты аппарата). Обработчик сглаживает
+-     * позицию между пакетами; ванильный Entity.getInterpolation() = null.
+-     */
+-    private final net.minecraft.world.entity.InterpolationHandler interpolation =
+-            new net.minecraft.world.entity.InterpolationHandler(this);
+-
+     private RocketData rocketData;
+     private RocketStructure structure;
+     private FlightState flight;
+@@ -500,8 +491,8 @@
+     }
+ 
+     @Override
+-    public net.minecraft.world.entity.InterpolationHandler getInterpolation() {
+-        return interpolation;
++    protected net.minecraft.world.entity.InterpolationHandler createInterpolationHandler() {
++        return net.minecraft.world.entity.LinearInterpolationHandler.create(this);
+     }
+ 
+     @Override
+@@ -863,7 +854,7 @@
+     public void tick() {
+         super.tick();
+         if (level().isClientSide()) {
+-            interpolation.interpolate(); // плавное движение аппарата и пассажира
++            getInterpolation().interpolate(); // плавное движение аппарата и пассажира
+             return;
+         }
+         if (rocketData == null) {
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/sealing/VacuumHazard.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/sealing/VacuumHazard.java
+@@ -57,8 +57,7 @@
+         List<LivingEntity> victims = new ArrayList<>();
+         level.getEntities(LIVING, entity -> true, victims);
+         for (LivingEntity entity : victims) {
+-            boolean insideZone = ZoneManager.isInsideSealedZone(level, entity.blockPosition())
+-                    && pressurized(level, entity.blockPosition());
++            boolean insideZone = isInsidePressurizedZone(level, entity.blockPosition());
+             // Звук глушится в открытом вакууме независимо от режима игры — физика
+             if (entity instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                 syncExposure(serverPlayer, !insideZone);
+@@ -76,21 +75,31 @@
+                     && rocket.hasPressurizedCabin()) {
+                 continue;
+             }
+-            if (entity.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.OXYGEN_MASK)) {
+-                if (!(entity instanceof net.minecraft.world.entity.player.Player player)) {
+-                    continue; // мобы в маске дышат бесплатно (нет инвентаря)
++            applyEquipmentHazard(level, entity);
++        }
++    }
++
++    /** Existing equipment and damage rules, also usable by compatible atmosphere providers. */
++    public static void applyEquipmentHazard(ServerLevel level, LivingEntity entity) {
++        var config = SpaceReloaded.config();
++        if (entity.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.OXYGEN_MASK)) {
++            if (!(entity instanceof net.minecraft.world.entity.player.Player player)) {
++                return; // мобы в маске дышат бесплатно (нет инвентаря)
++            }
++            if (consumeOxygen(player)) {
++                // Дышим; но без полного скафандра среда грызёт (холод/радиация)
++                if (!hasFullSuit(player)) {
++                    entity.hurtServer(level, ModDamageTypes.exposure(level),
++                            config.exposureDamage);
+                 }
+-                if (consumeOxygen(player)) {
+-                    // Дышим; но без полного скафандра среда грызёт (холод/радиация)
+-                    if (!hasFullSuit(player)) {
+-                        entity.hurtServer(level, ModDamageTypes.exposure(level),
+-                                config.exposureDamage);
+-                    }
+-                    continue;
+-                }
++                return;
+             }
+-            entity.hurtServer(level, ModDamageTypes.vacuum(level), config.vacuumDamage);
+         }
++        entity.hurtServer(level, ModDamageTypes.vacuum(level), config.vacuumDamage);
++    }
++
++    public static boolean isInsidePressurizedZone(ServerLevel level, net.minecraft.core.BlockPos pos) {
++        return ZoneManager.isInsideSealedZone(level, pos) && pressurized(level, pos);
+     }
+ 
+     /**
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/sealing/ZoneManager.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/sealing/ZoneManager.java
+@@ -332,7 +332,7 @@
+             Vec3 direction = breachCenter.subtract(entity.position());
+             if (direction.lengthSqr() > 1.0e-6) {
+                 entity.push(direction.normalize().scale(impulse));
+-                entity.hurtMarked = true;
++                entity.syncVelocity = true;
+             }
+         }
+ 
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/station/SpinRings.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/station/SpinRings.java
+@@ -114,7 +114,7 @@
+             Vec3 coriolis = axis.cross(v).scale(-2 * 2); // за 2 тика
+             if (coriolis.lengthSqr() > 1e-8) {
+                 player.setDeltaMovement(v.add(coriolis));
+-                player.hurtMarked = true;
++                player.syncVelocity = true;
+             }
+         }
+     }
+@@ -127,6 +127,6 @@
+         Vec3 axis = hub.axis() == Direction.Axis.X ? new Vec3(w, 0, 0) : new Vec3(0, 0, w);
+         Vec3 tangential = axis.cross(rho);
+         player.setDeltaMovement(player.getDeltaMovement().add(tangential));
+-        player.hurtMarked = true;
++        player.syncVelocity = true;
+     }
+ }
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/vehicle/RoverEntity.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/vehicle/RoverEntity.java
+@@ -55,7 +55,6 @@
+     private static final EntityDataAccessor<Boolean> BATTERY = SynchedEntityData.defineId(RoverEntity.class, EntityDataSerializers.BOOLEAN);
+     private static final EntityDataAccessor<Float> WHEEL_ANGLE = SynchedEntityData.defineId(RoverEntity.class, EntityDataSerializers.FLOAT);
+ 
+-    private final InterpolationHandler interpolation = new InterpolationHandler(this);
+     private double speed;
+     private double charge;
+     private double odometer;
+@@ -146,8 +145,8 @@
+     }
+ 
+     @Override
+-    public InterpolationHandler getInterpolation() {
+-        return interpolation;
++    protected InterpolationHandler createInterpolationHandler() {
++        return net.minecraft.world.entity.LinearInterpolationHandler.create(this);
+     }
+ 
+     @Override
+@@ -232,7 +231,7 @@
+             ItemStack printed = radarRecorder.print(serverLevel);
+             stack.consume(1, player);
+             if (!sp.getInventory().add(printed)) {
+-                sp.drop(printed, false);
++                sp.drop(printed, false, net.minecraft.util.Prediction.SERVER_ONLY);
+             }
+             sp.sendSystemMessage(Component.translatable("message.spacereloaded.radar.printed", traces,
+                     String.format(Locale.ROOT, "%.1f", traces * org.alex_melan.spacereloaded.survey.GroundRadarService.STEP_M)));
+@@ -289,7 +288,7 @@
+     public void tick() {
+         super.tick();
+         if (level().isClientSide()) {
+-            interpolation.interpolate();
++            getInterpolation().interpolate();
+             return;
+         }
+         ServerLevel level = (ServerLevel) level();
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/worldgen/CrashedProbeFeature.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/worldgen/CrashedProbeFeature.java
+@@ -1,6 +1,6 @@
+ package org.alex_melan.spacereloaded.worldgen;
+ 
+-import com.mojang.serialization.Codec;
++import com.mojang.serialization.MapCodec;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.registries.Registries;
+ import net.minecraft.resources.Identifier;
+@@ -8,12 +8,11 @@
+ import net.minecraft.util.RandomSource;
+ import net.minecraft.world.RandomizableContainer;
+ import net.minecraft.world.level.WorldGenLevel;
++import net.minecraft.world.level.chunk.ChunkGenerator;
+ import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.levelgen.Heightmap;
+ import net.minecraft.world.level.levelgen.feature.Feature;
+-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+ import net.minecraft.world.level.storage.loot.LootTable;
+ import org.alex_melan.spacereloaded.SpaceReloaded;
+ import org.alex_melan.spacereloaded.registry.ModBlocks;
+@@ -24,20 +23,20 @@
+  * добыча), в центре — уцелевший контейнер с таблицей добычи {@code chests/crashed_probe}.
+  * Боёвки нет — ниша данжа закрыта исследованием (backlog «лунные POI без боёвки»).
+  */
+-public class CrashedProbeFeature extends Feature<NoneFeatureConfiguration> {
++public class CrashedProbeFeature implements Feature {
+ 
+     public static final ResourceKey<LootTable> LOOT = ResourceKey.create(Registries.LOOT_TABLE,
+             Identifier.fromNamespaceAndPath(SpaceReloaded.MOD_ID, "chests/crashed_probe"));
+ 
+-    public CrashedProbeFeature(Codec<NoneFeatureConfiguration> codec) {
+-        super(codec);
++    public static final MapCodec<CrashedProbeFeature> CODEC = MapCodec.unit(CrashedProbeFeature::new);
++
++    @Override
++    public MapCodec<CrashedProbeFeature> codec() {
++        return CODEC;
+     }
+ 
+     @Override
+-    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+-        WorldGenLevel level = context.level();
+-        RandomSource random = context.random();
+-        BlockPos origin = context.origin();
++    public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+         BlockState air = Blocks.AIR.defaultBlockState();
+         BlockState regolith = ModBlocks.MOON_REGOLITH.defaultBlockState();
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/worldgen/CraterFeature.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/worldgen/CraterFeature.java
+@@ -1,15 +1,14 @@
+ package org.alex_melan.spacereloaded.worldgen;
+ 
+-import com.mojang.serialization.Codec;
++import com.mojang.serialization.MapCodec;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.util.RandomSource;
+ import net.minecraft.world.level.WorldGenLevel;
++import net.minecraft.world.level.chunk.ChunkGenerator;
+ import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.levelgen.Heightmap;
+ import net.minecraft.world.level.levelgen.feature.Feature;
+-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+ import org.alex_melan.spacereloaded.registry.ModBlocks;
+ 
+ /**
+@@ -21,22 +20,22 @@
+  * Кратер шире примерно 14 блоков от точки размещения уронил бы генерацию
+  * исключением «setBlock in a far chunk».
+  */
+-public class CraterFeature extends Feature<NoneFeatureConfiguration> {
++public class CraterFeature implements Feature {
+ 
+     /** Предел безопасной записи за пределы чанка размещения. */
+     private static final int MAX_RADIUS = 12;
+     /** Ширина кольца вала за кромкой чаши. */
+     private static final int RIM_WIDTH = 2;
+ 
+-    public CraterFeature(Codec<NoneFeatureConfiguration> codec) {
+-        super(codec);
++    public static final MapCodec<CraterFeature> CODEC = MapCodec.unit(CraterFeature::new);
++
++    @Override
++    public MapCodec<CraterFeature> codec() {
++        return CODEC;
+     }
+ 
+     @Override
+-    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+-        WorldGenLevel level = context.level();
+-        RandomSource random = context.random();
+-        BlockPos origin = context.origin();
++    public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+ 
+         int radius = 4 + random.nextInt(MAX_RADIUS - 3);
+         // Чаша заметно мельче своей ширины: реальные кратеры — блюдца, не колодцы
+--- a/mod/src/main/java/org/alex_melan/spacereloaded/worldgen/LavaTubeFeature.java
++++ b/mod/src/main/java/org/alex_melan/spacereloaded/worldgen/LavaTubeFeature.java
+@@ -1,14 +1,14 @@
+ package org.alex_melan.spacereloaded.worldgen;
+ 
+-import com.mojang.serialization.Codec;
++import com.mojang.serialization.MapCodec;
+ import net.minecraft.core.BlockPos;
++import net.minecraft.util.RandomSource;
+ import net.minecraft.world.level.WorldGenLevel;
++import net.minecraft.world.level.chunk.ChunkGenerator;
+ import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.levelgen.Heightmap;
+ import net.minecraft.world.level.levelgen.feature.Feature;
+-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+ import org.alex_melan.spacereloaded.core.worldgen.LavaTubeLayout;
+ import org.alex_melan.spacereloaded.registry.ModBlocks;
+ 
+@@ -22,19 +22,20 @@
+  * ({@link LavaTubeLayout#forRegion}) и вырезает ТОЛЬКО клетки своего чанка — куски трубки
+  * из соседних чанков сшиваются без общего состояния (тест ядра). Трогает только породу тела.
+  */
+-public class LavaTubeFeature extends Feature<NoneFeatureConfiguration> {
++public class LavaTubeFeature implements Feature {
+ 
+     /** Доля регионов с трубкой (≈ одна трубка на 8×8 чанков). */
+     public static final double CHANCE_PER_REGION = 0.85;
+ 
+-    public LavaTubeFeature(Codec<NoneFeatureConfiguration> codec) {
+-        super(codec);
++    public static final MapCodec<LavaTubeFeature> CODEC = MapCodec.unit(LavaTubeFeature::new);
++
++    @Override
++    public MapCodec<LavaTubeFeature> codec() {
++        return CODEC;
+     }
+ 
+     @Override
+-    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+-        WorldGenLevel level = context.level();
+-        BlockPos origin = context.origin();
++    public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
+         int chunkMinX = (origin.getX() >> 4) << 4;
+         int chunkMinZ = (origin.getZ() >> 4) << 4;
+         int regionX = Math.floorDiv(chunkMinX, LavaTubeLayout.REGION);
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_0.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_0.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_1.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_1.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_2.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_2.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_3.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_other_3.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_0.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_0.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_1.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_1.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_2.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_2.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_3.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_potato_3.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_0.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_0.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_1.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_1.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_2.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_2.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_3.json
++++ b/mod/src/main/resources/assets/spacereloaded/models/block/hydroponic_tray_wheat_3.json
+@@ -51,7 +51,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -72,7 +72,7 @@
+ 				16,
+ 				16
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"east": {
+ 					"texture": "#crop"
+@@ -93,7 +93,7 @@
+ 				16,
+ 				4
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+@@ -114,7 +114,7 @@
+ 				16,
+ 				12
+ 			],
+-			"shade": false,
++			"shade_direction_override": "up",
+ 			"faces": {
+ 				"north": {
+ 					"texture": "#crop"
+--- a/mod/src/main/resources/data/spacereloaded/dimension/earth_orbit.json
++++ b/mod/src/main/resources/data/spacereloaded/dimension/earth_orbit.json
+@@ -3,7 +3,7 @@
+ 	"generator": {
+ 		"type": "minecraft:flat",
+ 		"settings": {
+-			"biome": "minecraft:the_void",
++			"biome": "spacereloaded:orbit_void",
+ 			"features": false,
+ 			"lakes": false,
+ 			"layers": [],
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/biome/orbit_void.json
+@@ -0,0 +1,43 @@
++{
++  "attributes": {
++    "minecraft:gameplay/natural_mob_spawns": {
++      "argument": {
++        "spawn_costs": {},
++        "spawns_by_category": {
++          "ambient": [],
++          "axolotls": [],
++          "creature": [],
++          "misc": [],
++          "monster": [],
++          "underground_water_creature": [],
++          "water_ambient": [],
++          "water_creature": []
++        }
++      },
++      "modifier": "overlay"
++    },
++    "minecraft:visual/sky_color": "#000000"
++  },
++  "carvers": [],
++  "downfall": 0.5,
++  "effects": {
++    "water_color": "#3f76e4"
++  },
++  "features": [
++    [],
++    [],
++    [],
++    [],
++    [],
++    [],
++    [],
++    [],
++    [],
++    [],
++    [
++      "minecraft:void_start_platform"
++    ]
++  ],
++  "has_precipitation": false,
++  "temperature": 0.5
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/crashed_probe.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"type":"spacereloaded:crashed_probe","config":{}}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/lava_tube.json
++++ /dev/null
+@@ -1 +0,0 @@
+-{"type":"spacereloaded:lava_tube","config":{}}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/mars_ice.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 9,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:mars_ice"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:block_match",
+-					"block": "minecraft:red_sandstone"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/mars_tungsten.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 8,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:mars_tungsten_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:block_match",
+-					"block": "minecraft:red_sandstone"
+-				}
+-			}
+-		]
+-	}
+-}
+\ No newline at end of file
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/moon_anorthosite.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 48,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:anorthosite"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:block_match",
+-					"block": "spacereloaded:moon_stone"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/moon_crater.json
++++ /dev/null
+@@ -1,4 +0,0 @@
+-{
+-	"type": "spacereloaded:crater",
+-	"config": {}
+-}
+\ No newline at end of file
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/moon_ice.json
++++ /dev/null
+@@ -1,17 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 14,
+-		"targets": [
+-			{
+-				"state": { "Name": "spacereloaded:moon_ice" },
+-				"target": { "predicate_type": "minecraft:block_match", "block": "spacereloaded:moon_stone" }
+-			},
+-			{
+-				"state": { "Name": "spacereloaded:moon_ice" },
+-				"target": { "predicate_type": "minecraft:block_match", "block": "spacereloaded:moon_regolith" }
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/moon_titanium.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 10,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:moon_titanium_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:block_match",
+-					"block": "spacereloaded:moon_stone"
+-				}
+-			}
+-		]
+-	}
+-}
+\ No newline at end of file
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/oil_shale.json
++++ /dev/null
+@@ -1,17 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 12,
+-		"targets": [
+-			{
+-				"state": { "Name": "spacereloaded:oil_shale" },
+-				"target": { "predicate_type": "minecraft:tag_match", "tag": "minecraft:deepslate_ore_replaceables" }
+-			},
+-			{
+-				"state": { "Name": "spacereloaded:oil_shale" },
+-				"target": { "predicate_type": "minecraft:tag_match", "tag": "minecraft:stone_ore_replaceables" }
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_beryl.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 5,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:beryl_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:tag_match",
+-					"tag": "minecraft:stone_ore_replaceables"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_borax.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 16,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:borax_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:tag_match",
+-					"tag": "minecraft:stone_ore_replaceables"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_fluorite.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 8,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:fluorite_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:tag_match",
+-					"tag": "minecraft:stone_ore_replaceables"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_galena.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 8,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:galena_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:tag_match",
+-					"tag": "minecraft:stone_ore_replaceables"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_halite.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 24,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:halite_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:tag_match",
+-					"tag": "minecraft:stone_ore_replaceables"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_spodumene.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 6,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:spodumene_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:tag_match",
+-					"tag": "minecraft:stone_ore_replaceables"
+-				}
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_titanium.json
++++ /dev/null
+@@ -1,17 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 9,
+-		"targets": [
+-			{
+-				"state": { "Name": "spacereloaded:titanium_ore" },
+-				"target": { "predicate_type": "minecraft:tag_match", "tag": "minecraft:stone_ore_replaceables" }
+-			},
+-			{
+-				"state": { "Name": "spacereloaded:deepslate_titanium_ore" },
+-				"target": { "predicate_type": "minecraft:tag_match", "tag": "minecraft:deepslate_ore_replaceables" }
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_tungsten.json
++++ /dev/null
+@@ -1,13 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 6,
+-		"targets": [
+-			{
+-				"state": { "Name": "spacereloaded:deepslate_tungsten_ore" },
+-				"target": { "predicate_type": "minecraft:tag_match", "tag": "minecraft:deepslate_ore_replaceables" }
+-			}
+-		]
+-	}
+-}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/configured_feature/ore_uraninite.json
++++ /dev/null
+@@ -1,18 +0,0 @@
+-{
+-	"type": "minecraft:ore",
+-	"config": {
+-		"discard_chance_on_air_exposure": 0.0,
+-		"size": 8,
+-		"targets": [
+-			{
+-				"state": {
+-					"Name": "spacereloaded:uraninite_ore"
+-				},
+-				"target": {
+-					"predicate_type": "minecraft:tag_match",
+-					"tag": "minecraft:deepslate_ore_replaceables"
+-				}
+-			}
+-		]
+-	}
+-}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/crashed_probe.json
+@@ -0,0 +1,3 @@
++{
++	"type": "spacereloaded:crashed_probe"
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/lava_tube.json
+@@ -0,0 +1,3 @@
++{
++	"type": "spacereloaded:lava_tube"
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/mars_ice.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 9,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:mars_ice"
++			},
++			"target": {
++				"predicate_type": "minecraft:block_match",
++				"block": "minecraft:red_sandstone"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/mars_tungsten.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 8,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:mars_tungsten_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:block_match",
++				"block": "minecraft:red_sandstone"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/moon_anorthosite.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 48,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:anorthosite"
++			},
++			"target": {
++				"predicate_type": "minecraft:block_match",
++				"block": "spacereloaded:moon_stone"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/moon_crater.json
+@@ -0,0 +1,3 @@
++{
++	"type": "spacereloaded:crater"
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/moon_ice.json
+@@ -0,0 +1,25 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 14,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:moon_ice"
++			},
++			"target": {
++				"predicate_type": "minecraft:block_match",
++				"block": "spacereloaded:moon_stone"
++			}
++		},
++		{
++			"state": {
++				"id": "spacereloaded:moon_ice"
++			},
++			"target": {
++				"predicate_type": "minecraft:block_match",
++				"block": "spacereloaded:moon_regolith"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/moon_titanium.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 10,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:moon_titanium_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:block_match",
++				"block": "spacereloaded:moon_stone"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/oil_shale.json
+@@ -0,0 +1,25 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 12,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:oil_shale"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:deepslate_ore_replaceables"
++			}
++		},
++		{
++			"state": {
++				"id": "spacereloaded:oil_shale"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_beryl.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 5,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:beryl_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_borax.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 16,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:borax_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_fluorite.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 8,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:fluorite_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_galena.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 8,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:galena_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_halite.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 24,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:halite_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_spodumene.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 6,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:spodumene_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_titanium.json
+@@ -0,0 +1,25 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 9,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:titanium_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:stone_ore_replaceables"
++			}
++		},
++		{
++			"state": {
++				"id": "spacereloaded:deepslate_titanium_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:deepslate_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_tungsten.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 6,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:deepslate_tungsten_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:deepslate_ore_replaceables"
++			}
++		}
++	]
++}
+--- /dev/null
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/feature/ore_uraninite.json
+@@ -0,0 +1,16 @@
++{
++	"type": "minecraft:ore",
++	"discard_chance_on_air_exposure": 0.0,
++	"size": 8,
++	"targets": [
++		{
++			"state": {
++				"id": "spacereloaded:uraninite_ore"
++			},
++			"target": {
++				"predicate_type": "minecraft:tag_match",
++				"tag": "minecraft:deepslate_ore_replaceables"
++			}
++		}
++	]
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise/asteroid_field.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise/asteroid_field.json
+@@ -1 +1,11 @@
+-{ "firstOctave": -6, "amplitudes": [1.0, 0.7, 0.4, 0.2] }
++{
++	"base_octave": -6,
++	"octave_count": 4,
++	"amplitude_modifiers": [
++		1.0,
++		0.7,
++		0.4,
++		0.2
++	],
++	"normalize": "legacy"
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise/mars_dunes.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise/mars_dunes.json
+@@ -1 +1,9 @@
+-{ "firstOctave": -4, "amplitudes": [1.0, 0.4] }
++{
++	"base_octave": -4,
++	"octave_count": 2,
++	"amplitude_modifiers": [
++		1.0,
++		0.4
++	],
++	"normalize": "legacy"
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise/mars_mesa.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise/mars_mesa.json
+@@ -1 +1,9 @@
+-{ "firstOctave": -9, "amplitudes": [1.0, 0.4] }
++{
++	"base_octave": -9,
++	"octave_count": 2,
++	"amplitude_modifiers": [
++		1.0,
++		0.4
++	],
++	"normalize": "legacy"
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise/mars_relief.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise/mars_relief.json
+@@ -1 +1,11 @@
+-{ "firstOctave": -8, "amplitudes": [1.0, 1.0, 0.5, 0.35] }
++{
++	"base_octave": -8,
++	"octave_count": 4,
++	"amplitude_modifiers": [
++		1.0,
++		1.0,
++		0.5,
++		0.35
++	],
++	"normalize": "legacy"
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise/moon_detail.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise/moon_detail.json
+@@ -1 +1,10 @@
+-{ "firstOctave": -5, "amplitudes": [1.0, 0.5, 0.25] }
++{
++	"base_octave": -5,
++	"octave_count": 3,
++	"amplitude_modifiers": [
++		1.0,
++		0.5,
++		0.25
++	],
++	"normalize": "legacy"
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise/moon_relief.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise/moon_relief.json
+@@ -1 +1,11 @@
+-{ "firstOctave": -8, "amplitudes": [1.0, 0.9, 0.6, 0.3] }
++{
++	"base_octave": -8,
++	"octave_count": 4,
++	"amplitude_modifiers": [
++		1.0,
++		0.9,
++		0.6,
++		0.3
++	],
++	"normalize": "legacy"
++}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise_settings/asteroid_belt.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise_settings/asteroid_belt.json
+@@ -1,84 +1,77 @@
+ {
+-	"aquifers_enabled": false,
+ 	"default_block": {
+-		"Name": "spacereloaded:asteroid_stone"
++		"id": "spacereloaded:asteroid_stone"
+ 	},
+ 	"default_fluid": {
+-		"Name": "minecraft:air"
++		"id": "minecraft:air"
+ 	},
+ 	"disable_mob_generation": true,
+ 	"legacy_random_source": true,
+ 	"noise": {
+ 		"height": 256,
+-		"min_y": 0,
+-		"size_horizontal": 2,
+-		"size_vertical": 1
++		"min_y": 0
+ 	},
+ 	"noise_router": {
+-		"barrier": 0.0,
+ 		"continents": 0.0,
+ 		"depth": 0.0,
+ 		"erosion": 0.0,
+ 		"final_density": {
+ 			"type": "minecraft:interpolated",
+-			"argument": {
++			"input": {
+ 				"type": "minecraft:add",
+-				"argument1": {
++				"left": {
+ 					"type": "minecraft:mul",
+-					"argument1": 1.3,
+-					"argument2": {
++					"left": 1.3,
++					"right": {
+ 						"type": "minecraft:noise",
+ 						"noise": "spacereloaded:asteroid_field",
+ 						"xz_scale": 0.55,
+ 						"y_scale": 0.55
+ 					}
+ 				},
+-				"argument2": {
++				"right": {
+ 					"type": "minecraft:add",
+-					"argument1": -0.62,
+-					"argument2": {
++					"left": -0.62,
++					"right": {
+ 						"type": "minecraft:add",
+-						"argument1": {
++						"left": {
+ 							"type": "minecraft:mul",
+-							"argument1": 0.9,
+-							"argument2": {
+-								"type": "minecraft:y_clamped_gradient",
+-								"from_y": 196,
+-								"to_y": 216,
++							"left": 0.9,
++							"right": {
++								"type": "minecraft:gradient",
+ 								"from_value": 0.0,
+-								"to_value": -1.0
++								"to_value": -1.0,
++								"axis": "y",
++								"from_coordinate": 196,
++								"to_coordinate": 216
+ 							}
+ 						},
+-						"argument2": {
++						"right": {
+ 							"type": "minecraft:mul",
+-							"argument1": 0.9,
+-							"argument2": {
+-								"type": "minecraft:y_clamped_gradient",
+-								"from_y": 56,
+-								"to_y": 36,
++							"left": 0.9,
++							"right": {
++								"type": "minecraft:gradient",
+ 								"from_value": 0.0,
+-								"to_value": -1.0
++								"to_value": -1.0,
++								"axis": "y",
++								"from_coordinate": 56,
++								"to_coordinate": 36
+ 							}
+ 						}
+ 					}
+ 				}
+-			}
++			},
++			"cell_size_xz": 8,
++			"cell_size_y": 4
+ 		},
+-		"fluid_level_floodedness": 0.0,
+-		"fluid_level_spread": 0.0,
+-		"lava": 0.0,
+-		"preliminary_surface_level": 0.0,
+ 		"ridges": 0.0,
+ 		"temperature": 0.0,
+ 		"vegetation": 0.0,
+-		"vein_gap": 0.0,
+-		"vein_ridged": 0.0,
+-		"vein_toggle": 0.0
++		"chunk_surface_level": 0.0
+ 	},
+-	"ore_veins_enabled": false,
+ 	"sea_level": 0,
+ 	"spawn_target": [],
+-	"surface_rule": {
++	"material_rule": {
+ 		"type": "minecraft:sequence",
+ 		"sequence": [
+ 			{
+@@ -93,7 +86,7 @@
+ 				"then_run": {
+ 					"type": "minecraft:block",
+ 					"result_state": {
+-						"Name": "spacereloaded:asteroid_stone"
++						"id": "spacereloaded:asteroid_stone"
+ 					}
+ 				}
+ 			}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise_settings/mars.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise_settings/mars.json
+@@ -1,41 +1,38 @@
+ {
+-	"aquifers_enabled": false,
+ 	"default_block": {
+-		"Name": "minecraft:red_sandstone"
++		"id": "minecraft:red_sandstone"
+ 	},
+ 	"default_fluid": {
+-		"Name": "minecraft:air"
++		"id": "minecraft:air"
+ 	},
+ 	"disable_mob_generation": true,
+ 	"legacy_random_source": true,
+ 	"noise": {
+ 		"height": 256,
+-		"min_y": 0,
+-		"size_horizontal": 2,
+-		"size_vertical": 1
++		"min_y": 0
+ 	},
+ 	"noise_router": {
+-		"barrier": 0.0,
+ 		"continents": 0.0,
+ 		"depth": 0.0,
+ 		"erosion": 0.0,
+ 		"final_density": {
+ 			"type": "minecraft:interpolated",
+-			"argument": {
++			"input": {
+ 				"type": "minecraft:add",
+-				"argument1": {
++				"left": {
+ 					"type": "minecraft:add",
+-					"argument1": {
+-						"type": "minecraft:y_clamped_gradient",
+-						"from_y": 40,
+-						"to_y": 120,
++					"left": {
++						"type": "minecraft:gradient",
+ 						"from_value": 1.5,
+-						"to_value": -1.5
++						"to_value": -1.5,
++						"axis": "y",
++						"from_coordinate": 40,
++						"to_coordinate": 120
+ 					},
+-					"argument2": {
++					"right": {
+ 						"type": "minecraft:mul",
+-						"argument1": 0.8,
+-						"argument2": {
++						"left": 0.8,
++						"right": {
+ 							"type": "minecraft:noise",
+ 							"noise": "spacereloaded:mars_relief",
+ 							"xz_scale": 0.55,
+@@ -43,14 +40,14 @@
+ 						}
+ 					}
+ 				},
+-				"argument2": {
++				"right": {
+ 					"type": "minecraft:add",
+-					"argument1": {
++					"left": {
+ 						"type": "minecraft:clamp",
+ 						"input": {
+ 							"type": "minecraft:mul",
+-							"argument1": 3.0,
+-							"argument2": {
++							"left": 3.0,
++							"right": {
+ 								"type": "minecraft:noise",
+ 								"noise": "spacereloaded:mars_mesa",
+ 								"xz_scale": 0.25,
+@@ -60,10 +57,10 @@
+ 						"min": -0.34,
+ 						"max": 0.34
+ 					},
+-					"argument2": {
++					"right": {
+ 						"type": "minecraft:mul",
+-						"argument1": 0.22,
+-						"argument2": {
++						"left": 0.22,
++						"right": {
+ 							"type": "minecraft:noise",
+ 							"noise": "spacereloaded:mars_dunes",
+ 							"xz_scale": 2.2,
+@@ -71,23 +68,18 @@
+ 						}
+ 					}
+ 				}
+-			}
++			},
++			"cell_size_xz": 8,
++			"cell_size_y": 4
+ 		},
+-		"fluid_level_floodedness": 0.0,
+-		"fluid_level_spread": 0.0,
+-		"lava": 0.0,
+-		"preliminary_surface_level": 0.0,
+ 		"ridges": 0.0,
+ 		"temperature": 0.0,
+ 		"vegetation": 0.0,
+-		"vein_gap": 0.0,
+-		"vein_ridged": 0.0,
+-		"vein_toggle": 0.0
++		"chunk_surface_level": 0.0
+ 	},
+-	"ore_veins_enabled": false,
+ 	"sea_level": 0,
+ 	"spawn_target": [],
+-	"surface_rule": {
++	"material_rule": {
+ 		"type": "minecraft:sequence",
+ 		"sequence": [
+ 			{
+@@ -102,7 +94,7 @@
+ 				"then_run": {
+ 					"type": "minecraft:block",
+ 					"result_state": {
+-						"Name": "minecraft:red_sand"
++						"id": "minecraft:red_sand"
+ 					}
+ 				}
+ 			},
+@@ -118,7 +110,7 @@
+ 				"then_run": {
+ 					"type": "minecraft:block",
+ 					"result_state": {
+-						"Name": "minecraft:red_sandstone"
++						"id": "minecraft:red_sandstone"
+ 					}
+ 				}
+ 			}
+--- a/mod/src/main/resources/data/spacereloaded/worldgen/noise_settings/moon.json
++++ b/mod/src/main/resources/data/spacereloaded/worldgen/noise_settings/moon.json
+@@ -1,41 +1,38 @@
+ {
+-	"aquifers_enabled": false,
+ 	"default_block": {
+-		"Name": "spacereloaded:moon_stone"
++		"id": "spacereloaded:moon_stone"
+ 	},
+ 	"default_fluid": {
+-		"Name": "minecraft:air"
++		"id": "minecraft:air"
+ 	},
+ 	"disable_mob_generation": true,
+ 	"legacy_random_source": true,
+ 	"noise": {
+ 		"height": 256,
+-		"min_y": 0,
+-		"size_horizontal": 2,
+-		"size_vertical": 1
++		"min_y": 0
+ 	},
+ 	"noise_router": {
+-		"barrier": 0.0,
+ 		"continents": 0.0,
+ 		"depth": 0.0,
+ 		"erosion": 0.0,
+ 		"final_density": {
+ 			"type": "minecraft:interpolated",
+-			"argument": {
++			"input": {
+ 				"type": "minecraft:add",
+-				"argument1": {
++				"left": {
+ 					"type": "minecraft:add",
+-					"argument1": {
+-						"type": "minecraft:y_clamped_gradient",
+-						"from_y": 44,
+-						"to_y": 108,
++					"left": {
++						"type": "minecraft:gradient",
+ 						"from_value": 1.35,
+-						"to_value": -1.35
++						"to_value": -1.35,
++						"axis": "y",
++						"from_coordinate": 44,
++						"to_coordinate": 108
+ 					},
+-					"argument2": {
++					"right": {
+ 						"type": "minecraft:mul",
+-						"argument1": 0.62,
+-						"argument2": {
++						"left": 0.62,
++						"right": {
+ 							"type": "minecraft:noise",
+ 							"noise": "spacereloaded:moon_relief",
+ 							"xz_scale": 0.85,
+@@ -43,33 +40,28 @@
+ 						}
+ 					}
+ 				},
+-				"argument2": {
++				"right": {
+ 					"type": "minecraft:mul",
+-					"argument1": 0.2,
+-					"argument2": {
++					"left": 0.2,
++					"right": {
+ 						"type": "minecraft:noise",
+ 						"noise": "spacereloaded:moon_detail",
+ 						"xz_scale": 1.4,
+ 						"y_scale": 0.0
+ 					}
+ 				}
+-			}
++			},
++			"cell_size_xz": 8,
++			"cell_size_y": 4
+ 		},
+-		"fluid_level_floodedness": 0.0,
+-		"fluid_level_spread": 0.0,
+-		"lava": 0.0,
+-		"preliminary_surface_level": 0.0,
+ 		"ridges": 0.0,
+ 		"temperature": 0.0,
+ 		"vegetation": 0.0,
+-		"vein_gap": 0.0,
+-		"vein_ridged": 0.0,
+-		"vein_toggle": 0.0
++		"chunk_surface_level": 0.0
+ 	},
+-	"ore_veins_enabled": false,
+ 	"sea_level": 0,
+ 	"spawn_target": [],
+-	"surface_rule": {
++	"material_rule": {
+ 		"type": "minecraft:sequence",
+ 		"sequence": [
+ 			{
+@@ -84,7 +76,7 @@
+ 				"then_run": {
+ 					"type": "minecraft:block",
+ 					"result_state": {
+-						"Name": "spacereloaded:moon_regolith"
++						"id": "spacereloaded:moon_regolith"
+ 					}
+ 				}
+ 			}
+--- a/mod/src/main/resources/fabric.mod.json
++++ b/mod/src/main/resources/fabric.mod.json
+@@ -27,6 +27,7 @@
+ 			"org.alex_melan.spacereloaded.compat.JadeClientPlugin"
+ 		]
+ 	},
++	"accessWidener": "spacereloaded.classtweaker",
+ 	"mixins": [
+ 		"spacereloaded.mixins.json",
+ 		{
+@@ -35,9 +36,9 @@
+ 		}
+ 	],
+ 	"depends": {
+-		"fabricloader": ">=0.19.3",
+-		"minecraft": "~26.2",
++		"fabricloader": ">=0.20.1",
++		"minecraft": "~26.3",
+ 		"java": ">=25",
+-		"fabric-api": "*"
++		"fabric-api": ">=0.165.0+26.3"
+ 	}
+ }
+--- /dev/null
++++ b/mod/src/main/resources/spacereloaded.classtweaker
+@@ -0,0 +1,2 @@
++classTweaker v1 official
++accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)Lnet/minecraft/client/renderer/rendertype/RenderType;

@@ -1,0 +1,140 @@
+{
+  "markers": [
+    {
+      "pos": [
+        10,
+        72,
+        19
+      ],
+      "marker": "wand_loot",
+      "replace_block": "minecraft:chest",
+      "replace_meta": 0,
+      "source_pool": "POOL_OFFICE_TRASH",
+      "min": 6,
+      "max": 13,
+      "rot": 169.5579833984375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        10,
+        72,
+        27
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_SOLID_FUEL",
+      "min": 4,
+      "max": 7,
+      "rot": 349.55767822265625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        12,
+        72,
+        19
+      ],
+      "marker": "wand_loot",
+      "replace_block": "minecraft:chest",
+      "replace_meta": 0,
+      "source_pool": "POOL_OFFICE_TRASH",
+      "min": 5,
+      "max": 8,
+      "rot": 191.15716552734375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        12,
+        72,
+        27
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_MACHINE_PARTS",
+      "min": 6,
+      "max": 14,
+      "rot": 333.6583251953125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        12,
+        80,
+        25
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_SILO",
+      "min": 4,
+      "max": 8,
+      "rot": 276.3603515625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        15,
+        67,
+        23
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_OIL_RIG",
+      "min": 6,
+      "max": 24,
+      "rot": -284.49334716796875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        29,
+        72,
+        30
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_steel",
+      "replace_meta": 1,
+      "source_pool": "POOL_FILING_CABINET",
+      "min": 4,
+      "max": 9,
+      "rot": 20.462158203125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        29,
+        72,
+        35
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_MACHINE_PARTS",
+      "min": 6,
+      "max": 12,
+      "rot": -70.08837890625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        31,
+        72,
+        30
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_steel",
+      "replace_meta": 1,
+      "source_pool": "POOL_FILING_CABINET",
+      "min": 1,
+      "max": 5,
+      "rot": 342.6622314453125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    }
+  ],
+  "class_notes": []
+}

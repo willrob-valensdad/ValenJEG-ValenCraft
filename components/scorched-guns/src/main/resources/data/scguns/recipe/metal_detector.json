@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "scguns:copper_disc",
+    "Q": "scguns:anthralite_ingot",
+    "R": "scguns:lightning_battery",
+    "X": "#minecraft:wool"
+  },
+  "pattern": [
+    "QR ",
+    "XQ ",
+    "  #"
+  ],
+  "result": {
+    "id": "scguns:metal_detector"
+  }
+}

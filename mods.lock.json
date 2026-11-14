@@ -1,0 +1,1411 @@
+{
+  "schema_version": 1,
+  "module": "valenjeg",
+  "game": {
+    "minecraft": "26.3",
+    "fabric_loader": "0.20.1",
+    "java": 25
+  },
+  "artifacts": [
+    {
+      "id": "computercraft",
+      "name": "CC: Tweaked",
+      "version": "1.120.3",
+      "file": "cc-tweaked-26.3-fabric-1.120.3.jar",
+      "size": 3036093,
+      "side": "client",
+      "license": "ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)",
+      "authors": [
+        "Daniel Ratcliffe",
+        "Aaron Mills",
+        "SquidDev"
+      ],
+      "hashes": {
+        "sha1": "689994db404b21e8922ed2acd0cd999e585d470c",
+        "sha256": "d42459a47f17e9ea1c1478be73749bbd8ba35ae068e16351cc0695a034534149",
+        "sha512": "6ad51c9d0c8f6344df965bc016ab3c8d324af7e40316107339dc91d14a931fcf134b80c174d94de925004219200ca750101a8556955a9150a13872dc10a8389a"
+      },
+      "contains": [
+        "cc_tweaked_cobalt",
+        "com_electronwill_night-config_core",
+        "com_electronwill_night-config_toml",
+        "computercraft",
+        "io_netty_netty-codec-socks",
+        "io_netty_netty-handler-proxy"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/gu7yAYhd/versions/tKLY4fAR/cc-tweaked-26.3-fabric-1.120.3.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19.4",
+        "fabric-api": ">=0.160.4",
+        "minecraft": ">=26.3 <26.4"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "computercraft",
+      "name": "CC: Tweaked",
+      "version": "1.120.3",
+      "file": "cc-tweaked-26.3-fabric-1.120.3.jar",
+      "size": 3036093,
+      "side": "server",
+      "license": "ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)",
+      "authors": [
+        "Daniel Ratcliffe",
+        "Aaron Mills",
+        "SquidDev"
+      ],
+      "hashes": {
+        "sha1": "689994db404b21e8922ed2acd0cd999e585d470c",
+        "sha256": "d42459a47f17e9ea1c1478be73749bbd8ba35ae068e16351cc0695a034534149",
+        "sha512": "6ad51c9d0c8f6344df965bc016ab3c8d324af7e40316107339dc91d14a931fcf134b80c174d94de925004219200ca750101a8556955a9150a13872dc10a8389a"
+      },
+      "contains": [
+        "cc_tweaked_cobalt",
+        "com_electronwill_night-config_core",
+        "com_electronwill_night-config_toml",
+        "computercraft",
+        "io_netty_netty-codec-socks",
+        "io_netty_netty-handler-proxy"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/gu7yAYhd/versions/tKLY4fAR/cc-tweaked-26.3-fabric-1.120.3.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19.4",
+        "fabric-api": ">=0.160.4",
+        "minecraft": ">=26.3 <26.4"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "create",
+      "name": "Create Fly",
+      "version": "6.0.9-2-valen26.3.1",
+      "file": "create-fly-26.3-6.0.9-2-valen26.3.1.jar",
+      "size": 21178726,
+      "side": "client",
+      "license": "CC0-1.0",
+      "authors": [
+        "ZurrTum"
+      ],
+      "hashes": {
+        "sha1": "1e2257257054a5c0618b0cb4894c7ff389c6091c",
+        "sha256": "6e435843be699d9ffb9a3177674a497f3c477ce1379c8c65b19da7dcac1dad57",
+        "sha512": "377b451fc0dc6ca467ffbad1cfb8491a32971db380b5030533fc661b58d0322909a7405c7234e79dcc17b25684159241487b4b4a901c240650d3942e56d153d9"
+      },
+      "contains": [
+        "create"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": "*",
+        "minecraft": "26.3",
+        "fabric-api": ">=0.165.0+26.3",
+        "java": ">=25"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/ZurrTum/Create-Fly"
+    },
+    {
+      "id": "create",
+      "name": "Create Fly",
+      "version": "6.0.9-2-valen26.3.1",
+      "file": "create-fly-26.3-6.0.9-2-valen26.3.1-server.jar",
+      "size": 6776762,
+      "side": "server",
+      "license": "CC0-1.0",
+      "authors": [
+        "ZurrTum"
+      ],
+      "hashes": {
+        "sha1": "b4a006945cfc417cd369eccf21098c3187980f97",
+        "sha256": "a39f793e17aa074440947967d6193e3f952809c759bb695daff5befd459c3549",
+        "sha512": "1a1264e61f90379570db18b970762c7804306af1104423e432902b8308f67af22fdd305ed7e25edda9d45fe2d3de55034a1f4d810cbf9ec7437c869e01ed254e"
+      },
+      "contains": [
+        "create"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": "*",
+        "minecraft": "26.3",
+        "fabric-api": ">=0.165.0+26.3",
+        "java": ">=25"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/ZurrTum/Create-Fly"
+    },
+    {
+      "id": "entity_model_features",
+      "name": "Entity Model Features",
+      "version": "3.3.12",
+      "file": "entity_model_features-3.3.12-26.3-fabric.jar",
+      "size": 665386,
+      "side": "client",
+      "license": "LGPL-3.0",
+      "authors": [
+        {
+          "name": "Traben",
+          "contact": {
+            "homepage": "https://www.curseforge.com/members/traben_0/projects",
+            "discord": "https://discord.gg/rURmwrzUcz"
+          }
+        }
+      ],
+      "hashes": {
+        "sha1": "2d076285c7e0671165fc86a827e62ce88ddcd201",
+        "sha256": "4a8b04d26c94909a3ba9f08972fb475e7d39f715f666f99a294017baaa37cb69",
+        "sha512": "4572fc065e757264947aff35a96d17d5e45d4b43e8e385b9a207f5380a8f43da5dbf8e10f30a7bc7cc4c0c8f7999717b4dd22d325667bdf8a0de6e839ad81efc"
+      },
+      "contains": [
+        "entity_model_features"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/4I1XuqiY/versions/vF6qLXsA/entity_model_features-3.3.12-26.3-fabric.jar"
+      ],
+      "depends": {
+        "fabricloader": "*",
+        "minecraft": "*",
+        "entity_texture_features": ">=7.2"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Traben-0/Entity_Model_Features"
+    },
+    {
+      "id": "entity_texture_features",
+      "name": "Entity Texture Features",
+      "version": "7.2.6",
+      "file": "entity_texture_features-7.2.6-26.3-fabric.jar",
+      "size": 793054,
+      "side": "client",
+      "license": "LGPL-3.0",
+      "authors": [
+        {
+          "name": "Traben",
+          "contact": {
+            "homepage": "https://www.curseforge.com/members/traben_0/projects",
+            "discord": "https://discord.gg/rURmwrzUcz"
+          }
+        }
+      ],
+      "hashes": {
+        "sha1": "40fd33455e0543a5716f8cb7100d0d3c7abde3d8",
+        "sha256": "9ae73892099aa759e0cfc0ccb1fcba3986e27a7c743ad5832310ba8ca58f644a",
+        "sha512": "21ef9e7640a2e1e06f5dba10bcf830d6410255e9fdd204504f021c6e3c697d1b86203089b5b21dd99821a2b5f1a237ac4c798f3287562f160786572d6756c4ff"
+      },
+      "contains": [
+        "entity_texture_features"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/BVzZfTc1/versions/OOEycXyN/entity_texture_features-7.2.6-26.3-fabric.jar"
+      ],
+      "depends": {
+        "fabricloader": "*",
+        "minecraft": "*"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Traben-0/Entity_Texture_Features"
+    },
+    {
+      "id": "fabric-api",
+      "name": "Fabric API",
+      "version": "0.165.0+26.3",
+      "file": "fabric-api-0.165.0+26.3.jar",
+      "size": 1778588,
+      "side": "client",
+      "license": "Apache-2.0",
+      "authors": [
+        "FabricMC"
+      ],
+      "hashes": {
+        "sha1": "8f8a23d6c9fbf7b075b31b4fb0a1007b0488d1d2",
+        "sha256": "18442e2ad466d6ef41c37dbb4cb68495e6ca6658b1f1ee9be76143d155ef2c88",
+        "sha512": "0a4b8a14e847b71567b557b43d906c2167fa263eeeef37454a821ba286996e3da1616dc2d9647736d28a250d5ecf400541cae808359b29a62324a8a6f2ad5e30"
+      },
+      "contains": [
+        "fabric-advancement-api-v1",
+        "fabric-api",
+        "fabric-api-base",
+        "fabric-api-lookup-api-v1",
+        "fabric-biome-api-v1",
+        "fabric-block-api-v1",
+        "fabric-block-getter-api-v2",
+        "fabric-client-tags-api-v1",
+        "fabric-command-api-v2",
+        "fabric-content-registries-v0",
+        "fabric-convention-tags-v2",
+        "fabric-crash-report-info-v1",
+        "fabric-creative-tab-api-v1",
+        "fabric-data-attachment-api-v1",
+        "fabric-data-generation-api-v1",
+        "fabric-debug-api-v1",
+        "fabric-dimensions-v1",
+        "fabric-entity-events-v1",
+        "fabric-events-interaction-v0",
+        "fabric-game-rule-api-v1",
+        "fabric-item-api-v1",
+        "fabric-key-mapping-api-v1",
+        "fabric-lifecycle-events-v1",
+        "fabric-loot-api-v3",
+        "fabric-menu-api-v1",
+        "fabric-message-api-v1",
+        "fabric-model-loading-api-v1",
+        "fabric-networking-api-v1",
+        "fabric-object-builder-api-v1",
+        "fabric-particles-v1",
+        "fabric-permission-api-v1",
+        "fabric-recipe-api-v1",
+        "fabric-registry-sync-v0",
+        "fabric-renderer-api-v1",
+        "fabric-renderer-indigo",
+        "fabric-rendering-fluids-v1",
+        "fabric-rendering-v1",
+        "fabric-resource-conditions-api-v1",
+        "fabric-resource-loader-v0",
+        "fabric-resource-loader-v1",
+        "fabric-screen-api-v1",
+        "fabric-serialization-api-v1",
+        "fabric-sound-api-v1",
+        "fabric-tag-api-v1",
+        "fabric-transfer-api-v1",
+        "fabric-transitive-access-wideners-v1"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/P7dR8mSH/versions/EQKgpeKu/fabric-api-0.165.0%2B26.3.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19.3",
+        "java": ">=25",
+        "minecraft": "~26.3-"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/FabricMC/fabric"
+    },
+    {
+      "id": "fabric-api",
+      "name": "Fabric API",
+      "version": "0.165.0+26.3",
+      "file": "fabric-api-0.165.0+26.3.jar",
+      "size": 1778588,
+      "side": "server",
+      "license": "Apache-2.0",
+      "authors": [
+        "FabricMC"
+      ],
+      "hashes": {
+        "sha1": "8f8a23d6c9fbf7b075b31b4fb0a1007b0488d1d2",
+        "sha256": "18442e2ad466d6ef41c37dbb4cb68495e6ca6658b1f1ee9be76143d155ef2c88",
+        "sha512": "0a4b8a14e847b71567b557b43d906c2167fa263eeeef37454a821ba286996e3da1616dc2d9647736d28a250d5ecf400541cae808359b29a62324a8a6f2ad5e30"
+      },
+      "contains": [
+        "fabric-advancement-api-v1",
+        "fabric-api",
+        "fabric-api-base",
+        "fabric-api-lookup-api-v1",
+        "fabric-biome-api-v1",
+        "fabric-block-api-v1",
+        "fabric-block-getter-api-v2",
+        "fabric-client-tags-api-v1",
+        "fabric-command-api-v2",
+        "fabric-content-registries-v0",
+        "fabric-convention-tags-v2",
+        "fabric-crash-report-info-v1",
+        "fabric-creative-tab-api-v1",
+        "fabric-data-attachment-api-v1",
+        "fabric-data-generation-api-v1",
+        "fabric-debug-api-v1",
+        "fabric-dimensions-v1",
+        "fabric-entity-events-v1",
+        "fabric-events-interaction-v0",
+        "fabric-game-rule-api-v1",
+        "fabric-item-api-v1",
+        "fabric-key-mapping-api-v1",
+        "fabric-lifecycle-events-v1",
+        "fabric-loot-api-v3",
+        "fabric-menu-api-v1",
+        "fabric-message-api-v1",
+        "fabric-model-loading-api-v1",
+        "fabric-networking-api-v1",
+        "fabric-object-builder-api-v1",
+        "fabric-particles-v1",
+        "fabric-permission-api-v1",
+        "fabric-recipe-api-v1",
+        "fabric-registry-sync-v0",
+        "fabric-renderer-api-v1",
+        "fabric-renderer-indigo",
+        "fabric-rendering-fluids-v1",
+        "fabric-rendering-v1",
+        "fabric-resource-conditions-api-v1",
+        "fabric-resource-loader-v0",
+        "fabric-resource-loader-v1",
+        "fabric-screen-api-v1",
+        "fabric-serialization-api-v1",
+        "fabric-sound-api-v1",
+        "fabric-tag-api-v1",
+        "fabric-transfer-api-v1",
+        "fabric-transitive-access-wideners-v1"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/P7dR8mSH/versions/EQKgpeKu/fabric-api-0.165.0%2B26.3.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19.3",
+        "java": ">=25",
+        "minecraft": "~26.3-"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/FabricMC/fabric"
+    },
+    {
+      "id": "geckolib",
+      "name": "GeckoLib 5",
+      "version": "5.5.7",
+      "file": "geckolib-fabric-26.3-5.5.7.jar",
+      "size": 1191230,
+      "side": "client",
+      "license": "MIT",
+      "authors": [
+        "Tslat"
+      ],
+      "hashes": {
+        "sha1": "064ad66ea62bcf3fd0e89a719843b1a06c81925c",
+        "sha256": "0e397991dae6e1aee9a342f80b740fe4fef6d161dc8abe694c6a555317163f82",
+        "sha512": "c7c89bd6c5f2801ef1575e2e1212202f5a3eff480d73503beff12b1d60dfb751112fccf36e36c243b26b6b492261cef12d8b2c1a92a734bb0b621daa8c158fc5"
+      },
+      "contains": [
+        "geckolib"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/8BmcQJ2H/versions/kSxHvs99/geckolib-fabric-26.3-5.5.7.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19",
+        "fabric-api": ">=0.160.5+26.3",
+        "java": ">=25",
+        "minecraft": ">=26.3"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/bernie-g/geckolib"
+    },
+    {
+      "id": "geckolib",
+      "name": "GeckoLib 5",
+      "version": "5.5.7",
+      "file": "geckolib-fabric-26.3-5.5.7.jar",
+      "size": 1191230,
+      "side": "server",
+      "license": "MIT",
+      "authors": [
+        "Tslat"
+      ],
+      "hashes": {
+        "sha1": "064ad66ea62bcf3fd0e89a719843b1a06c81925c",
+        "sha256": "0e397991dae6e1aee9a342f80b740fe4fef6d161dc8abe694c6a555317163f82",
+        "sha512": "c7c89bd6c5f2801ef1575e2e1212202f5a3eff480d73503beff12b1d60dfb751112fccf36e36c243b26b6b492261cef12d8b2c1a92a734bb0b621daa8c158fc5"
+      },
+      "contains": [
+        "geckolib"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/8BmcQJ2H/versions/kSxHvs99/geckolib-fabric-26.3-5.5.7.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19",
+        "fabric-api": ">=0.160.5+26.3",
+        "java": ">=25",
+        "minecraft": ">=26.3"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/bernie-g/geckolib"
+    },
+    {
+      "id": "nerolandcore",
+      "name": "Neroland Core",
+      "version": "1.15.0",
+      "file": "nerolandcore-fabric-26.3-1.15.0.jar",
+      "size": 1663241,
+      "side": "client",
+      "license": "All Rights Reserved (modpacks allowed - see LICENSE)",
+      "authors": [
+        "Neroland"
+      ],
+      "hashes": {
+        "sha1": "bc1fcb0e10b4e4434d088fb44f7874cecab2ea80",
+        "sha256": "1d668d70d469a10f8eb65dd51a9d4022ec7f2abf43b332dd163a908df4e50b0e",
+        "sha512": "c7e8ed2905c8614c128fe73a389bc9699cb3d700ff111acf8d54445a838702be41e49c8fff80f31ecd9c6c07d56c7132227a11c97672cf2887298664c28e849e"
+      },
+      "contains": [
+        "io_sentry_sentry",
+        "nerolandcore"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": ">=26.3 <26.4",
+        "java": ">=21",
+        "fabric-api": "*"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "nerolandcore",
+      "name": "Neroland Core",
+      "version": "1.15.0",
+      "file": "nerolandcore-fabric-26.3-1.15.0.jar",
+      "size": 1663241,
+      "side": "server",
+      "license": "All Rights Reserved (modpacks allowed - see LICENSE)",
+      "authors": [
+        "Neroland"
+      ],
+      "hashes": {
+        "sha1": "bc1fcb0e10b4e4434d088fb44f7874cecab2ea80",
+        "sha256": "1d668d70d469a10f8eb65dd51a9d4022ec7f2abf43b332dd163a908df4e50b0e",
+        "sha512": "c7e8ed2905c8614c128fe73a389bc9699cb3d700ff111acf8d54445a838702be41e49c8fff80f31ecd9c6c07d56c7132227a11c97672cf2887298664c28e849e"
+      },
+      "contains": [
+        "io_sentry_sentry",
+        "nerolandcore"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": ">=26.3 <26.4",
+        "java": ">=21",
+        "fabric-api": "*"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "nerospace",
+      "name": "NeroSpace",
+      "version": "1.6.0",
+      "file": "nerospace-fabric-26.3-1.6.0.jar",
+      "size": 2782496,
+      "side": "client",
+      "license": "All Rights Reserved (modpacks allowed - see LICENSE)",
+      "authors": [
+        "Neroland"
+      ],
+      "hashes": {
+        "sha1": "ab3612b07e6b80583b42cb1d2b5b17d399cd2783",
+        "sha256": "6e71c8b7c9d97b6280f6edcdad95cfb9f621e77cd830b39d0377ab05df2a53ba",
+        "sha512": "b923c2d6022af3b7ff3c6f304d9a3d00387f10cf6e1ddc0540dfd5cb5048dc39eaecf92c9079b7a014d7e0da4f8f2705e17f2a751ed6767ca0081040956e5cff"
+      },
+      "contains": [
+        "io_sentry_sentry",
+        "nerospace"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/MZjgyY44/versions/yDMIbOTS/nerospace-fabric-26.3-1.6.0.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": ">=26.3 <26.4",
+        "java": ">=21",
+        "fabric-api": "*",
+        "nerolandcore": ">=1.15.0 <2.0.0"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "nerospace",
+      "name": "NeroSpace",
+      "version": "1.6.0",
+      "file": "nerospace-fabric-26.3-1.6.0.jar",
+      "size": 2782496,
+      "side": "server",
+      "license": "All Rights Reserved (modpacks allowed - see LICENSE)",
+      "authors": [
+        "Neroland"
+      ],
+      "hashes": {
+        "sha1": "ab3612b07e6b80583b42cb1d2b5b17d399cd2783",
+        "sha256": "6e71c8b7c9d97b6280f6edcdad95cfb9f621e77cd830b39d0377ab05df2a53ba",
+        "sha512": "b923c2d6022af3b7ff3c6f304d9a3d00387f10cf6e1ddc0540dfd5cb5048dc39eaecf92c9079b7a014d7e0da4f8f2705e17f2a751ed6767ca0081040956e5cff"
+      },
+      "contains": [
+        "io_sentry_sentry",
+        "nerospace"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/MZjgyY44/versions/yDMIbOTS/nerospace-fabric-26.3-1.6.0.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": ">=26.3 <26.4",
+        "java": ">=21",
+        "fabric-api": "*",
+        "nerolandcore": ">=1.15.0 <2.0.0"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "orbital",
+      "name": "Orbital+",
+      "version": "fabric-1.4-mc26.3",
+      "file": "orbital-fabric-1.4-mc26.3.jar",
+      "size": 276865,
+      "side": "client",
+      "license": "ARR",
+      "authors": [
+        "Jhiro"
+      ],
+      "hashes": {
+        "sha1": "2a563bf2ec7c82e875b72a9e6925ff28f32131a3",
+        "sha256": "a65eec35adf87f7e058f57610e2f225b49351b3c157ffe4cdf37251f6eb31163",
+        "sha512": "e0a98c04d3deed951e4d453d71e9a923fd36484591c87f34ecf62c2815305899e2fbb36346e59b78186c8496a1a954d6365d271f4aef285b28660a086ff7ea25"
+      },
+      "contains": [
+        "orbital"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": "~26.3",
+        "java": ">=25",
+        "fabric-api": "*"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "orbital",
+      "name": "Orbital+",
+      "version": "fabric-1.4-mc26.3",
+      "file": "orbital-fabric-1.4-mc26.3.jar",
+      "size": 276865,
+      "side": "server",
+      "license": "ARR",
+      "authors": [
+        "Jhiro"
+      ],
+      "hashes": {
+        "sha1": "2a563bf2ec7c82e875b72a9e6925ff28f32131a3",
+        "sha256": "a65eec35adf87f7e058f57610e2f225b49351b3c157ffe4cdf37251f6eb31163",
+        "sha512": "e0a98c04d3deed951e4d453d71e9a923fd36484591c87f34ecf62c2815305899e2fbb36346e59b78186c8496a1a954d6365d271f4aef285b28660a086ff7ea25"
+      },
+      "contains": [
+        "orbital"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": "~26.3",
+        "java": ">=25",
+        "fabric-api": "*"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "resourcefullib",
+      "name": "Resourceful Lib",
+      "version": "6.0.1",
+      "file": "ResourcefulLib-6.0.1.jar",
+      "size": 458351,
+      "side": "client",
+      "license": "MIT",
+      "authors": [
+        "ThatGravyBoat",
+        "Epic_Oreo"
+      ],
+      "hashes": {
+        "sha1": "825dce0c0be393b766ec6cc788e57952f7d266ad",
+        "sha256": "c4b4169d01966780e3e058d42ca31b9c9ba172e26f5c0c2ac59751639324ac48",
+        "sha512": "9850f92d59beb89e8c3e8ca55e56aacdd42500c4e6f560607e29549e3998f6c912e08bc6ec5350764751ced6a9d7821c4e6c545fb6194e8a0d0ac111c218cd87"
+      },
+      "contains": [
+        "com_teamresourceful_bytecodecs",
+        "com_teamresourceful_yabn",
+        "resourcefullib"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/G1hIVOrD/versions/P6Jq77km/ResourcefulLib-6.0.1.jar"
+      ],
+      "depends": {
+        "fabric-api": "*",
+        "minecraft": ">=26.2"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Team-Resourceful/ResourcefulLib"
+    },
+    {
+      "id": "resourcefullib",
+      "name": "Resourceful Lib",
+      "version": "6.0.1",
+      "file": "ResourcefulLib-6.0.1.jar",
+      "size": 458351,
+      "side": "server",
+      "license": "MIT",
+      "authors": [
+        "ThatGravyBoat",
+        "Epic_Oreo"
+      ],
+      "hashes": {
+        "sha1": "825dce0c0be393b766ec6cc788e57952f7d266ad",
+        "sha256": "c4b4169d01966780e3e058d42ca31b9c9ba172e26f5c0c2ac59751639324ac48",
+        "sha512": "9850f92d59beb89e8c3e8ca55e56aacdd42500c4e6f560607e29549e3998f6c912e08bc6ec5350764751ced6a9d7821c4e6c545fb6194e8a0d0ac111c218cd87"
+      },
+      "contains": [
+        "com_teamresourceful_bytecodecs",
+        "com_teamresourceful_yabn",
+        "resourcefullib"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/G1hIVOrD/versions/P6Jq77km/ResourcefulLib-6.0.1.jar"
+      ],
+      "depends": {
+        "fabric-api": "*",
+        "minecraft": ">=26.2"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Team-Resourceful/ResourcefulLib"
+    },
+    {
+      "id": "spacereloaded",
+      "name": "SpaceReloaded",
+      "version": "1.0.2-valen26.3.1",
+      "file": "spacereloaded-1.0.2-valen26.3.1.jar",
+      "size": 2502409,
+      "side": "client",
+      "license": "MIT",
+      "authors": [
+        "Alex Melan"
+      ],
+      "hashes": {
+        "sha1": "6a390291ee3b96fad56eeab2ea770a9b5945fa9d",
+        "sha256": "cf589c413ac0ecaee1efda6dca189fbbbbaabe681f5caf034e987caec8c1c735",
+        "sha512": "83c9271ca477b58528c0dcfdcbf5a70395d94fe96b7cf4decaec015730e4e35afe38a6938dea2e5f34dc16387b9cc6ee790b5366e39a0327381a70b9538cdd94"
+      },
+      "contains": [
+        "org_alex_melan_spacereloaded_core",
+        "spacereloaded",
+        "team_reborn_energy"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.20.1",
+        "minecraft": "~26.3",
+        "java": ">=25",
+        "fabric-api": ">=0.165.0+26.3"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/AlexMelanFromRingo/SpaceReloaded"
+    },
+    {
+      "id": "spacereloaded",
+      "name": "SpaceReloaded",
+      "version": "1.0.2-valen26.3.1",
+      "file": "spacereloaded-1.0.2-valen26.3.1.jar",
+      "size": 2502409,
+      "side": "server",
+      "license": "MIT",
+      "authors": [
+        "Alex Melan"
+      ],
+      "hashes": {
+        "sha1": "6a390291ee3b96fad56eeab2ea770a9b5945fa9d",
+        "sha256": "cf589c413ac0ecaee1efda6dca189fbbbbaabe681f5caf034e987caec8c1c735",
+        "sha512": "83c9271ca477b58528c0dcfdcbf5a70395d94fe96b7cf4decaec015730e4e35afe38a6938dea2e5f34dc16387b9cc6ee790b5366e39a0327381a70b9538cdd94"
+      },
+      "contains": [
+        "org_alex_melan_spacereloaded_core",
+        "spacereloaded",
+        "team_reborn_energy"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.20.1",
+        "minecraft": "~26.3",
+        "java": ">=25",
+        "fabric-api": ">=0.165.0+26.3"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/AlexMelanFromRingo/SpaceReloaded"
+    },
+    {
+      "id": "tacz",
+      "name": "[UNOFFICIAL] TaCZ Refabricated (26.3 R1-hotfix3)",
+      "version": "1.1.8+fabric.26.3.R1-hotfix3",
+      "file": "TACZ-Refabricated-26.3-1.1.8+fabric.26.3.R1-hotfix3.jar",
+      "size": 58123161,
+      "side": "client",
+      "license": "GPL3 / CC BY-NC-ND 4.0",
+      "authors": [
+        "Sh1roCu"
+      ],
+      "hashes": {
+        "sha1": "68bb8d461408ad82b6adbacf9b1ed3f79fd75b39",
+        "sha256": "84cf3590ef99ce58c4b90f429db8498ad603a1a232786e13e896f9186ba5eeeb",
+        "sha512": "1c690d1e2c875e35c131c1003a334d54f12ad243fe6fb8b95b1f244a3dd5debc5123c4bd95918723d310cd469447ec6ea98769d929d2afcf6f992374d72382e2"
+      },
+      "contains": [
+        "tacz",
+        "lrtactical",
+        "taczmeshloader"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "fabric-api": "*",
+        "minecraft": "26.3",
+        "java": ">=25",
+        "forgeconfigapiport": ">=26.3.0"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "tacz",
+      "name": "[UNOFFICIAL] TaCZ Refabricated (26.3 R1-hotfix3)",
+      "version": "1.1.8+fabric.26.3.R1-hotfix3",
+      "file": "TACZ-Refabricated-26.3-1.1.8+fabric.26.3.R1-hotfix3.jar",
+      "size": 58123161,
+      "side": "server",
+      "license": "GPL3 / CC BY-NC-ND 4.0",
+      "authors": [
+        "Sh1roCu"
+      ],
+      "hashes": {
+        "sha1": "68bb8d461408ad82b6adbacf9b1ed3f79fd75b39",
+        "sha256": "84cf3590ef99ce58c4b90f429db8498ad603a1a232786e13e896f9186ba5eeeb",
+        "sha512": "1c690d1e2c875e35c131c1003a334d54f12ad243fe6fb8b95b1f244a3dd5debc5123c4bd95918723d310cd469447ec6ea98769d929d2afcf6f992374d72382e2"
+      },
+      "contains": [
+        "tacz",
+        "lrtactical",
+        "taczmeshloader"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "fabric-api": "*",
+        "minecraft": "26.3",
+        "java": ">=25",
+        "forgeconfigapiport": ">=26.3.0"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "techreborn",
+      "name": "Tech Reborn",
+      "version": "6.2.1",
+      "file": "TechReborn-6.2.1.jar",
+      "size": 6915815,
+      "side": "client",
+      "license": "MIT",
+      "authors": [
+        "Team Reborn",
+        "modmuss50",
+        "drcrazy"
+      ],
+      "hashes": {
+        "sha1": "2c6e717f772d64b04c0f9f0dea0cc4f241137822",
+        "sha256": "1f23be71400aead4e1e967c733fd795577156445fc4bfa3181f2eab7ad8ab7a3",
+        "sha512": "d90d91a7cb56b65fb09f01fd82ff0a5e043b82b0479ceaac1bb7220fb955a85b68a76dc536842cf741ae728b44c921477625f00cd0bdc7c88a438ae550067152"
+      },
+      "contains": [
+        "reborncore",
+        "team_reborn_energy",
+        "techreborn"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.2",
+        "fabric-api": ">=0.159.1+26.3",
+        "reborncore": "~6.2.1",
+        "team_reborn_energy": ">=5.0.0",
+        "minecraft": "~26.3"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/TechReborn/TechReborn"
+    },
+    {
+      "id": "techreborn",
+      "name": "Tech Reborn",
+      "version": "6.2.1",
+      "file": "TechReborn-6.2.1.jar",
+      "size": 6915815,
+      "side": "server",
+      "license": "MIT",
+      "authors": [
+        "Team Reborn",
+        "modmuss50",
+        "drcrazy"
+      ],
+      "hashes": {
+        "sha1": "2c6e717f772d64b04c0f9f0dea0cc4f241137822",
+        "sha256": "1f23be71400aead4e1e967c733fd795577156445fc4bfa3181f2eab7ad8ab7a3",
+        "sha512": "d90d91a7cb56b65fb09f01fd82ff0a5e043b82b0479ceaac1bb7220fb955a85b68a76dc536842cf741ae728b44c921477625f00cd0bdc7c88a438ae550067152"
+      },
+      "contains": [
+        "reborncore",
+        "team_reborn_energy",
+        "techreborn"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.2",
+        "fabric-api": ">=0.159.1+26.3",
+        "reborncore": "~6.2.1",
+        "team_reborn_energy": ">=5.0.0",
+        "minecraft": "~26.3"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/TechReborn/TechReborn"
+    },
+    {
+      "id": "toms_storage",
+      "name": "Tom's Simple Storage Mod",
+      "version": "2.12.2",
+      "file": "toms_storage_fabric-26.3-2.12.2.jar",
+      "size": 1879286,
+      "side": "client",
+      "license": "MIT",
+      "authors": [
+        "tom5454"
+      ],
+      "hashes": {
+        "sha1": "b6877dff0aa79379917bc43f387ed41f152a1c92",
+        "sha256": "033856496ce7e683f26d57de4e0bd1a63907f389b9f366774e6d8f0feaef1db8",
+        "sha512": "b16374830a11fe3b0c9c48b202bb2ef0b56268cf20169eabdb44e6e5ada80c3bf6a61064e40ceb9686c97dc70898d230be17dfc8190cf867083ceaa6be09228e"
+      },
+      "contains": [
+        "cloth-basic-math",
+        "cloth-config",
+        "cloth-config2",
+        "toms_storage"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/XZNI4Cpy/versions/e7S7Hc7o/toms_storage_fabric-26.3-2.12.2.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.7.4",
+        "fabric-api": ">=0.145.3",
+        "minecraft": ">=26.3 <26.4"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/tom5454/Toms-Storage/"
+    },
+    {
+      "id": "toms_storage",
+      "name": "Tom's Simple Storage Mod",
+      "version": "2.12.2",
+      "file": "toms_storage_fabric-26.3-2.12.2.jar",
+      "size": 1879286,
+      "side": "server",
+      "license": "MIT",
+      "authors": [
+        "tom5454"
+      ],
+      "hashes": {
+        "sha1": "b6877dff0aa79379917bc43f387ed41f152a1c92",
+        "sha256": "033856496ce7e683f26d57de4e0bd1a63907f389b9f366774e6d8f0feaef1db8",
+        "sha512": "b16374830a11fe3b0c9c48b202bb2ef0b56268cf20169eabdb44e6e5ada80c3bf6a61064e40ceb9686c97dc70898d230be17dfc8190cf867083ceaa6be09228e"
+      },
+      "contains": [
+        "cloth-basic-math",
+        "cloth-config",
+        "cloth-config2",
+        "toms_storage"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/XZNI4Cpy/versions/e7S7Hc7o/toms_storage_fabric-26.3-2.12.2.jar"
+      ],
+      "depends": {
+        "fabricloader": ">=0.7.4",
+        "fabric-api": ">=0.145.3",
+        "minecraft": ">=26.3 <26.4"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/tom5454/Toms-Storage/"
+    },
+    {
+      "id": "trinkets_updated",
+      "name": "Trinkets Updated",
+      "version": "4.2.1+26.3",
+      "file": "trinkets-4.2.1+26.3.jar",
+      "size": 663821,
+      "side": "client",
+      "license": "MIT",
+      "authors": [
+        {
+          "name": "Emi",
+          "contact": {
+            "github": "https://github.com/emilyploszaj"
+          }
+        },
+        {
+          "name": "C4",
+          "contact": {
+            "github": "https://github.com/TheIllusiveC4"
+          }
+        },
+        {
+          "name": "Patbox",
+          "contact": {
+            "github": "https://github.com/Patbox"
+          }
+        }
+      ],
+      "hashes": {
+        "sha1": "134fa691e3afac2236bd72e8a07ebfeabaacd531",
+        "sha256": "ded1231c616a9af0a181238ffe041727101179c8df0c52b3054d4d04403e3033",
+        "sha512": "d4038e93b95462cff05075dad5b97669871f62212c0228ec6483782e22476d0354d1869f0e523fdb23b2a233fa0f15ff01d497fd2c8a5292ab20838dc464d15a"
+      },
+      "contains": [
+        "trinkets",
+        "trinkets-updated",
+        "trinkets_updated",
+        "yumi-commons-collections",
+        "yumi-commons-core",
+        "yumi-commons-event",
+        "yumi_commons_collections",
+        "yumi_commons_core",
+        "yumi_commons_event",
+        "yumi_mc_core"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/XaT8sLP6/versions/lVR1OKgV/trinkets-4.2.1%2B26.3.jar"
+      ],
+      "depends": {
+        "minecraft": "26.3.x",
+        "fabricloader": ">=0.19.0",
+        "fabric-api": "*",
+        "yumi_mc_core": ">=1.1.0+26.2"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Patbox/trinkets"
+    },
+    {
+      "id": "trinkets_updated",
+      "name": "Trinkets Updated",
+      "version": "4.2.1+26.3",
+      "file": "trinkets-4.2.1+26.3.jar",
+      "size": 663821,
+      "side": "server",
+      "license": "MIT",
+      "authors": [
+        {
+          "name": "Emi",
+          "contact": {
+            "github": "https://github.com/emilyploszaj"
+          }
+        },
+        {
+          "name": "C4",
+          "contact": {
+            "github": "https://github.com/TheIllusiveC4"
+          }
+        },
+        {
+          "name": "Patbox",
+          "contact": {
+            "github": "https://github.com/Patbox"
+          }
+        }
+      ],
+      "hashes": {
+        "sha1": "134fa691e3afac2236bd72e8a07ebfeabaacd531",
+        "sha256": "ded1231c616a9af0a181238ffe041727101179c8df0c52b3054d4d04403e3033",
+        "sha512": "d4038e93b95462cff05075dad5b97669871f62212c0228ec6483782e22476d0354d1869f0e523fdb23b2a233fa0f15ff01d497fd2c8a5292ab20838dc464d15a"
+      },
+      "contains": [
+        "trinkets",
+        "trinkets-updated",
+        "trinkets_updated",
+        "yumi-commons-collections",
+        "yumi-commons-core",
+        "yumi-commons-event",
+        "yumi_commons_collections",
+        "yumi_commons_core",
+        "yumi_commons_event",
+        "yumi_mc_core"
+      ],
+      "downloads": [
+        "https://cdn.modrinth.com/data/XaT8sLP6/versions/lVR1OKgV/trinkets-4.2.1%2B26.3.jar"
+      ],
+      "depends": {
+        "minecraft": "26.3.x",
+        "fabricloader": ">=0.19.0",
+        "fabric-api": "*",
+        "yumi_mc_core": ">=1.1.0+26.2"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Patbox/trinkets"
+    },
+    {
+      "id": "forgeconfigapiport",
+      "name": "Forge Config API Port",
+      "version": "26.3.1",
+      "file": "forgeconfigapiport-fabric-26.3.1.jar",
+      "size": 609574,
+      "side": "client",
+      "license": "MPL-2.0",
+      "authors": [
+        "Fuzs"
+      ],
+      "hashes": {
+        "sha1": "a3d7e4877b17fd27471d97267b109e5cc0c83455",
+        "sha256": "e8bdc3a1fff1c832437984911cdd3a51d8eda6b69400474088f856c2b3ea6f44",
+        "sha512": "f3bb4ad2bb063744ade6b45b1e8797fb7827a5deebe35582ec2f014945cafdfb33596f11a6e125d419a7123c616f97e31513c267229c088a4445b3ea1e94253b"
+      },
+      "contains": [
+        "forgeconfigapiport"
+      ],
+      "downloads": [],
+      "depends": {
+        "minecraft": "~26.3-",
+        "fabricloader": ">=0.19.4",
+        "fabric-api": ">=0.160.6"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Fuzss/forge-config-api-port"
+    },
+    {
+      "id": "forgeconfigapiport",
+      "name": "Forge Config API Port",
+      "version": "26.3.1",
+      "file": "forgeconfigapiport-fabric-26.3.1.jar",
+      "size": 609574,
+      "side": "server",
+      "license": "MPL-2.0",
+      "authors": [
+        "Fuzs"
+      ],
+      "hashes": {
+        "sha1": "a3d7e4877b17fd27471d97267b109e5cc0c83455",
+        "sha256": "e8bdc3a1fff1c832437984911cdd3a51d8eda6b69400474088f856c2b3ea6f44",
+        "sha512": "f3bb4ad2bb063744ade6b45b1e8797fb7827a5deebe35582ec2f014945cafdfb33596f11a6e125d419a7123c616f97e31513c267229c088a4445b3ea1e94253b"
+      },
+      "contains": [
+        "forgeconfigapiport"
+      ],
+      "downloads": [],
+      "depends": {
+        "minecraft": "~26.3-",
+        "fabricloader": ">=0.19.4",
+        "fabric-api": ">=0.160.6"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/Fuzss/forge-config-api-port"
+    },
+    {
+      "id": "common_storage_lib",
+      "name": "ValenJEG - Common Storage Lib",
+      "version": "0.0.10+fabric26.3-valen.1",
+      "file": "common-storage-lib-0.0.10+fabric26.3-valen.1.jar",
+      "size": 307274,
+      "side": "client",
+      "license": "MIT",
+      "authors": [
+        "CodexAdrian"
+      ],
+      "hashes": {
+        "sha1": "ee4710528872b8bf30bc01406de776d8090156d9",
+        "sha256": "807a4bf856b42d521414f6062f51ee32266839f0b6b4a55cb4e5bd32e875aac7",
+        "sha512": "c145e312feece1a8f48ccd6d040ce872145629fea4f686ff9d855b85473af51481b92ebca9a0e49c09c092254cb8c2ec0437e83383568cd85cca1c2cfdc049e2"
+      },
+      "contains": [
+        "common_storage_lib"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "fabric-api": "*",
+        "minecraft": ">=26.3 <26.4"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "common_storage_lib",
+      "name": "ValenJEG - Common Storage Lib",
+      "version": "0.0.10+fabric26.3-valen.1",
+      "file": "common-storage-lib-0.0.10+fabric26.3-valen.1.jar",
+      "size": 307274,
+      "side": "server",
+      "license": "MIT",
+      "authors": [
+        "CodexAdrian"
+      ],
+      "hashes": {
+        "sha1": "ee4710528872b8bf30bc01406de776d8090156d9",
+        "sha256": "807a4bf856b42d521414f6062f51ee32266839f0b6b4a55cb4e5bd32e875aac7",
+        "sha512": "c145e312feece1a8f48ccd6d040ce872145629fea4f686ff9d855b85473af51481b92ebca9a0e49c09c092254cb8c2ec0437e83383568cd85cca1c2cfdc049e2"
+      },
+      "contains": [
+        "common_storage_lib"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "fabric-api": "*",
+        "minecraft": ">=26.3 <26.4"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": null
+    },
+    {
+      "id": "jeg",
+      "name": "ValenJEG",
+      "version": "1.8.2-valen.r61-dev",
+      "file": "valenjeg-1.8.2-valen.r61-dev+fabric26.3.jar",
+      "size": 22087879,
+      "side": "client",
+      "license": "GPL-3.0",
+      "authors": [
+        "Rui Mao",
+        "MigaMi",
+        "Leander",
+        "Valen Systems (private fork)"
+      ],
+      "hashes": {
+        "sha1": "25387f31423089aeb9c55669ddbbad29df6ea942",
+        "sha256": "cb36dbfcac460cff25333d10bc070446a949da7e5fbb9fd3c505e65cfae148e1",
+        "sha512": "8489cc22b23a74da2a0d3d42321bf48127b2cd220e0e6b813ec2f5b231ec8762da8e3be818980905ddd2a52130695c76869a34c95eba3e4a9b33af98c160c2b5"
+      },
+      "contains": [
+        "jeg",
+        "mteg"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": ">=26.3 <26.4",
+        "java": ">=25",
+        "fabric-api": "*",
+        "geckolib": ">=5.5",
+        "team_reborn_energy": ">=5.0.0",
+        "hbm": "*"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/willrob-valensdad/ValenJEG-ValenCraft/tree/source/valenjeg-core-r61/mod"
+    },
+    {
+      "id": "jeg",
+      "name": "ValenJEG",
+      "version": "1.8.2-valen.r61-dev",
+      "file": "valenjeg-1.8.2-valen.r61-dev+fabric26.3.jar",
+      "size": 22087879,
+      "side": "server",
+      "license": "GPL-3.0",
+      "authors": [
+        "Rui Mao",
+        "MigaMi",
+        "Leander",
+        "Valen Systems (private fork)"
+      ],
+      "hashes": {
+        "sha1": "25387f31423089aeb9c55669ddbbad29df6ea942",
+        "sha256": "cb36dbfcac460cff25333d10bc070446a949da7e5fbb9fd3c505e65cfae148e1",
+        "sha512": "8489cc22b23a74da2a0d3d42321bf48127b2cd220e0e6b813ec2f5b231ec8762da8e3be818980905ddd2a52130695c76869a34c95eba3e4a9b33af98c160c2b5"
+      },
+      "contains": [
+        "jeg",
+        "mteg"
+      ],
+      "downloads": [],
+      "depends": {
+        "fabricloader": ">=0.19.5",
+        "minecraft": ">=26.3 <26.4",
+        "java": ">=25",
+        "fabric-api": "*",
+        "geckolib": ">=5.5",
+        "team_reborn_energy": ">=5.0.0",
+        "hbm": "*"
+      },
+      "association": "ValenCraft/ValenJEG",
+      "source": "https://github.com/willrob-valensdad/ValenJEG-ValenCraft/tree/source/valenjeg-core-r61/mod"
+    }
+  ],
+  "pending": [
+    {
+      "id": "hbm",
+      "status": "full 26.3 Fabric port incomplete",
+      "contains": [
+        "hbm",
+        "hbm_client"
+      ],
+      "source": "components/hbm",
+      "sides": [
+        "client",
+        "server"
+      ]
+    },
+    {
+      "id": "ad_astra",
+      "status": "full 26.3 Fabric port incomplete",
+      "contains": [
+        "ad_astra"
+      ],
+      "source": "components/ad-astra/adastra",
+      "sides": [
+        "client",
+        "server"
+      ]
+    },
+    {
+      "id": "scguns",
+      "status": "full 26.3 Fabric port incomplete",
+      "contains": [
+        "scguns"
+      ],
+      "source": "components/scorched-guns",
+      "sides": [
+        "client",
+        "server"
+      ]
+    },
+    {
+      "id": "tacz_sewv",
+      "status": "Combined Arms port awaits dependencies",
+      "contains": [
+        "tacz_sewv"
+      ],
+      "source": "components/combined-arms",
+      "sides": [
+        "client",
+        "server"
+      ]
+    },
+    {
+      "id": "superbwarfare",
+      "status": "26.3 Fabric migration does not compile yet",
+      "contains": [
+        "superbwarfare"
+      ],
+      "source": "components/combined-arms/dependencies/superbwarfare/port-26.3",
+      "sides": [
+        "client",
+        "server"
+      ]
+    },
+    {
+      "id": "simpleenemymod",
+      "status": "required source/artifact not yet acquired",
+      "contains": [
+        "simpleenemymod"
+      ],
+      "source": null,
+      "sides": [
+        "client",
+        "server"
+      ]
+    },
+    {
+      "id": "resourcefulconfig",
+      "status": "required 6.0.2 artifact not yet hash-pinned",
+      "contains": [
+        "resourcefulconfig"
+      ],
+      "source": null,
+      "sides": [
+        "client",
+        "server"
+      ]
+    },
+    {
+      "id": "crankshaft",
+      "status": "required artifact not yet hash-pinned",
+      "contains": [
+        "crankshaft"
+      ],
+      "source": null,
+      "sides": [
+        "client",
+        "server"
+      ]
+    }
+  ],
+  "required_ids": {
+    "client": [
+      "ad_astra",
+      "common_storage_lib",
+      "computercraft",
+      "crankshaft",
+      "create",
+      "entity_model_features",
+      "entity_texture_features",
+      "fabric-api",
+      "fabric-api-base",
+      "fabric-api-lookup-api-v1",
+      "fabric-lifecycle-events-v1",
+      "fabric-rendering-fluids-v1",
+      "fabric-transfer-api-v1",
+      "forgeconfigapiport",
+      "geckolib",
+      "hbm",
+      "hbm_client",
+      "jeg",
+      "nerolandcore",
+      "nerospace",
+      "orbital",
+      "reborncore",
+      "resourcefulconfig",
+      "resourcefullib",
+      "scguns",
+      "simpleenemymod",
+      "spacereloaded",
+      "superbwarfare",
+      "tacz",
+      "tacz_sewv",
+      "team_reborn_energy",
+      "techreborn",
+      "toms_storage",
+      "trinkets_updated",
+      "yumi_commons_collections",
+      "yumi_commons_core",
+      "yumi_commons_event",
+      "yumi_mc_core"
+    ],
+    "server": [
+      "ad_astra",
+      "common_storage_lib",
+      "computercraft",
+      "crankshaft",
+      "create",
+      "fabric-api",
+      "fabric-api-base",
+      "fabric-api-lookup-api-v1",
+      "fabric-lifecycle-events-v1",
+      "fabric-rendering-fluids-v1",
+      "fabric-transfer-api-v1",
+      "forgeconfigapiport",
+      "geckolib",
+      "hbm",
+      "hbm_client",
+      "jeg",
+      "nerolandcore",
+      "nerospace",
+      "orbital",
+      "reborncore",
+      "resourcefulconfig",
+      "resourcefullib",
+      "scguns",
+      "simpleenemymod",
+      "spacereloaded",
+      "superbwarfare",
+      "tacz",
+      "tacz_sewv",
+      "team_reborn_energy",
+      "techreborn",
+      "toms_storage",
+      "trinkets_updated",
+      "yumi_commons_collections",
+      "yumi_commons_core",
+      "yumi_commons_event",
+      "yumi_mc_core"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.18.2'
+}
+
+version = '0.0.10+fabric26.3-valen.1'
+group = 'earth.terrarium.common_storage_lib'
+
+base {
+    archivesName = 'common-storage-lib'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:26.3'
+    implementation 'net.fabricmc:fabric-loader:0.19.5'
+    implementation 'net.fabricmc.fabric-api:fabric-api:0.165.0+26.3'
+    compileOnly files('compile-inputs/energy-5.0.0.jar')
+}
+
+def generatedJava = layout.buildDirectory.dir('fabric-src')
+
+tasks.register('prepareFabricSources', Exec) {
+    def script = file('../../tools/prepare-csl-sources.sh').absolutePath
+    commandLine 'bash', script
+    inputs.dir('core/common/src/main/java')
+    inputs.dir('core/fabric/src/main/java')
+    inputs.dir('data/common/src/main/java')
+    inputs.dir('data/fabric/src/main/java')
+    inputs.dir('lookup/common/src/main/java')
+    inputs.dir('lookup/fabric/src/main/java')
+    inputs.dir('resources/common/src/main/java')
+    inputs.dir('resources/fabric/src/main/java')
+    outputs.dir(generatedJava)
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir generatedJava
+        }
+        resources {
+            srcDir 'core/fabric/src/main/resources'
+            srcDir 'data/fabric/src/main/resources'
+            srcDir 'lookup/fabric/src/main/resources'
+            srcDir 'resources/fabric/src/main/resources'
+            srcDir 'port'
+            exclude 'fabric.mod.json'
+        }
+    }
+}
+
+tasks.compileJava {
+    dependsOn tasks.named('prepareFabricSources')
+}
+
+tasks.processResources {
+    dependsOn tasks.named('prepareFabricSources')
+    from('port/fabric.mod.json')
+}
+
+tasks.jar {
+    from('LICENSE')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

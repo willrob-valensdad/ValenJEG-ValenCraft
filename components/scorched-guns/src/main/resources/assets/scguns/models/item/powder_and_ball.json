@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/shotgun_shell_3d",
+  "textures": {
+    "0": "scguns:item/shotgun_shell",
+    "particle": "scguns:item/shotgun_shell"
+  }
+}

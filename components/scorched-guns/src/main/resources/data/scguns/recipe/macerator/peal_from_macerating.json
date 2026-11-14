@@ -1,0 +1,26 @@
+{
+  "type": "scguns:macerating",
+  "processingTime": 100,
+  "ingredients": [
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "scguns:sulfur_chunk",
+        "#c:dusts/sulfur"
+      ]
+    },
+    "minecraft:sculk",
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "scguns:raw_phosphor",
+        "#c:dusts/phosphorus"
+      ]
+    },
+    "minecraft:charcoal"
+  ],
+  "result": {
+    "id": "scguns:peal",
+    "count": 10
+  }
+}

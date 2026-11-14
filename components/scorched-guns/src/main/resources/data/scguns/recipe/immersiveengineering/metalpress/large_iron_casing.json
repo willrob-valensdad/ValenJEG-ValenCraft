@@ -1,0 +1,16 @@
+{
+  "type": "immersiveengineering:metal_press",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "immersiveengineering"
+    }
+  ],
+  "energy": 2400,
+  "input": "minecraft:iron_ingot",
+  "mold": "scguns:large_casing_mold",
+  "result": {
+    "count": 4,
+    "id": "scguns:large_iron_casing"
+  }
+}

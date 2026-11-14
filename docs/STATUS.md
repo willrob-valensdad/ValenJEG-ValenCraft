@@ -1,7 +1,7 @@
 # Development status
 
-The current source is R61 development work. It includes gun customization repairs, native structure bindings, ValenJEG display names and the project-supplied logo.
+This is the ValenJEG mini-modpack source project, within the modular ValenCraft modpack. The core gun fork is one component. Source import, compilation, native testing and installation are separate states.
 
-A development compilation and focused source/model contracts have passed. Full donor-mod compatibility, remaining original structure bindings, fitted equipment clearance and usability, complete-pack native visual/gameplay qualification and installation are still in progress.
+The core source checkpoint was built with `check jar sourcesJar`. HBM, Ad Astra, Scorched Guns and Combined Arms/Superb Warfare ports are present but unfinished. The dependency lock also lists required inputs not yet pinned or acquired. The full repaired mini-modpack has not passed native qualification and is not presented as an installable release.
 
-Main is development source. No release artifact is attached to this import. Planned versions and feature targets in the project description are separate from acceptance of this branch.
+The pack assembler validates hashes, preserves upstream JAR bytes, copies the maintained gameplay configs and refuses existing destinations. It stops on pending inputs. See [components](COMPONENTS.md) and [building](BUILDING.md).

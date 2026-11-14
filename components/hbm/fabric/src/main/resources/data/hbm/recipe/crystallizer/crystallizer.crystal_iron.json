@@ -1,0 +1,20 @@
+{
+  "type": "hbm:crystallizer",
+  "duration": 600,
+  "input_fluids": [
+    {
+      "type": "hbm:peroxide",
+      "amount": 500
+    }
+  ],
+  "input_items": [
+    {
+      "ingredient": "#c:ores/iron"
+    }
+  ],
+  "order": 57856,
+  "output_items": [
+    "hbm:crystal_iron"
+  ],
+  "productivity": 0.05
+}

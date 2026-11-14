@@ -1,0 +1,12 @@
+{
+	"type": "spacereloaded:assembly",
+	"ingredients": [
+		"minecraft:gold_ingot",
+		"spacereloaded:logic_chip",
+		"spacereloaded:steel_ingot"
+	],
+	"result": {
+		"id": "spacereloaded:frequency_key",
+		"count": 1
+	}
+}

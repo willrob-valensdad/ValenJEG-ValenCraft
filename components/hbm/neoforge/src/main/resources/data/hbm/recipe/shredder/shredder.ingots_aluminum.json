@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:ingots/aluminum"
+    }
+  ],
+  "order": 68096,
+  "output_items": [
+    "hbm:powder_aluminium"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "L": "scguns:empty_tank",
+    "R": "scguns:heavy_gun_parts",
+    "S": "scguns:gun_barrel",
+    "J": "scguns:heavy_gun_barrel",
+    "M": "scguns:scorched_ingot",
+    "X": "scguns:scorched_blueprint",
+    "K": "scguns:scorched_gun_frame",
+    "A": "scguns:gun_magazine"
+  },
+  "pattern": [
+    "MKX ",
+    "LRJS",
+    "Q A "
+  ],
+  "result": {
+    "id": "scguns:nervepinch"
+  }
+}

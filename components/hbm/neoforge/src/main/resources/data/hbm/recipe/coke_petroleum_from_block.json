@@ -1,0 +1,10 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    "hbm:block_coke_petroleum"
+  ],
+  "result": {
+    "count": 9,
+    "id": "hbm:coke_petroleum"
+  }
+}

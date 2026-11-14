@@ -1,0 +1,27 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "scguns:gun_magazine",
+    "L": "minecraft:heart_of_the_sea",
+    "R": "scguns:heavy_gun_parts",
+    "S": "scguns:gun_barrel",
+    "X": "scguns:ocean_blueprint",
+    "E": "scguns:treated_brass_ingot"
+  },
+  "pattern": [
+    " ESS",
+    "LRSS",
+    "Q CX"
+  ],
+  "result": {
+    "id": "scguns:spirulida"
+  }
+}

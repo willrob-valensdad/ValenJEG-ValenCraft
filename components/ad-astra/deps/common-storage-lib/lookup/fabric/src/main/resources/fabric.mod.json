@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "common_storage_lib_lookup",
+  "version": "${version}",
+  "name": "Common Storage Lib: Lookup",
+  "description": "Abstraction for mod loader's item/entity/block API provider system (Capabilities/ApiLookup)",
+  "authors": [
+    "CodexAdrian"
+  ],
+  "contact": {
+    "repo": "https://github.com/terrarium-earth/Common-Storage-Lib",
+    "issues": "https://github.com/terrarium-earth/Common-Storage-Lib/issues"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.20.6"
+  }
+}

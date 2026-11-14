@@ -1,0 +1,15 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:flintlock_pistol",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:antique_blueprint",
+    "gun_internal_1": "minecraft:flint",
+    "gun_internal_2": "minecraft:cobblestone",
+    "gun_barrel_1": "scguns:stone_gun_barrel",
+    "gun_grip": "#minecraft:planks",
+    "gun_magazine": "#minecraft:planks"
+  }
+}

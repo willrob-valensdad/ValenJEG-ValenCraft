@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/rat_king_and_queen",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

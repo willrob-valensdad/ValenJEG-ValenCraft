@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"lit=false": {
+			"model": "spacereloaded:block/atmosphere_controller"
+		},
+		"lit=true": {
+			"model": "spacereloaded:block/atmosphere_controller_on"
+		}
+	}
+}

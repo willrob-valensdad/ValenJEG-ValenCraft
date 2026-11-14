@@ -1,0 +1,19 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "#": {
+      "preserve": "remainder"
+    }
+  },
+  "key": {
+    "#": "hbm:cell_antimatter"
+  },
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "hbm:pellet_antimatter"
+  }
+}

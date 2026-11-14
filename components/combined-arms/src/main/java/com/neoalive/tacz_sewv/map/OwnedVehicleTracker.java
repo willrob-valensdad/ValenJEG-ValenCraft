@@ -1,0 +1,741 @@
+package com.neoalive.tacz_sewv.map;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import com.atsuishio.superbwarfare.data.vehicle.subdata.EngineType;
+import com.atsuishio.superbwarfare.entity.vehicle.DroneEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.MortarEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.Type63Entity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.network.PacketDistributor;
+import net.nekoyuni.SimpleEnemyMod.entity.ai.orders.OrderType;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.RUunitEntity;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.USunitEntity;
+
+import com.neoalive.tacz_sewv.airport.HelipadRegistry;
+import com.neoalive.tacz_sewv.bridge.ISweepInfantry;
+import com.neoalive.tacz_sewv.bridge.IVehiclePatrol;
+import com.neoalive.tacz_sewv.client.MapMarkers;
+import com.neoalive.tacz_sewv.compat.OpenPacCompat;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.crew.CrewFacts;
+import com.neoalive.tacz_sewv.entity.ai.command.Assignment;
+import com.neoalive.tacz_sewv.entity.ai.command.CommandCoordinator;
+import com.neoalive.tacz_sewv.entity.ai.command.platoon.Platoon;
+import com.neoalive.tacz_sewv.entity.ai.command.platoon.PlatoonRegistry;
+import com.neoalive.tacz_sewv.entity.ai.core.HullFacts;
+import com.neoalive.tacz_sewv.entity.ai.core.VehicleTargeting;
+import com.neoalive.tacz_sewv.entity.ai.support.DroneSupport;
+import com.neoalive.tacz_sewv.entity.ai.support.GuardSupport;
+import com.neoalive.tacz_sewv.entity.ai.support.MortarSupport;
+import com.neoalive.tacz_sewv.entity.ai.support.SupportRole;
+import com.neoalive.tacz_sewv.entity.ai.support.Type63Support;
+import com.neoalive.tacz_sewv.entity.unit.PmcCommanderEntity;
+import com.neoalive.tacz_sewv.entity.unit.RuCombatEngineerEntity;
+import com.neoalive.tacz_sewv.entity.unit.UsCombatEngineerEntity;
+import com.neoalive.tacz_sewv.fob.FobInstance;
+import com.neoalive.tacz_sewv.fob.FobManager;
+import com.neoalive.tacz_sewv.fob.FobSupport;
+import com.neoalive.tacz_sewv.invasion.InvasionHostility;
+import com.neoalive.tacz_sewv.invasion.InvasionTags;
+import com.neoalive.tacz_sewv.invasion.PmcOwnerSupport;
+import com.neoalive.tacz_sewv.network.NetworkHandler;
+import com.neoalive.tacz_sewv.network.PacketOwnedVehicles;
+
+/**
+ * Sends each player the crewed vehicles their side can see, for the map markers in
+ * {@code client.xaero}: their own PMC hulls always, and other factions' hulls only where somebody
+ * on their side is close enough to have noticed.
+ *
+ * <p>This exists because the client only knows about entities the server is tracking it — roughly
+ * view distance — while the map draws the whole explored world. Without the sync a hull two chunks
+ * past the tracking edge simply has no client entity to read, so the marker would blink out exactly
+ * when the map becomes the useful way to look at it.
+ *
+ * <p><b>Shape of the work, which is what keeps it cheap:</b> one pass over each level collects every
+ * crewed hull into a small candidate list (crewed hulls number in the tens, not thousands), and each
+ * player is then served out of that list rather than out of the world. Per player the cost is
+ * candidates × (1 + their own hulls) distance checks — a few hundred comparisons once a second. The
+ * expensive per-hull fact, its symbol class, is computed once and cached in the hull's own NBT,
+ * because {@code computed()} is a full vehicle-data compute and the answer can never change.
+ */
+public final class OwnedVehicleTracker {
+
+    /**
+     * Hard cap per player. Well past any plausible sighting picture; it is here so a creative-mode
+     * spawn spree cannot turn a per-second packet into a bandwidth problem. Own hulls are added
+     * first, so what gets dropped is distant contacts, never something you command.
+     */
+    private static final int MAX_MARKERS = 128;
+
+    /** Cached symbol class, +1 so an absent tag reads as 0. The hull's class never changes. */
+    private static final String KIND_KEY = "sewv:map_kind";
+
+    /**
+     * Deadline on the server's own tick counter, not on world game time: game time rewinds when a
+     * different world is loaded in the same session, and a deadline set from the previous world's
+     * clock would then sit in the future for hours.
+     *
+     * <p>Still reset on {@link ServerStartingEvent}: the tick counter itself also restarts at 0 on
+     * a new integrated server, and a leftover deadline from the previous run would suppress every
+     * sync until that old tick number came around again — leaving the client on cleared/empty
+     * markers (or, before the client clear, on ghosts from the last world).
+     */
+    private static int nextSend = Integer.MIN_VALUE;
+
+    private OwnedVehicleTracker() {}
+
+    @SubscribeEvent
+    public static void onServerStarting(ServerStartingEvent event) {
+        nextSend = Integer.MIN_VALUE;
+    }
+
+    @SubscribeEvent
+    public static void onServerStopping(ServerStoppingEvent event) {
+        nextSend = Integer.MIN_VALUE;
+    }
+
+    /** Flush on join so a reconnect / new world gets a picture on the first tick, not after the interval. */
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer) {
+            nextSend = Integer.MIN_VALUE;
+        }
+    }
+
+    /** A crewed hull, resolved once per sync and then served to every player from this. */
+    private record Candidate(VehicleMarker.Kind kind, CrewFacts.Faction faction, UUID pmcOwner,
+                             @Nullable String pmcOwnerTeam, @Nullable String invasionTeam,
+                             List<String> enemyTeams,
+                             boolean factionFriendly, MarkerOrder order, int driverId, int vehicleId,
+                             double x, double y, double z, float yaw,
+                             ResourceKey<Level> dimension, float healthFrac, float energyFrac,
+                             int tintRgb, boolean hasGuard, int platoonColorRgb, boolean isCommanderUnit) {}
+
+    /** Platoon colour for this driver, or 0 (not in a platoon). */
+    private static int platoonColorOf(ServerLevel level, int driverId) {
+        Platoon p = PlatoonRegistry.platoonOf(level, driverId);
+        return p != null ? p.colorRgb() : 0;
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
+        if (players.isEmpty()) return;
+
+        int now = event.getServer().getTickCount();
+        if (now < nextSend) return;
+        nextSend = now + SewvConfig.MAP_SYNC_INTERVAL_TICKS.get();
+
+        boolean infantry = SewvConfig.MAP_INFANTRY_ENABLED.get();
+        List<Candidate> candidates = new ArrayList<>();
+        for (ServerLevel level : event.getServer().getAllLevels()) {
+            collect(level, candidates);
+            if (infantry) collectInfantry(level, candidates);
+        }
+
+        double spotRadius = SewvConfig.MAP_SPOT_RADIUS.get();
+        double spotRadiusSq = spotRadius * spotRadius;
+        // Identity radius is deliberately smaller than spot: otherwise anything the player
+        // themselves brings onto the map is always IDd and fog never appears in normal play.
+        double identityRadius = SewvConfig.MAP_IDENTITY_RADIUS.get();
+        double identityRadiusSq = identityRadius * identityRadius;
+        List<CommandCoordinator.BattleFieldDebug> allFields = CommandCoordinator.battleFieldsDebug();
+        List<HelipadMarker> helipads = new ArrayList<>();
+        for (ServerLevel level : event.getServer().getAllLevels()) {
+            for (BlockPos pad : HelipadRegistry.get(level).pads()) {
+                helipads.add(new HelipadMarker(pad, level.dimension()));
+            }
+        }
+        for (ServerPlayer player : players) {
+            List<VehicleMarker> markers = markersFor(player, candidates, spotRadiusSq, identityRadiusSq);
+            NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                    new PacketOwnedVehicles(markers, battleFieldsFor(markers, allFields),
+                            fobMarkerFor(player), helipads));
+        }
+    }
+
+    /**
+     * Package populated battlefields whose group appears in this player's marker list. Flank
+     * marker world positions are decided here from the already-computed axis — the client only
+     * draws. Does not call into influence rebuild.
+     */
+    private static List<BattleFieldMarker> battleFieldsFor(
+            List<VehicleMarker> markers, List<CommandCoordinator.BattleFieldDebug> allFields) {
+        if (allFields.isEmpty() || markers.isEmpty()) return List.of();
+        Set<Integer> visibleGroups = new HashSet<>();
+        double ySum = 0.0;
+        int yN = 0;
+        for (VehicleMarker m : markers) {
+            if (m.groupId() == VehicleMarker.NO_GROUP) continue;
+            visibleGroups.add(m.groupId());
+            ySum += m.y();
+            yN++;
+        }
+        if (visibleGroups.isEmpty()) return List.of();
+        double y = yN > 0 ? ySum / yN : 64.0;
+
+        List<BattleFieldMarker> out = new ArrayList<>();
+        for (CommandCoordinator.BattleFieldDebug d : allFields) {
+            if (!visibleGroups.contains(d.groupId())) continue;
+            // Per-group Y from markers in that group when available.
+            double gy = y;
+            double gYSum = 0.0;
+            int gYN = 0;
+            for (VehicleMarker m : markers) {
+                if (m.groupId() != d.groupId()) continue;
+                gYSum += m.y();
+                gYN++;
+            }
+            if (gYN > 0) gy = gYSum / gYN;
+
+            // Left = rotate axis 90° CCW in XZ (same convention as InfluenceMap.scoreFlanks).
+            double flX = 0.0, flZ = 0.0, frX = 0.0, frZ = 0.0;
+            if (d.openFlankLeft()) {
+                flX = BattleFieldMarker.flankMarkX(d.enemyX(), d.axisX(), d.axisZ(), +1);
+                flZ = BattleFieldMarker.flankMarkZ(d.enemyZ(), d.axisX(), d.axisZ(), +1);
+            }
+            if (d.openFlankRight()) {
+                frX = BattleFieldMarker.flankMarkX(d.enemyX(), d.axisX(), d.axisZ(), -1);
+                frZ = BattleFieldMarker.flankMarkZ(d.enemyZ(), d.axisX(), d.axisZ(), -1);
+            }
+            out.add(new BattleFieldMarker(
+                    d.groupId(), d.dimension(), gy,
+                    d.friendlyX(), d.friendlyZ(),
+                    d.enemyX(), d.enemyZ(),
+                    d.axisX(), d.axisZ(),
+                    d.openFlankLeft(), flX, flZ,
+                    d.openFlankRight(), frX, frZ,
+                    d.playLabel() != null ? d.playLabel() : ""));
+        }
+        return out;
+    }
+
+    // ponytail: one whole-level entity scan per interval (once a second by default). Fine at the
+    // entity counts this mod produces; if it ever shows on a profile, index crewed hulls as they
+    // are crewed instead of rediscovering them.
+    private static void collect(ServerLevel level, List<Candidate> candidates) {
+        for (VehicleEntity hull : level.getEntities(EntityTypeTest.forClass(VehicleEntity.class), h -> true)) {
+            // A mortar IS a VehicleEntity but has no seats, so it never has a crew to read a faction
+            // off — that is the whole reason it needs its own branch rather than falling through the
+            // passenger test as "empty". Same shape for recon drones (seatless, owned by NBT tag).
+            if (hull instanceof MortarEntity || hull instanceof Type63Entity) {
+                collectIndirectEmplacement(level, hull, candidates);
+                continue;
+            }
+            if (hull instanceof DroneEntity drone) {
+                collectDrone(level, drone, candidates);
+                continue;
+            }
+
+            CrewFacts.Faction faction = CrewFacts.factionOf(hull);
+            // Unanimous SEM crew (RU / US / PMC): mark now. pmcOwner is non-null only for PMC;
+            // RU/US go through markersFor spotting like infantry. Null faction falls through to
+            // player-occupied / empty-FOB paths below.
+            if (faction != null) {
+                Entity driver = hull.getFirstPassenger();
+                if (!(driver instanceof AbstractUnit crew)) continue;
+
+                candidates.add(new Candidate(
+                        kindOf(hull), faction, CrewFacts.pmcOwner(hull),
+                        ownerTeamOf(crew), invasionTeamOf(crew), InvasionHostility.enemiesOf(crew),
+                        VehicleTargeting.isFactionFriendly(crew), orderPreviewOf(crew),
+                        driver.getId(), hull.getId(),
+                        hull.getX(), hull.getY(), hull.getZ(), hull.getYRot(), level.dimension(),
+                        healthFrac(hull), energyFrac(hull),
+                        FactionColors.wireTint(level.getServer(), CrewFacts.pmcOwner(hull)),
+                        GuardSupport.has(hull),
+                        platoonColorOf(level, driver.getId()), crew instanceof PmcCommanderEntity));
+                continue;
+            }
+
+            // Player seated (alone or with their PMCs): CrewFacts.factionOf is null by design,
+            // but the map must still show OWN hulls so orders work from inside a vehicle.
+            if (collectPlayerOccupied(level, hull, candidates)) {
+                continue;
+            }
+
+            if (!hull.getPassengers().isEmpty()) continue;
+
+            UUID emptyOwner = FobSupport.playerOwnerOfEmptyHull(hull);
+            if (emptyOwner == null) continue;
+
+            candidates.add(new Candidate(
+                    kindOf(hull), CrewFacts.Faction.PMC, emptyOwner,
+                    null, null, List.of(),
+                    true, MarkerOrder.NONE,
+                    MapMarkers.NO_DRIVER, hull.getId(),
+                    hull.getX(), hull.getY(), hull.getZ(), hull.getYRot(), level.dimension(),
+                    healthFrac(hull), energyFrac(hull),
+                    FactionColors.wireTint(level.getServer(), emptyOwner),
+                    GuardSupport.has(hull),
+                    0, false));
+        }
+    }
+
+    /**
+     * Hull with a player aboard — {@link CrewFacts#factionOf} returns null (player breaks the
+     * unanimous-SEM-crew rule). Still mark it when every SEM passenger is a PMC owned by that
+     * seated player (or the player is alone). Order target is the first owned PMC when present
+     * so map orders still name a unit; player-only hulls use {@link MapMarkers#NO_DRIVER}.
+     *
+     * @return true when a candidate was added (or the hull was deliberately skipped as foreign)
+     */
+    private static boolean collectPlayerOccupied(ServerLevel level, VehicleEntity hull,
+                                                 List<Candidate> candidates) {
+        Player seated = null;
+        UUID pmcOwner = null;
+        AbstractUnit orderUnit = null;
+        boolean sawSem = false;
+        for (Entity passenger : hull.getPassengers()) {
+            if (passenger instanceof Player player) {
+                if (seated != null) return true; // multi-player crew — leave unmarked
+                seated = player;
+                continue;
+            }
+            if (passenger instanceof RUunitEntity || passenger instanceof USunitEntity) {
+                return true; // mixed with enemy faction — leave unmarked
+            }
+            if (!(passenger instanceof PmcUnitEntity pmc)) {
+                return true; // unknown passenger type
+            }
+            sawSem = true;
+            UUID owner = pmc.getOwnerUUID();
+            if (owner == null) return true;
+            if (pmcOwner == null) pmcOwner = owner;
+            else if (!pmcOwner.equals(owner)) return true;
+            if (orderUnit == null) orderUnit = pmc;
+            // Prefer a PMC that is actually in seat 0 when the player is not.
+            if (hull.getFirstPassenger() == pmc) orderUnit = pmc;
+        }
+        if (seated == null) return false; // no player — caller continues empty/FOB path
+
+        if (sawSem) {
+            if (!seated.getUUID().equals(pmcOwner)) return true; // riding someone else's crew
+        } else {
+            pmcOwner = seated.getUUID();
+        }
+
+        int driverId = orderUnit != null ? orderUnit.getId() : MapMarkers.NO_DRIVER;
+        MarkerOrder order = orderUnit != null ? orderPreviewOf(orderUnit) : MarkerOrder.NONE;
+        String ownerTeam = orderUnit != null ? ownerTeamOf(orderUnit) : null;
+        String invasionTeam = orderUnit != null ? invasionTeamOf(orderUnit) : null;
+        List<String> enemies = orderUnit != null ? InvasionHostility.enemiesOf(orderUnit) : List.of();
+        boolean friendly = orderUnit == null || VehicleTargeting.isFactionFriendly(orderUnit);
+        boolean commander = orderUnit instanceof PmcCommanderEntity;
+        int platoonColor = orderUnit != null ? platoonColorOf(level, orderUnit.getId()) : 0;
+
+        candidates.add(new Candidate(
+                kindOf(hull), CrewFacts.Faction.PMC, pmcOwner,
+                ownerTeam, invasionTeam, enemies,
+                friendly, order,
+                driverId, hull.getId(),
+                hull.getX(), hull.getY(), hull.getZ(), hull.getYRot(), level.dimension(),
+                healthFrac(hull), energyFrac(hull),
+                FactionColors.wireTint(level.getServer(), pmcOwner),
+                GuardSupport.has(hull),
+                platoonColor, commander));
+        return true;
+    }
+
+    /**
+     * Seatless indirect emplacements (tube mortar, Type-63 MLRS) are marked from their
+     * <b>crew</b>, which stands beside them: the hull has no owner field and no seats, so the
+     * claim on the unit ({@code IMortarCrew}) is the only record that this tube is anybody's.
+     * Position still comes from the hull — that is the thing on the map — but faction, owner
+     * and the entity an order would name all come from the crewman.
+     *
+     * <p>An unclaimed tube is nobody's and is not shown, which also keeps a dropped tube out of
+     * the enemy sighting picture.
+     */
+    // ponytail: MortarSupport.crewOf / Type63Support.crewOf scan nearby units per hull. Rare
+    // enough that once a second costs nothing; if that stops being true, keep the claim on the
+    // hull instead.
+    private static void collectIndirectEmplacement(ServerLevel level, VehicleEntity weapon,
+                                                   List<Candidate> candidates) {
+        AbstractUnit crew = weapon instanceof MortarEntity mortar
+                ? MortarSupport.crewOf(mortar, null)
+                : weapon instanceof Type63Entity type63 ? Type63Support.crewOf(type63, null) : null;
+        if (crew == null) return;
+
+        CrewFacts.Faction faction = CrewFacts.factionOfCrew(crew);
+        if (faction == null) return;
+
+        UUID pmcOwner = crew instanceof PmcUnitEntity pmc ? pmc.getOwnerUUID() : null;
+        candidates.add(new Candidate(
+                VehicleMarker.Kind.EMPLACEMENT, faction,
+                pmcOwner, ownerTeamOf(crew), invasionTeamOf(crew), InvasionHostility.enemiesOf(crew),
+                VehicleTargeting.isFactionFriendly(crew), orderPreviewOf(crew),
+                crew.getId(), weapon.getId(),
+                weapon.getX(), weapon.getY(), weapon.getZ(), weapon.getYRot(), level.dimension(),
+                healthFrac(weapon), energyFrac(weapon),
+                FactionColors.wireTint(level.getServer(), pmcOwner),
+                false, platoonColorOf(level, crew.getId()), crew instanceof PmcCommanderEntity));
+    }
+
+    /**
+     * Recon drones are seatless, like mortars: faction/owner come from the engineer tagged on the
+     * hull ({@link DroneSupport#crewOf}), position from the drone. Drawn as
+     * {@link VehicleMarker.Kind#DRONE} — SBW's datapack {@code Type} is {@code Drone}, not
+     * {@code HELICOPTER}.
+     */
+    private static void collectDrone(ServerLevel level, DroneEntity drone, List<Candidate> candidates) {
+        AbstractUnit crew = DroneSupport.crewOf(drone);
+        if (crew == null) return;
+
+        CrewFacts.Faction faction = CrewFacts.factionOfCrew(crew);
+        if (faction == null) return;
+
+        UUID pmcOwner = crew instanceof PmcUnitEntity pmc ? pmc.getOwnerUUID() : null;
+        candidates.add(new Candidate(
+                VehicleMarker.Kind.DRONE, faction,
+                pmcOwner, ownerTeamOf(crew), invasionTeamOf(crew), InvasionHostility.enemiesOf(crew),
+                VehicleTargeting.isFactionFriendly(crew), MarkerOrder.NONE,
+                crew.getId(), drone.getId(),
+                drone.getX(), drone.getY(), drone.getZ(), drone.getYRot(), level.dimension(),
+                healthFrac(drone), energyFrac(drone),
+                FactionColors.wireTint(level.getServer(), pmcOwner),
+                false, platoonColorOf(level, crew.getId()), crew instanceof PmcCommanderEntity));
+    }
+
+    /**
+     * On-foot units as their own markers, behind {@code mapInfantryEnabled}. Unlike the hull scan
+     * this walks EVERY unit rather than the handful of crewed hulls, so it is the one part of this
+     * sync whose cost scales with the size of a fight — which is why it has its own switch. A unit
+     * riding a hull is skipped (the hull's marker already stands for it), and so is a mortar crew
+     * (already shown as its EMPLACEMENT). The medic/engineer variant is read fresh every scan, not
+     * cached like a hull's class, because a PMC's support role is what it is holding and can change.
+     */
+    // ponytail: O(all SEM units) per level per interval. Bounded by MAX_MARKERS on the spotted output
+    // and the once-a-second cadence; the toggle is the escape hatch if a huge fight shows on a profile.
+    private static void collectInfantry(ServerLevel level, List<Candidate> candidates) {
+        for (AbstractUnit unit : level.getEntities(EntityTypeTest.forClass(AbstractUnit.class),
+                u -> u.isAlive() && !u.isPassenger() && !MortarSupport.hasMortarClaim(u))) {
+            CrewFacts.Faction faction = CrewFacts.factionOfCrew(unit);
+            if (faction == null) continue;
+
+            UUID pmcOwner = unit instanceof PmcUnitEntity pmc ? pmc.getOwnerUUID() : null;
+            candidates.add(new Candidate(
+                    infantryKind(unit), faction,
+                    pmcOwner, ownerTeamOf(unit), invasionTeamOf(unit), InvasionHostility.enemiesOf(unit),
+                    VehicleTargeting.isFactionFriendly(unit), orderPreviewOf(unit),
+                    unit.getId(), unit.getId(),
+                    unit.getX(), unit.getY(), unit.getZ(), unit.getYRot(), level.dimension(),
+                    Mth.clamp(unit.getHealth() / unit.getMaxHealth(), 0.0F, 1.0F),
+                    VehicleMarker.NO_ENERGY,
+                    FactionColors.wireTint(level.getServer(), pmcOwner),
+                    GuardSupport.has(unit), platoonColorOf(level, unit.getId()), unit instanceof PmcCommanderEntity));
+        }
+    }
+
+    /**
+     * Which infantry symbol a unit draws as. Covers dedicated RU/US entity types and a PMC the
+     * player has field-assigned via {@link SupportRole#of}. Commander wins (entity identity), then
+     * medic, then combat-engineer before mechanical — {@link VehicleTargeting#isEngineer} includes
+     * both engineer classes so the combat check has to go first.
+     */
+    private static VehicleMarker.Kind infantryKind(AbstractUnit unit) {
+        if (unit instanceof PmcCommanderEntity) {
+            return VehicleMarker.Kind.INFANTRY_COMMANDER;
+        }
+        SupportRole role = SupportRole.of(unit);
+        if (VehicleTargeting.isMedic(unit) || role == SupportRole.MEDIC) {
+            return VehicleMarker.Kind.INFANTRY_MEDIC;
+        }
+        if (unit instanceof RuCombatEngineerEntity || unit instanceof UsCombatEngineerEntity
+                || role == SupportRole.COMBAT_ENGINEER) {
+            return VehicleMarker.Kind.INFANTRY_COMBAT_ENGINEER;
+        }
+        if (VehicleTargeting.isEngineer(unit) || role == SupportRole.ENGINEER) {
+            return VehicleMarker.Kind.INFANTRY_ENGINEER;
+        }
+        return VehicleMarker.Kind.INFANTRY;
+    }
+
+    /**
+     * What one player may see. Their own hulls unconditionally — they command those, and hiding one
+     * that drove out of sight is the whole reason this sync exists. Everything else has to be
+     * <b>spotted</b>: within the configured radius of the player or of one of their own crews,
+     * which is "your side noticed it" in the cheapest form that still reads as a sighting picture.
+     *
+     * <p>Another player's PMC hulls are only sent when OpenPAC says they are the same party or
+     * allied (Stage 2) <b>and</b> spotted — never as {@link VehicleMarker.Allegiance#OWN}.
+     *
+     * <p>Fog of war splits <b>presence</b> ({@code spotRadius}) from <b>identity</b>
+     * ({@code identityRadius} + combat ID). OpenPAC party mates stay fully IDd; everything else
+     * is {@link VehicleMarker.Kind#UNKNOWN} until the player is close enough or a friendly locks it.
+     */
+    private static List<VehicleMarker> markersFor(ServerPlayer player, List<Candidate> candidates,
+                                                  double spotRadiusSq, double identityRadiusSq) {
+        List<VehicleMarker> markers = new ArrayList<>();
+        List<Candidate> own = new ArrayList<>();
+        int nowTick = player.server.getTickCount();
+        boolean fog = MapIdentity.enabled();
+
+        for (Candidate c : candidates) {
+            if (isOwn(player, c)) {
+                own.add(c);
+                markers.add(marker(c, VehicleMarker.Allegiance.OWN, true));
+            }
+        }
+
+        if (spotRadiusSq <= 0.0) return markers;
+
+        for (Candidate c : candidates) {
+            if (markers.size() >= MAX_MARKERS) break;
+            if (isOwn(player, c)) continue;
+            if (c.pmcOwner() != null) {
+                if (!OpenPacCompat.allied(player.server, player.getUUID(), c.pmcOwner())) continue;
+                if (!spotted(player, own, c, spotRadiusSq)) continue;
+                // Party mates are never fogged — shared force picture.
+                markers.add(marker(c, VehicleMarker.Allegiance.FRIENDLY, true));
+                continue;
+            }
+            if (c.pmcOwnerTeam() != null && PmcOwnerSupport.playerOnTeam(player, c.pmcOwnerTeam())) {
+                // Team-owned but already handled in isOwn — should not reach here.
+                continue;
+            }
+            if (!spotted(player, own, c, spotRadiusSq)) continue;
+            boolean identified = !fog
+                    || (identityRadiusSq > 0.0 && playerSighted(player, c, identityRadiusSq))
+                    || MapIdentity.identified(player.getUUID(), c.vehicleId(), nowTick);
+            markers.add(marker(c, allegianceOf(player, c), identified));
+        }
+        return markers;
+    }
+
+    private static boolean isOwn(ServerPlayer player, Candidate c) {
+        if (player.getUUID().equals(c.pmcOwner())) return true;
+        return c.pmcOwnerTeam() != null && PmcOwnerSupport.playerOnTeam(player, c.pmcOwnerTeam());
+    }
+
+    @Nullable
+    private static String ownerTeamOf(AbstractUnit crew) {
+        return PmcOwnerSupport.ownerTeamOf(crew);
+    }
+
+    @Nullable
+    private static String invasionTeamOf(AbstractUnit crew) {
+        String team = crew.getPersistentData().getString(InvasionTags.TEAM);
+        return team == null || team.isEmpty() ? null : team;
+    }
+
+    private static boolean spotted(ServerPlayer player, List<Candidate> own, Candidate c, double radiusSq) {
+        if (playerSighted(player, c, radiusSq)) return true;
+        for (Candidate eye : own) {
+            if (!eye.dimension().equals(c.dimension())) continue;
+            double dx = eye.x() - c.x(), dy = eye.y() - c.y(), dz = eye.z() - c.z();
+            if (dx * dx + dy * dy + dz * dz <= radiusSq) return true;
+        }
+        return false;
+    }
+
+    /** Viewing player within {@code radiusSq} of the contact (not merely an OWN crew). */
+    private static boolean playerSighted(ServerPlayer player, Candidate c, double radiusSq) {
+        return player.level().dimension().equals(c.dimension())
+                && player.distanceToSqr(c.x(), c.y(), c.z()) <= radiusSq;
+    }
+
+    /**
+     * Invasion crews with a stamped enemy list: player's scoreboard team on that list → HOSTILE;
+     * same invasion team → FRIENDLY. Otherwise SEM-friendly / ownerless-PMC defaults.
+     */
+    private static VehicleMarker.Allegiance allegianceOf(ServerPlayer player, Candidate c) {
+        if (c.invasionTeam() != null && !c.enemyTeams().isEmpty()) {
+            if (PmcOwnerSupport.playerOnTeam(player, c.invasionTeam())) {
+                return VehicleMarker.Allegiance.FRIENDLY;
+            }
+            for (String enemy : c.enemyTeams()) {
+                if (PmcOwnerSupport.playerOnTeam(player, enemy)) {
+                    return VehicleMarker.Allegiance.HOSTILE;
+                }
+            }
+        }
+        if (c.faction() == CrewFacts.Faction.PMC) return VehicleMarker.Allegiance.FRIENDLY;
+        return c.factionFriendly() ? VehicleMarker.Allegiance.FRIENDLY : VehicleMarker.Allegiance.HOSTILE;
+    }
+
+    private static VehicleMarker marker(Candidate c, VehicleMarker.Allegiance allegiance, boolean identified) {
+        // The order preview is only for units you command — a FRIENDLY garrison or a HOSTILE crew
+        // has no player order to draw, and sending one would leak intent it should not.
+        MarkerOrder order = allegiance == VehicleMarker.Allegiance.OWN ? c.order() : MarkerOrder.NONE;
+        VehicleMarker.CommandRole role = VehicleMarker.CommandRole.NONE;
+        int groupId = VehicleMarker.NO_GROUP;
+        // Read-only: tagForDriver / assignmentRoleForDriver never mutate command state.
+        CommandCoordinator.CommandTag tag = CommandCoordinator.tagForDriver(c.driverId());
+        if (tag != null) {
+            groupId = tag.groupId();
+            role = tag.commander() ? VehicleMarker.CommandRole.COMMANDER : VehicleMarker.CommandRole.MEMBER;
+        }
+        VehicleMarker.PlayRole playRole = playRoleOf(CommandCoordinator.assignmentRoleForDriver(c.driverId()));
+        // Platoon/commander cues are owner-only — never leaked on a FRIENDLY/HOSTILE marker.
+        boolean own = allegiance == VehicleMarker.Allegiance.OWN;
+        VehicleMarker.Kind kind = identified ? c.kind() : VehicleMarker.Kind.UNKNOWN;
+        return new VehicleMarker(c.driverId(), c.vehicleId(), c.x(), c.y(), c.z(), c.yaw(),
+                kind, allegiance, c.faction(), order, c.dimension(),
+                c.healthFrac(), c.energyFrac(), role, groupId, playRole, c.tintRgb(), c.hasGuard(),
+                own ? c.platoonColorRgb() : 0, own && c.isCommanderUnit());
+    }
+
+    private static VehicleMarker.PlayRole playRoleOf(@javax.annotation.Nullable Assignment.Role role) {
+        if (role == null) return VehicleMarker.PlayRole.NONE;
+        return switch (role) {
+            case BASE_OF_FIRE -> VehicleMarker.PlayRole.BASE_OF_FIRE;
+            case MANEUVER -> VehicleMarker.PlayRole.MANEUVER;
+            case OVERWATCH -> VehicleMarker.PlayRole.OVERWATCH;
+            case RESERVE -> VehicleMarker.PlayRole.RESERVE;
+            case HOLD, IDLE_HOLD -> VehicleMarker.PlayRole.HOLD;
+            case WITHDRAW -> VehicleMarker.PlayRole.WITHDRAW;
+            case IDLE_TRAVEL -> VehicleMarker.PlayRole.MANEUVER;
+        };
+    }
+
+    private static float healthFrac(VehicleEntity hull) {
+        float max = hull.getMaxHealth();
+        return max > 0.0F ? Mth.clamp(hull.getHealth() / max, 0.0F, 1.0F) : 1.0F;
+    }
+
+    /**
+     * Live energy fraction, or {@link VehicleMarker#NO_ENERGY} when the hull has no storage —
+     * {@code getEnergy}/{@code getMaxEnergy} warn on every call for those hulls.
+     */
+    private static float energyFrac(VehicleEntity hull) {
+        try {
+            if (!hull.hasEnergyStorage()) return VehicleMarker.NO_ENERGY;
+            int max = hull.getMaxEnergy();
+            if (max <= 0) return VehicleMarker.NO_ENERGY;
+            return Mth.clamp(hull.getEnergy() / (float) max, 0.0F, 1.0F);
+        } catch (Throwable ignored) {
+            return VehicleMarker.NO_ENERGY;
+        }
+    }
+
+    /**
+     * A commandable unit's current standing order, for the map's preview overlay. Only a PMC has
+     * orders; everything else (and a PMC with none) answers {@link MarkerOrder#NONE}. An area task
+     * (patrol / search / cruise) takes precedence, because it outranks the SEM order queue — the same
+     * order {@code resolveDestination} reads them in.
+     */
+    private static MarkerOrder orderPreviewOf(AbstractUnit unit) {
+        if (!(unit instanceof PmcUnitEntity pmc)) return MarkerOrder.NONE;
+        // Sweep & Advance has its own rect overlay — do not paint the PATROL/SEARCH ring on top.
+        if (((ISweepInfantry) pmc).sewv$hasInfantrySweep()) return MarkerOrder.NONE;
+        IVehiclePatrol patrol = (IVehiclePatrol) pmc;
+        if (patrol.sewv$isPatrolling()) {
+            if (patrol.sewv$getPatrolMode() == IVehiclePatrol.MODE_SWEEP) return MarkerOrder.NONE;
+            if (patrol.sewv$getPatrolMode() == IVehiclePatrol.MODE_CRUISE) {
+                return MarkerOrder.cruise(patrol.sewv$getCruiseRoute());
+            }
+            BlockPos origin = patrol.sewv$getPatrolOrigin();
+            if (origin != null) {
+                MarkerOrder.Type mode = patrol.sewv$getPatrolMode() == IVehiclePatrol.MODE_SEARCH
+                        ? MarkerOrder.Type.SEARCH : MarkerOrder.Type.PATROL;
+                return MarkerOrder.area(mode, origin, patrol.sewv$getPatrolRadius());
+            }
+        }
+        if (pmc.getOrder() == OrderType.MOVE_TO_POSITION) {
+            Vec3 t = pmc.getMoveToTarget();
+            if (t != null && !t.equals(Vec3.ZERO)) return MarkerOrder.move(BlockPos.containing(t));
+        }
+        return MarkerOrder.NONE;
+    }
+
+    /**
+     * Which NATO symbol this hull draws as, cached in its persistent NBT: the answer comes from
+     * {@code computed()} — a full vehicle-data compute — and a hull cannot change class, so paying
+     * for it once per hull instead of once per hull per second is free accuracy.
+     *
+     * <p>{@code computed()} is the static datapack data, never {@code getEngineInfo()}: that field
+     * is populated lazily on the hull's first {@code travel()}, so it is null for a hull that has
+     * not moved yet, which on a parked emplacement is forever.
+     */
+    private static VehicleMarker.Kind kindOf(VehicleEntity hull) {
+        CompoundTag data = hull.getPersistentData();
+        byte cached = data.getByte(KIND_KEY);
+        if (cached > 0) return VehicleMarker.Kind.byId(cached - 1);
+
+        VehicleMarker.Kind kind = computeKind(hull);
+        data.putByte(KIND_KEY, (byte) (kind.ordinal() + 1));
+        return kind;
+    }
+
+    private static VehicleMarker.Kind computeKind(VehicleEntity hull) {
+        // Datapack Type "Drone" is not EngineType.HELICOPTER — pin it before the engine switch.
+        if (hull instanceof DroneEntity) return VehicleMarker.Kind.DRONE;
+        EngineType engine;
+        try {
+            engine = hull.computed().getEngineType();
+        } catch (Throwable ignored) {
+            engine = null;
+        }
+        if (engine == EngineType.SHIP) return VehicleMarker.Kind.SURFACE_COMBATANT;
+        if (engine == EngineType.AIRCRAFT) return VehicleMarker.Kind.FIXED_WING;
+        if (engine == EngineType.HELICOPTER) return VehicleMarker.Kind.ROTARY_WING;
+        if (HullFacts.isArtilleryHull(hull)) return VehicleMarker.Kind.ARTILLERY;
+        if (engine == EngineType.FIXED) return VehicleMarker.Kind.EMPLACEMENT;
+        if (HullFacts.isMissileSystemHull(hull)) return VehicleMarker.Kind.MISSILE_SYSTEM;
+        if (HullFacts.isAntiAirHull(hull)) return VehicleMarker.Kind.ANTI_AIR;
+        // Everything that drives is armour, and an IFV is mechanized infantry — the one distinction
+        // the vehicle data cannot make, so it comes off the id clue list HullFacts already owns.
+        return HullFacts.isIfvHull(hull) ? VehicleMarker.Kind.MECHANIZED : VehicleMarker.Kind.ARMOR;
+    }
+
+    @Nullable
+    private static FobMarker fobMarkerFor(ServerPlayer player) {
+        for (ServerLevel level : player.server.getAllLevels()) {
+            FobInstance fob = FobManager.get(level).getFobForOwner(player.getUUID());
+            if (fob != null) {
+                // Read the stored validity — NOT FobManager.validate, which runs a full clearance
+                // block sweep of the master AABB and would do it once per player every second.
+                int assigned = countAssignedVehicles(fob, level);
+                boolean routeReady = fob.valid && fob.parkingPos != null && assigned > 0;
+                return new FobMarker(fob.commandPos, level.dimension(), fob.valid, assigned, routeReady);
+            }
+        }
+        return null;
+    }
+
+    private static int countAssignedVehicles(FobInstance fob, ServerLevel level) {
+        int count = 0;
+        for (UUID id : fob.assignedVehicles) {
+            Entity e = level.getEntity(id);
+            if (e == null) {
+                for (ServerLevel dim : level.getServer().getAllLevels()) {
+                    e = dim.getEntity(id);
+                    if (e != null) break;
+                }
+            }
+            if (e instanceof VehicleEntity hull && hull.isAlive() && !hull.isWreck()
+                    && FobSupport.vehicleClaimableBy(hull, fob.owner)) {
+                count++;
+            }
+        }
+        return count;
+    }
+}

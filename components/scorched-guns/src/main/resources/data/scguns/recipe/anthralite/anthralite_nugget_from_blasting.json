@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.1,
+  "ingredient": [
+    "scguns:anthralite_pickaxe",
+    "scguns:anthralite_shovel",
+    "scguns:anthralite_axe",
+    "scguns:anthralite_hoe",
+    "scguns:anthralite_sword",
+    "scguns:anthralite_helmet",
+    "scguns:anthralite_chestplate",
+    "scguns:anthralite_leggings",
+    "scguns:anthralite_boots"
+  ],
+  "result": {
+    "id": "scguns:anthralite_nugget"
+  }
+}

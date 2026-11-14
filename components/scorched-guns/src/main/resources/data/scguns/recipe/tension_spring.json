@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "scguns:anthralite_ingot",
+    "S": "scguns:anthralite_nugget"
+  },
+  "pattern": [
+    "SX ",
+    "XS ",
+    " SX"
+  ],
+  "result": {
+    "id": "scguns:tension_spring"
+  }
+}

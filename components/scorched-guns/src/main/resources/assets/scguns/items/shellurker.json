@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/shellurker",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

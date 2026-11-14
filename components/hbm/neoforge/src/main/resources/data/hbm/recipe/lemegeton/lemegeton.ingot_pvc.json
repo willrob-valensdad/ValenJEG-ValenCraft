@@ -1,0 +1,12 @@
+{
+  "type": "hbm:lemegeton",
+  "input_items": [
+    {
+      "ingredient": "#c:ingots/bakelite"
+    }
+  ],
+  "order": 6656,
+  "output_items": [
+    "hbm:ingot_pvc"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:honey_bottle",
+    "minecraft:dandelion",
+    "#c:dusts/sulfur",
+    "minecraft:paper"
+  ],
+  "result": {
+    "count": 2,
+    "id": "scguns:honey_sulfur_poultice"
+  }
+}

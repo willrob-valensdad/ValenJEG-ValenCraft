@@ -1,0 +1,26 @@
+{
+  "type": "scguns:macerating",
+  "processingTime": 100,
+  "ingredients": [
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "scguns:sulfur_chunk",
+        "#c:dusts/sulfur"
+      ]
+    },
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "scguns:raw_phosphor",
+        "#c:dusts/phosphorus"
+      ]
+    },
+    "minecraft:charcoal",
+    "#c:dusts/saltpeter"
+  ],
+  "result": {
+    "id": "minecraft:gunpowder",
+    "count": 9
+  }
+}

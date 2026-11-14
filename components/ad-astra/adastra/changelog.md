@@ -1,0 +1,3 @@
+- Fix ghost Jet Suit on Fabric (MrBysco)
+- Fix space suits not being enchantable (MrBysco)
+- Fix the Oxygen Loader/Distributor fluid amounts on Fabric (MrBysco)

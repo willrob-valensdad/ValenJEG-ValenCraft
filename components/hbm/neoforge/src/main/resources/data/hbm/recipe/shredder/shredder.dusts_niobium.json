@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/niobium"
+    }
+  ],
+  "order": 90880,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

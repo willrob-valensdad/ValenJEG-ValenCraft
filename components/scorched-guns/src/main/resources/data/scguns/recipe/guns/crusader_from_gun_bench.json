@@ -1,0 +1,15 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:crusader",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:iron_blueprint",
+    "gun_internal_1": "minecraft:crossbow",
+    "gun_internal_2": "scguns:gun_parts",
+    "gun_top_internal_2": "scguns:iron_gun_frame",
+    "gun_grip": "scguns:gun_grip",
+    "gun_barrel_1": "#minecraft:planks"
+  }
+}

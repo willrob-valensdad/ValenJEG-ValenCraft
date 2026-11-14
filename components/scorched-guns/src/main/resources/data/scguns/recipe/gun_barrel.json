@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "scguns:anthralite_ingot"
+  },
+  "pattern": [
+    "  Q",
+    " Q ",
+    "Q  "
+  ],
+  "result": {
+    "id": "scguns:gun_barrel"
+  }
+}

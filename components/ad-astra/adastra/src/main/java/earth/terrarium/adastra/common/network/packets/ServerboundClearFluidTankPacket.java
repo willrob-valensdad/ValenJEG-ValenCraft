@@ -1,0 +1,57 @@
+package earth.terrarium.adastra.common.network.packets;
+
+import com.teamresourceful.bytecodecs.base.ByteCodec;
+import com.teamresourceful.bytecodecs.base.object.ObjectByteCodec;
+import com.teamresourceful.resourcefullib.common.bytecodecs.ExtraByteCodecs;
+import com.teamresourceful.resourcefullib.common.network.Packet;
+import com.teamresourceful.resourcefullib.common.network.base.PacketType;
+import com.teamresourceful.resourcefullib.common.network.base.ServerboundPacketType;
+import com.teamresourceful.resourcefullib.common.network.defaults.CodecPacketType;
+import earth.terrarium.adastra.AdAstra;
+import earth.terrarium.adastra.common.utils.ModUtils;
+import earth.terrarium.common_storage_lib.fluid.FluidApi;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+
+import java.util.function.Consumer;
+
+public record ServerboundClearFluidTankPacket(
+    BlockPos machine, int tank
+) implements Packet<ServerboundClearFluidTankPacket> {
+
+    public static final ServerboundPacketType<ServerboundClearFluidTankPacket> TYPE = new Type();
+
+    @Override
+    public PacketType<ServerboundClearFluidTankPacket> type() {
+        return TYPE;
+    }
+
+    private static class Type extends CodecPacketType<ServerboundClearFluidTankPacket> implements ServerboundPacketType<ServerboundClearFluidTankPacket> {
+
+        public Type() {
+            super(
+                Identifier.fromNamespaceAndPath(AdAstra.MOD_ID, "clear_fluid_tank"),
+                ObjectByteCodec.create(
+                    ExtraByteCodecs.BLOCK_POS.fieldOf(ServerboundClearFluidTankPacket::machine),
+                    ByteCodec.INT.fieldOf(ServerboundClearFluidTankPacket::tank),
+                    ServerboundClearFluidTankPacket::new
+                )
+            );
+        }
+
+        @Override
+        public Consumer<Player> handle(ServerboundClearFluidTankPacket packet) {
+            return player -> ModUtils.getMachineFromMenuPacket(packet.machine(), player, player.level()).ifPresent(
+                machine -> {
+                    if (!FluidApi.BLOCK.isPresent(machine, null)) return;
+                    var container = FluidApi.BLOCK.find(machine, null);
+                    if (container == null) return;
+                    int tank = Mth.clamp(packet.tank(), 0, container.size() - 1);
+                    container.extract(container.getResource(tank), container.getAmount(tank), false);
+                }
+            );
+        }
+    }
+}

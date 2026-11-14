@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "X": "minecraft:glowstone",
+    "#": "#scguns:treated_brass_plates"
+  },
+  "pattern": [
+    " # ",
+    "#X#",
+    " # "
+  ],
+  "result": {
+    "id": "scguns:treated_brass_lamp",
+    "count": 4
+  }
+}

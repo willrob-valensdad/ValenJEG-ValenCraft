@@ -1,0 +1,11 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    "#c:dusts/coal",
+    "#c:dusts/coal",
+    "#c:dusts/fluorite"
+  ],
+  "result": {
+    "id": "hbm:radx"
+  }
+}

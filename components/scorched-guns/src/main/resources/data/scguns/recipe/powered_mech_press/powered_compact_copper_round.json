@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:small_copper_casing",
+    "#scguns:gunpowder_dust",
+    "#scguns:stan_bullet_tips"
+  ],
+  "result": {
+    "id": "scguns:compact_copper_round",
+    "count": 1
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "minecraft:chiseled_sulfur"
+    }
+  ],
+  "order": 16384,
+  "output_items": [
+    "hbm:sulfur"
+  ]
+}

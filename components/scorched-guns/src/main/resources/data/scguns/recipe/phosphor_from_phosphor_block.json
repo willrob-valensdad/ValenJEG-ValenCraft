@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "phosphor_chunk",
+  "ingredients": [
+    "scguns:raw_phosphor_block"
+  ],
+  "result": {
+    "count": 9,
+    "id": "scguns:raw_phosphor"
+  }
+}

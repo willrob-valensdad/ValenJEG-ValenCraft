@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:anthralite_ingot",
+    "Q": "scguns:treated_iron_ingot",
+    "R": "scguns:gun_parts",
+    "X": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "QRQ",
+    "#X#"
+  ],
+  "result": {
+    "id": "scguns:turret_platform"
+  }
+}

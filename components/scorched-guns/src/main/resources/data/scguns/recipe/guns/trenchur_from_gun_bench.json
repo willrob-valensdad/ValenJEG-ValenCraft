@@ -1,0 +1,17 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:trenchur",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:iron_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:gun_magazine",
+    "gun_top_internal_2": "scguns:gun_parts",
+    "gun_top_internal_1": "scguns:treated_iron_ingot",
+    "gun_barrel_1": "scguns:gun_barrel",
+    "gun_grip": "scguns:gun_grip",
+    "gun_magazine": "minecraft:iron_ingot"
+  }
+}

@@ -1,0 +1,98 @@
+package com.neoalive.tacz_sewv.procedural.events;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import net.nekoyuni.SimpleEnemyMod.procedural.events.system.DynamicEvent;
+
+import com.neoalive.tacz_sewv.bridge.IEscort;
+import com.neoalive.tacz_sewv.config.EasyMode;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.spawn.TankSpawner;
+import com.neoalive.tacz_sewv.util.WorldVehiclePools;
+
+/**
+ * A standalone SEM event for a single-faction military convoy. It is deliberately
+ * separate from far_combat, so its spawn probability and enable state are independent.
+ */
+public final class ConvoyEvent extends DynamicEvent {
+
+    public static final String ID = "convoy";
+    private static final int INFANTRY_COUNT = 5;
+    private static final int MAX_VEHICLES = 3;
+    private static final int VEHICLE_SPACING = 18;
+    private static final int INFANTRY_SCATTER = 6;
+
+    public ConvoyEvent() {
+        super(ID);
+    }
+
+    @Override
+    public double getBaseChance() {
+        return SewvConfig.CONVOY_BASE_CHANCE.get();
+    }
+
+    @Override
+    public double getFailureMultiplier() {
+        return EasyMode.failureMultiplier(SewvConfig.CONVOY_FAILURE_MULTIPLIER.get());
+    }
+
+    @Override
+    public int getMinDistance() {
+        return 90;
+    }
+
+    @Override
+    public int getMaxDistance() {
+        return 140;
+    }
+
+    @Override
+    public boolean canExecute(ServerLevel level, ServerPlayer player) {
+        return SewvConfig.CONVOY_EVENTS_ENABLED.get();
+    }
+
+    @Override
+    public boolean execute(ServerLevel level, ServerPlayer player, BlockPos centerPos) {
+        if (!EventSpawns.placeable(level, centerPos)) return false;
+
+        // A convoy is exclusively one side. PMC is intentionally not a candidate.
+        TankSpawner.TankFaction faction = EventSpawns.pickVehicleFaction(level);
+        if (faction == null) return false;
+        int desiredVehicles = 1 + level.random.nextInt(MAX_VEHICLES);
+        boolean alongX = level.random.nextBoolean();
+        int direction = level.random.nextBoolean() ? 1 : -1;
+        int spawnedVehicles = 0;
+        BlockPos firstVehiclePos = null;
+        Entity firstVehicle = null;
+
+        for (int i = 0; i < desiredVehicles; i++) {
+            int offset = i * VEHICLE_SPACING * direction;
+            BlockPos vehiclePos = alongX ? centerPos.offset(offset, 0, 0) : centerPos.offset(0, 0, offset);
+            vehiclePos = TankSpawner.adjustHeight(level, vehiclePos);
+            // Ground only: a convoy is on the road; helicopters have their own event slots.
+            Entity vehicle = TankSpawner.spawnFromPool(level, vehiclePos, faction,
+                    WorldVehiclePools.Category.GROUND, null, null);
+            if (vehicle != null) {
+                spawnedVehicles++;
+                if (firstVehiclePos == null) {
+                    firstVehiclePos = vehiclePos;
+                    firstVehicle = vehicle;
+                }
+            }
+        }
+
+        // Do not create an infantry-only convoy: an unsuccessful placement simply
+        // lets SEM retry this event on a later cycle.
+        if (spawnedVehicles == 0 || firstVehiclePos == null) return false;
+
+        // The riflemen escort the lead vehicle in two files along its flanks (EscortGoal). They are a squad as
+        // well: the escort is transient, so after a reload they fall back to moving together on foot.
+        for (AbstractUnit rifleman : EventSpawns.squad(level, firstVehiclePos, faction, INFANTRY_SCATTER, INFANTRY_COUNT)) {
+            if (rifleman instanceof IEscort escort) escort.tacz_sewv$setEscortTargetId(firstVehicle.getId());
+        }
+        return true;
+    }
+}

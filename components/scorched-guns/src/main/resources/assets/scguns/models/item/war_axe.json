@@ -1,0 +1,6 @@
+{
+  "parent": "scguns:item/war_axe_handheld",
+  "textures": {
+    "layer0": "scguns:item/war_axe"
+  }
+}

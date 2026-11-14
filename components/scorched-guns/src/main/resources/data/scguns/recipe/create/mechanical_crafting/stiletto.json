@@ -1,0 +1,25 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "scguns:treated_iron_ingot",
+    "R": "scguns:firing_unit",
+    "K": "scguns:heavy_gun_parts",
+    "S": "scguns:heavy_gun_barrel",
+    "P": "scguns:wrecker_blueprint"
+  },
+  "pattern": [
+    "CRKS",
+    "  QP"
+  ],
+  "result": {
+    "id": "scguns:stiletto"
+  }
+}

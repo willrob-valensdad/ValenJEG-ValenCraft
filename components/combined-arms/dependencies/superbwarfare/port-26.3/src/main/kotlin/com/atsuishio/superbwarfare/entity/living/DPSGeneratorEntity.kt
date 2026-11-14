@@ -1,0 +1,382 @@
+package com.atsuishio.superbwarfare.entity.living
+
+import com.atsuishio.superbwarfare.Mod.Companion.loc
+import com.atsuishio.superbwarfare.capability.energy.SyncedEntityEnergyStorage
+import com.atsuishio.superbwarfare.capability.energy.EnergyStorageHelper
+import com.atsuishio.superbwarfare.client.animation.entity.DPSGeneratorAnimationInstance
+import com.atsuishio.superbwarfare.entity.getValue
+import com.atsuishio.superbwarfare.entity.setValue
+import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier.Companion.createDefaultModifier
+import com.atsuishio.superbwarfare.init.ModCapabilities
+import com.atsuishio.superbwarfare.init.ModDamageTypes
+import com.atsuishio.superbwarfare.init.ModItems
+import com.atsuishio.superbwarfare.init.ModSounds
+import com.atsuishio.superbwarfare.init.ModTags
+import com.atsuishio.superbwarfare.resource.model.EntityModelReloadListener
+import com.atsuishio.superbwarfare.tools.FormatTool.format1DZ
+import com.atsuishio.superbwarfare.tools.playLocalSound
+import net.minecraft.commands.arguments.EntityAnchorArgument
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.core.NonNullList
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
+import net.minecraft.network.syncher.EntityDataAccessor
+import net.minecraft.network.syncher.EntityDataSerializers
+import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.sounds.SoundSource
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.damagesource.DamageTypes
+import net.minecraft.world.entity.*
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier
+import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.roundToInt
+
+open class DPSGeneratorEntity(type: EntityType<DPSGeneratorEntity>, level: Level) : LivingEntity(type, level){
+    val animationInstance: DPSGeneratorAnimationInstance? =
+        if (this.level().isClientSide) DPSGeneratorAnimationInstance(this) else null
+    open val modelInstance = EntityModelReloadListener.getModel(MODEL)?.createInstance()
+
+    private var damageDealt = 0f
+    open var downTime by DOWN_TIME
+    open var energy by ENERGY
+    open var generatorLevel by LEVEL
+
+    override fun defineSynchedData(builder: SynchedEntityData.Builder) {
+        super.defineSynchedData(builder)
+
+        builder.define(DOWN_TIME, 0)
+            .define(ENERGY, 0)
+            .define(LEVEL, 0)
+    }
+
+    override fun getArmorSlots(): Iterable<ItemStack> {
+        return NonNullList.withSize(1, ItemStack.EMPTY)
+    }
+
+    override fun getItemBySlot(pSlot: EquipmentSlot): ItemStack = ItemStack.EMPTY
+
+    override fun setItemSlot(pSlot: EquipmentSlot, pStack: ItemStack) {}
+
+    override fun causeFallDamage(l: Float, d: Float, source: DamageSource) = false
+
+    override fun shouldRenderAtSqrDistance(pDistance: Double) = true
+
+    override fun addAdditionalSaveData(compound: CompoundTag) {
+        super.addAdditionalSaveData(compound)
+        compound.putInt("Level", generatorLevel)
+
+        val entityCap = this.energyStorage
+
+        compound.putInt("Energy", entityCap.amount.toInt())
+    }
+
+    override fun readAdditionalSaveData(compound: CompoundTag) {
+        super.readAdditionalSaveData(compound)
+        generatorLevel = compound.getInt("Level")
+
+        val entityCap = this.energyStorage
+
+        entityCap.setEnergy(compound.getInt("Energy"))
+        entityCap.setCapacity(this.maxEnergy)
+        entityCap.setMaxExtract(this.maxTransfer)
+    }
+
+    override fun hurt(source: DamageSource, amount: Float): Boolean {
+        // 不处理/kill伤害
+        var amount = DAMAGE_MODIFIER.compute(this, source, amount)
+        if (source.`is`(DamageTypes.GENERIC_KILL)) {
+            this.remove(RemovalReason.KILLED)
+            return super.hurt(source, amount)
+        }
+
+        damageDealt += amount
+
+        if (this.health < 0.01) {
+            amount = 0f
+        }
+
+        if (!this.level().isClientSide()) {
+            this.level().playSound(
+                null,
+                BlockPos.containing(this.x, this.y, this.z),
+                ModSounds.HIT,
+                SoundSource.BLOCKS,
+                1f,
+                1f
+            )
+        } else {
+            this.level().playLocalSound(
+                this.x,
+                this.y,
+                this.z,
+                ModSounds.HIT,
+                SoundSource.BLOCKS,
+                1f,
+                1f,
+                false
+            )
+        }
+        return super.hurt(source, (amount / 2.0.pow(this.generatorLevel.toDouble())).toFloat())
+    }
+
+    override fun isPickable() = downTime == 0
+
+    /**
+     * 让实体面朝指定的水平位置（抬头归零）。
+     * 玩家用放置器放下来、以及右键瞄准，都走这套朝向逻辑。
+     */
+    fun faceTowards(x: Double, z: Double) {
+        this.lookAt(EntityAnchorArgument.Anchor.EYES, Vec3(x, this.y, z))
+        this.xRot = 0f
+        this.xRotO = this.xRot
+        this.yHeadRotO = this.yRot
+        this.yBodyRotO = this.yRot
+    }
+
+    fun facePlayer(player: Player) = faceTowards(player.x, player.z)
+
+    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+        if (!player.mainHandItem.isEmpty && !player.mainHandItem.`is`(ModTags.Items.TOOLS_CROWBAR)) {
+            return InteractionResult.PASS
+        }
+
+        if (player.isShiftKeyDown) {
+            if (!this.level().isClientSide()) {
+                this.discard()
+            }
+
+            if (!player.abilities.instabuild) {
+                player.addItem(ItemStack(ModItems.DPS_GENERATOR_DEPLOYER))
+            }
+        } else {
+            this.facePlayer(player)
+            downTime = 0
+        }
+
+        return InteractionResult.sidedSuccess(this.level().isClientSide())
+    }
+
+    override fun tick() {
+        super.tick()
+
+        // 同 TargetEntity：模型用的是 getViewYRot（yHeadRot），存档里只存 yRot。
+        // 这两个实体不是 Mob，生成时不会像 Mob 那样把 yHeadRot/yBodyRot 对齐到 yRot，
+        // 重新进入世界后 Entity.load 一对齐，看起来就像朝向被偏转了一下。
+        if (this.yHeadRot != this.yRot || this.yBodyRot != this.yRot) {
+            this.yHeadRot = this.yRot
+            this.yBodyRot = this.yRot
+            this.yHeadRotO = this.yRot
+            this.yBodyRotO = this.yRot
+        }
+
+        if (downTime > 0) {
+            downTime -= 1
+        }
+
+        // 每秒恢复生命并充能下方方块
+        if (this.tickCount % 20 == 0) {
+            val damage = this.maxHealth - this.health
+            val entityCap = this.energyStorage
+
+            if (damage > 0) {
+                // DPS显示
+                if (getLastDamageSource() != null) {
+                    val attacker = getLastDamageSource()!!.entity
+                    if (attacker is Player && !this.level().isClientSide) {
+                        val displayDamage =
+                            if (getLastDamageSource()!!.`is`(ModDamageTypes.BEAST)) Float.POSITIVE_INFINITY else damageDealt
+                        attacker.sendOverlayMessage(
+                            Component.translatable(
+                                "tips.superbwarfare.dps_generator.dps",
+                                format1DZ(displayDamage.toDouble())
+                            ))
+                    }
+                }
+
+                // 发电
+                entityCap.setMaxReceive(entityCap.capacity.toInt())
+                EnergyStorageHelper.insert(
+                    entityCap,
+                    (128.0 * max(this.generatorLevel, 1) * 2.0.pow(
+                        this.generatorLevel.toDouble()
+                    ) * damage).roundToInt().toLong()
+                )
+                entityCap.setMaxReceive(0)
+            }
+
+            // 充能底部方块
+            this.chargeBlockBelow()
+
+            if (this.health < 0.01) {
+                generatorLevel = min(generatorLevel + 1, 7)
+                entityCap.setCapacity(this.maxEnergy)
+                entityCap.setMaxExtract(this.maxTransfer)
+
+
+                if (!this.level().isClientSide()) {
+                    this.level().playSound(
+                        null,
+                        BlockPos.containing(this.x, this.y, this.z),
+                        ModSounds.DPS_GENERATOR_EVOLVE,
+                        SoundSource.BLOCKS,
+                        0.5f,
+                        1f
+                    )
+                } else {
+                    this.level().playLocalSound(
+                        this.x,
+                        this.y,
+                        this.z,
+                        ModSounds.DPS_GENERATOR_EVOLVE,
+                        SoundSource.BLOCKS,
+                        0.5f,
+                        1f,
+                        false
+                    )
+                }
+            }
+            this.health = this.maxHealth
+            damageDealt = 0f
+        }
+    }
+
+    override fun getDeltaMovement() = Vec3(0.0, 0.0, 0.0)
+
+    override fun isPushable() = false
+
+    override fun getMainArm() = HumanoidArm.RIGHT
+
+    override fun doPush(entityIn: Entity) {}
+
+    override fun pushEntities() {}
+
+    override fun setNoGravity(ignored: Boolean) {
+        super.setNoGravity(true)
+    }
+
+    override fun aiStep() {
+        super.aiStep()
+        this.updateSwingTime()
+        this.isNoGravity = true
+    }
+
+    override fun tickDeath() {
+        ++this.deathTime
+        if (this.deathTime >= 100) {
+            this.spawnAtLocation(ItemStack(ModItems.DPS_GENERATOR_DEPLOYER))
+            this.remove(RemovalReason.KILLED)
+        }
+    }
+
+    protected fun chargeBlockBelow() {
+        val entityCap = this.energyStorage
+
+        if (!entityCap.supportsExtraction() || entityCap.amount <= 0) return
+        val blockPos = this.blockPosition().below()
+        val cap = ModCapabilities.ENERGY_BLOCK.find(this.level(), blockPos, Direction.UP)
+        if (cap == null || !cap.supportsInsertion()) return
+
+        val extract = EnergyStorageHelper.simulateExtract(entityCap, entityCap.amount)
+        val extracted = EnergyStorageHelper.insert(cap, extract)
+        if (extracted <= 0) return
+
+        this.level().blockEntityChanged(blockPos)
+        EnergyStorageHelper.extract(entityCap, extracted)
+    }
+
+    val energyStorage =
+        SyncedEntityEnergyStorage(5120, 0, 2560, this.entityData, ENERGY)
+
+    init {
+        this.noCulling = true
+    }
+
+    val maxEnergy: Int
+        get() = when (this.generatorLevel) {
+            1 -> 25600
+            2 -> 102400
+            3 -> 409600
+            4 -> 1638400
+            5 -> 6553600
+            6 -> 26214400
+            7 -> 104857600
+            else -> 5120
+        }
+
+    val maxTransfer: Int
+        get() = this.maxEnergy / 2
+
+    fun beastCharge() {
+        if (generatorLevel < 7) {
+            generatorLevel = 7
+            val storage = this.energyStorage
+            storage.setCapacity(this.maxEnergy)
+            storage.setMaxExtract(this.maxTransfer)
+            storage.setEnergy(this.maxEnergy)
+        }
+    }
+
+    override fun getPickResult() = ItemStack(ModItems.DPS_GENERATOR_DEPLOYER)
+
+    companion object {
+        @JvmField
+        val DOWN_TIME: EntityDataAccessor<Int> =
+            SynchedEntityData.defineId(DPSGeneratorEntity::class.java, EntityDataSerializers.INT)
+
+        @JvmField
+        val ENERGY: EntityDataAccessor<Int> =
+            SynchedEntityData.defineId(DPSGeneratorEntity::class.java, EntityDataSerializers.INT)
+
+        @JvmField
+        val LEVEL: EntityDataAccessor<Int> =
+            SynchedEntityData.defineId(DPSGeneratorEntity::class.java, EntityDataSerializers.INT)
+
+        val MODEL = loc("models/bedrock/entity/dps_generator.geo.json")
+
+        @JvmStatic
+        fun onDPSGeneratorDown(entity: LivingEntity, source: DamageSource, amount: Float): Boolean {
+            val dpsGenerator = entity as? DPSGeneratorEntity ?: return true
+            // 不处理/kill伤害
+            if (source.`is`(DamageTypes.GENERIC_KILL)) return true
+            val sourceEntity = source.entity
+
+            dpsGenerator.health = 0.00001f
+
+            if (sourceEntity is Player) {
+                sourceEntity.playLocalSound(ModSounds.TARGET_DOWN, 1f, 1f)
+                dpsGenerator.downTime = 40
+            }
+            return false
+        }
+
+        fun createAttributes(): AttributeSupplier.Builder {
+            return Mob.createMobAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.0)
+                .add(Attributes.MAX_HEALTH, 40.0)
+                .add(Attributes.ARMOR, 0.0)
+                .add(Attributes.ATTACK_DAMAGE, 0.0)
+                .add(Attributes.FOLLOW_RANGE, 16.0)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 10.0)
+                .add(Attributes.FLYING_SPEED, 0.0)
+        }
+
+        private val DAMAGE_MODIFIER = createDefaultModifier()
+            .immuneTo(DamageTypes.IN_WALL)
+            .immuneTo(DamageTypes.DROWN)
+            .immuneTo(DamageTypes.LAVA)
+            .immuneTo(DamageTypes.CACTUS)
+            .immuneTo(DamageTypes.FALL)
+            .immuneTo(DamageTypes.SWEET_BERRY_BUSH)
+            .immuneTo(DamageTypes.BAD_RESPAWN_POINT)
+    }
+}

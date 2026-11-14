@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "minecraft:paper",
+    "X": "#minecraft:sand"
+  },
+  "pattern": [
+    " Q ",
+    "QXQ",
+    " Q "
+  ],
+  "result": {
+    "id": "scguns:sandbag",
+    "count": 3
+  }
+}

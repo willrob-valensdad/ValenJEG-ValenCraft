@@ -1,0 +1,79 @@
+package top.ribs.scguns.client.render.gun.model;
+
+import top.ribs.scguns.client.render.gun.GunModelRenderUtil;
+
+import top.ribs.scguns.client.render.gun.GunRenderContext;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import top.ribs.scguns.client.SpecialModels;
+import top.ribs.scguns.client.render.gun.IOverrideModel;
+import top.ribs.scguns.client.util.RenderUtil;
+import top.ribs.scguns.common.Gun;
+import top.ribs.scguns.init.ModItems;
+import top.ribs.scguns.item.attachment.IAttachment;
+
+/**
+ * Since we want to have an animation for the charging handle, we will be overriding the standard model rendering.
+ * This also allows us to replace the model for the different stocks.
+ */
+public class GaussRifleModel implements IOverrideModel {
+
+    @SuppressWarnings("resource")
+    @Override
+    public void render(float partialTicks, ItemDisplayContext transformType, ItemStack stack, ItemStack parent, LivingEntity entity, PoseStack matrixStack, GunRenderContext buffer, int light, int overlay) {
+
+        //Renders the static parts of the model.
+        GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_MAIN.getModel(), stack, matrixStack, buffer, light, overlay);
+
+        //Renders the iron sights if no scope is attached.
+        if ((Gun.getScope(stack) == null))
+            GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_SIGHTS.getModel(), stack, matrixStack, buffer, light, overlay);
+        else
+            GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_NO_SIGHTS.getModel(), stack, matrixStack, buffer, light, overlay);
+
+        if (Gun.hasAttachmentEquipped(stack, IAttachment.Type.STOCK)) {
+
+            if (Gun.getAttachment(IAttachment.Type.STOCK, stack).getItem() == ModItems.WOODEN_STOCK.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_STOCK_WOODEN.getModel(), stack, matrixStack, buffer, light, overlay);
+            else if (Gun.getAttachment(IAttachment.Type.STOCK, stack).getItem() == ModItems.LIGHT_STOCK.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_STOCK_LIGHT.getModel(), stack, matrixStack, buffer, light, overlay);
+            else if (Gun.getAttachment(IAttachment.Type.STOCK, stack).getItem() == ModItems.WEIGHTED_STOCK.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_STOCK_HEAVY.getModel(), stack, matrixStack, buffer, light, overlay);
+        }
+        if (Gun.hasAttachmentEquipped(stack, IAttachment.Type.UNDER_BARREL)) {
+            if (Gun.getAttachment(IAttachment.Type.UNDER_BARREL, stack).getItem() == ModItems.VERTICAL_GRIP.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_GRIP_VERTICAL.getModel(), stack, matrixStack, buffer, light, overlay);
+            else if (Gun.getAttachment(IAttachment.Type.UNDER_BARREL, stack).getItem() == ModItems.LIGHT_GRIP.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_GRIP_LIGHT.getModel(), stack, matrixStack, buffer, light, overlay);
+            else if (Gun.getAttachment(IAttachment.Type.UNDER_BARREL, stack).getItem() == ModItems.IRON_BAYONET.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_IRON_BAYONET.getModel(), stack, matrixStack, buffer, light, overlay);
+            else if (Gun.getAttachment(IAttachment.Type.UNDER_BARREL, stack).getItem() == ModItems.ANTHRALITE_BAYONET.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_ANTHRALITE_BAYONET.getModel(), stack, matrixStack, buffer, light, overlay);
+            else if (Gun.getAttachment(IAttachment.Type.UNDER_BARREL, stack).getItem() == ModItems.DIAMOND_BAYONET.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_DIAMOND_BAYONET.getModel(), stack, matrixStack, buffer, light, overlay);
+            else if (Gun.getAttachment(IAttachment.Type.UNDER_BARREL, stack).getItem() == ModItems.NETHERITE_BAYONET.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_NETHERITE_BAYONET.getModel(), stack, matrixStack, buffer, light, overlay);
+        }
+        if ((Gun.hasAttachmentEquipped(stack, IAttachment.Type.MAGAZINE)))
+        {
+            if (Gun.getAttachment(IAttachment.Type.MAGAZINE, stack).getItem() == ModItems.EXTENDED_MAG.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_EXTENDED_MAG.getModel(), stack, matrixStack, buffer, light, overlay);
+            if (Gun.getAttachment(IAttachment.Type.MAGAZINE, stack).getItem() == ModItems.PLUS_P_MAG.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_EXTENDED_MAG.getModel(), stack, matrixStack, buffer, light, overlay);
+            if (Gun.getAttachment(IAttachment.Type.MAGAZINE, stack).getItem() == ModItems.SPEED_MAG.get())
+                GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_SPEED_MAG.getModel(), stack, matrixStack, buffer, light, overlay);
+        }
+        else
+            GunModelRenderUtil.renderModel(SpecialModels.GAUSS_RIFLE_STANDARD_MAG.getModel(), stack, matrixStack, buffer, light, overlay);
+    }
+
+    private double ease(double x) {
+
+        return 1 - Math.pow(1 - (2 * x), 4);
+
+    }
+
+}

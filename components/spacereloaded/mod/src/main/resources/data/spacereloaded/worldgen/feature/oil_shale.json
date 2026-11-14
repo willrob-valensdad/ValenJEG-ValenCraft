@@ -1,0 +1,25 @@
+{
+	"type": "minecraft:ore",
+	"discard_chance_on_air_exposure": 0.0,
+	"size": 12,
+	"targets": [
+		{
+			"state": {
+				"id": "spacereloaded:oil_shale"
+			},
+			"target": {
+				"predicate_type": "minecraft:tag_match",
+				"tag": "minecraft:deepslate_ore_replaceables"
+			}
+		},
+		{
+			"state": {
+				"id": "spacereloaded:oil_shale"
+			},
+			"target": {
+				"predicate_type": "minecraft:tag_match",
+				"tag": "minecraft:stone_ore_replaceables"
+			}
+		}
+	]
+}

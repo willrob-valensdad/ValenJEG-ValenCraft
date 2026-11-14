@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/newborn_cyst",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

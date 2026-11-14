@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/cog_mace_3d",
+  "textures": {
+    "0": "scguns:item/cog_mace",
+    "particle": "scguns:item/cog_mace"
+  }
+}

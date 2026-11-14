@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "X": "#c:dusts/phosphorus",
+    "Q": "minecraft:stone_bricks"
+  },
+  "pattern": [
+    "QQQ",
+    "QXQ",
+    "QQQ"
+  ],
+  "result": {
+    "id": "scguns:asgharian_bricks",
+    "count": 8
+  }
+}

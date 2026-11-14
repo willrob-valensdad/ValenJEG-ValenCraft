@@ -1,0 +1,12 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    [
+      "hbm:crayon_purple",
+      "hbm:chemical_dye_purple"
+    ]
+  ],
+  "result": {
+    "id": "minecraft:purple_dye"
+  }
+}

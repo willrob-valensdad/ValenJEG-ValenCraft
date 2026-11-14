@@ -1,0 +1,139 @@
+package com.neoalive.tacz_sewv.spawn;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.phys.AABB;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.RUunitEntity;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.USunitEntity;
+
+import com.neoalive.tacz_sewv.bridge.IIssuedAmmo;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.entity.unit.RuCombatEngineerEntity;
+import com.neoalive.tacz_sewv.entity.unit.RuEngineerEntity;
+import com.neoalive.tacz_sewv.entity.unit.RuMedicEntity;
+import com.neoalive.tacz_sewv.entity.unit.UsCombatEngineerEntity;
+import com.neoalive.tacz_sewv.entity.unit.UsEngineerEntity;
+import com.neoalive.tacz_sewv.entity.unit.UsMedicEntity;
+import com.neoalive.tacz_sewv.init.ModEntities;
+import com.neoalive.tacz_sewv.zone.SpawnZones;
+
+/** Spawns the medic/engineer support units — on command, and (by chance) alongside regular units. */
+public final class SupportSpawner {
+
+    private SupportSpawner() {}
+
+    private static final String COMPANION_FLAG = "sewv:companion_rolled";
+
+    public enum SupportRole { MEDIC, ENGINEER, COMBAT_ENGINEER }
+
+    private static boolean companionRollSuppressed = false;
+
+    /**
+     * Runs {@code spawnAction} with the ambient companion roll disabled — for {@code /sewv spawn}'s
+     * debug crews, which already have dedicated support-spawn commands, so the command stays
+     * deterministic rather than seeding an extra medic/engineer nobody asked for.
+     */
+    public static <T> T withoutCompanions(java.util.function.Supplier<T> spawnAction) {
+        boolean previous = companionRollSuppressed;
+        companionRollSuppressed = true;
+        try {
+            return spawnAction.get();
+        } finally {
+            companionRollSuppressed = previous;
+        }
+    }
+
+    /** Spawn a support unit of the given faction/role at {@code pos}, kitted and ready. */
+    @Nullable
+    public static AbstractUnit spawn(ServerLevel level, BlockPos pos, boolean ru, SupportRole role) {
+        TankSpawner.TankFaction faction = ru ? TankSpawner.TankFaction.RU : TankSpawner.TankFaction.US;
+        if (!TankSpawner.spawnsEnabled(level, faction)) {
+            SpawnDeny.set(SpawnDeny.Why.GAMERULE, faction.name());
+            return null;
+        }
+        if (!SpawnZones.allows(level, pos)) {
+            SpawnDeny.zoneAt(level, pos);
+            return null;
+        }
+        EntityType<?> type = typeFor(ru, role);
+        if (!(type.create(level) instanceof AbstractUnit unit)) return null;
+        unit.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        unit.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null, null);
+        // Medics carry an unlimited issued supply of kits (RU/US units have no inventory to hold one),
+        // the same channel mortar/TOW crews get their ammo through.
+        if (role == SupportRole.MEDIC && unit instanceof IIssuedAmmo issued) {
+            issued.sewv$setIssuedAmmo(com.atsuishio.superbwarfare.init.ModItems.MEDICAL_KIT.get());
+        }
+        level.addFreshEntity(unit);
+        return unit;
+    }
+
+    /**
+     * On a regular RU/US unit's first spawn, maybe bring a same-faction medic and/or engineer along.
+     * One hook covers every spawn path (SEM events, garrisons, structures) because they all surface a
+     * unit through {@code EntityJoinLevelEvent}. A persistent flag stops chunk reloads from re-rolling;
+     * a proximity dedupe keeps a cluster of units from each spawning their own.
+     * <p>Combat engineers are command/egg-only for the Stage 3 MVP (no ambient companion roll).
+     */
+    public static void maybeSpawnCompanions(AbstractUnit unit) {
+        if (companionRollSuppressed) return;
+        if (!(unit.level() instanceof ServerLevel level)) return;
+        // Exact class: only plain RU/US units seed companions — not medics, engineers, or PMC.
+        boolean ru = unit.getClass() == RUunitEntity.class;
+        boolean us = unit.getClass() == USunitEntity.class;
+        if (!ru && !us) return;
+
+        CompoundTag data = unit.getPersistentData();
+        if (data.getBoolean(COMPANION_FLAG)) return;
+        data.putBoolean(COMPANION_FLAG, true);
+
+        RandomSource rnd = unit.getRandom();
+        rollCompanion(level, unit, ru, rnd, SewvConfig.MEDIC_SPAWN_CHANCE.get(), SupportRole.MEDIC);
+        rollCompanion(level, unit, ru, rnd, SewvConfig.ENGINEER_SPAWN_CHANCE.get(), SupportRole.ENGINEER);
+    }
+
+    private static void rollCompanion(ServerLevel level, AbstractUnit near, boolean ru, RandomSource rnd,
+                                      double chance, SupportRole role) {
+        if (chance <= 0.0 || rnd.nextDouble() >= chance) return;
+        if (companionNearby(level, near, ru, role)) return;
+
+        BlockPos at = near.blockPosition();
+        // Defer the add to end of tick (afterTick, NOT server.execute — that runs inline on the
+        // server thread): this runs inside EntityJoinLevelEvent (fired from
+        // addFreshEntity), and SEM's own join handler mutates lists it is iterating, so adding an
+        // entity now risks a ConcurrentModificationException. Same guard the garrison hull uses.
+        // The heightmap read is deferred too: from inside the join event the unit's own chunk is
+        // still being promoted, and Level.getHeight's blocking chunk fetch then waits on the very
+        // task running it — a permanent server-thread stall (seen with Berezka city structures).
+        com.neoalive.tacz_sewv.crew.UnitJoinBudget.afterTick(() -> spawn(level, TankSpawner.adjustHeight(level, at), ru, role));
+    }
+
+    private static boolean companionNearby(ServerLevel level, AbstractUnit near, boolean ru, SupportRole role) {
+        double r = SewvConfig.SUPPORT_DEDUPE_RADIUS.get();
+        AABB box = near.getBoundingBox().inflate(r);
+        return !level.getEntitiesOfClass(typeClass(ru, role), box).isEmpty();
+    }
+
+    private static EntityType<?> typeFor(boolean ru, SupportRole role) {
+        return switch (role) {
+            case MEDIC -> ru ? ModEntities.RU_MEDIC.get() : ModEntities.US_MEDIC.get();
+            case ENGINEER -> ru ? ModEntities.RU_ENGINEER.get() : ModEntities.US_ENGINEER.get();
+            case COMBAT_ENGINEER -> ru ? ModEntities.RU_COMBAT_ENGINEER.get() : ModEntities.US_COMBAT_ENGINEER.get();
+        };
+    }
+
+    private static Class<? extends AbstractUnit> typeClass(boolean ru, SupportRole role) {
+        return switch (role) {
+            case MEDIC -> ru ? RuMedicEntity.class : UsMedicEntity.class;
+            case ENGINEER -> ru ? RuEngineerEntity.class : UsEngineerEntity.class;
+            case COMBAT_ENGINEER -> ru ? RuCombatEngineerEntity.class : UsCombatEngineerEntity.class;
+        };
+    }
+}

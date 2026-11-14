@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/ribs_glory",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

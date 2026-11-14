@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/tl_runner",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

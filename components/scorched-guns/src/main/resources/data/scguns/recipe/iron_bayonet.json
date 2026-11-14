@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": "minecraft:iron_ingot",
+    "Q": "minecraft:stick"
+  },
+  "pattern": [
+    " X ",
+    "Q  "
+  ],
+  "result": {
+    "id": "scguns:iron_bayonet"
+  }
+}

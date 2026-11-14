@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/fencer_carabine",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

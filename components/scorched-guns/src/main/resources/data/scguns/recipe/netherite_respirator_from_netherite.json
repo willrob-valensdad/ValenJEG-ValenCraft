@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "scguns:anthralite_respirator",
+  "base": "minecraft:netherite_helmet",
+  "result": {
+    "id": "scguns:netherite_respirator"
+  },
+  "template": "minecraft:netherite_upgrade_smithing_template"
+}

@@ -1,25 +1,13 @@
-# Building the mod component
+# Building ValenJEG
 
-Use Java 25, Python 3 and the included Gradle wrapper. Run commands from `mod/`.
+The pack root is not a Gradle mod project. `components/` contains separate implementation projects and compatibility patches. Build the appropriate components with Java 25 and the API inputs documented in their build files, then update `mods.lock.json` from the exact resulting JAR bytes.
 
-The build resolves Minecraft 26.3, Fabric Loader 0.19.5, Fabric API 0.161.0+26.3 and GeckoLib through the configured repositories. Full game qualification uses the project's pack dependency set, including its newer Fabric API.
+`python3 scripts/pack.py check --side client` and `--side server` validate the dependency inventory. Pending ports remain listed until complete artifacts exist and are qualified. Neither a source snapshot nor a successful core JAR build establishes that the full mini-modpack runs.
 
-Supply these real API JARs in `mod/compile-inputs/` or set the listed Gradle properties to their paths. They are compile/test inputs, not bundled dependency binaries.
+Use `assemble --inputs DIR --output NEW_DIR` to create an instance from hash-pinned JARs and the shared/side overrides. Add `--download` to permit verified HTTPS downloads into the local cache. Assembly refuses an existing destination and fails on missing or mismatched inputs.
 
-| Property | Default filename |
-| --- | --- |
-| `valen_nero_api` | `nerospace-fabric-26.3-1.6.0.jar` |
-| `valen_nerolandcore_api` | `nerolandcore-fabric-26.3-1.15.0.jar` |
-| `valen_energy_api` | `energy-5.0.0.jar` |
-| `valen_architectury_api` | `architectury-fabric-22.0.5.jar` |
-| `valen_rei_api` | `RoughlyEnoughItems-26.3.824.jar` |
-| `valen_basic_math_api` | `basic-math-0.6.1.jar` |
+`mrpack --side client --output ValenJEG.mrpack` requires all ports resolved and every selected artifact published at a real HTTPS URL. No invented CurseForge project/file IDs or placeholder downloads are used. A CurseForge release archive is not supplied until the required artifacts and distribution arrangements exist.
 
-```sh
-cd mod
-./gradlew check jar sourcesJar
-```
+Upstream source paths and component licenses are recorded in `components/sources.json`. Some upstream artwork is reserved; `scripts/materialize_assets.py` retrieves only explicitly pinned files from their original source archive into a local checkout. Those assets are not committed under the pack MIT license.
 
-Outputs are in `mod/build/libs/`. The mod requires actual compatible runtime dependencies; an assembly passing compilation does not qualify a full pack. HBM is an explicit dependency of the current development source because the repaired structures use native HBM blocks. Its 26.3 port and other donor ports remain under development.
-
-Private fixture launchers, saved worlds and operational evidence are outside this public source export.
+The initial independently built core source remains preserved at branch `source/valenjeg-core-r61`. Its `check jar sourcesJar` checks passed; the full donor ports remain in progress. The JEG lock artifact is tied to that source checkpoint, while `components/` records the newer development sources.

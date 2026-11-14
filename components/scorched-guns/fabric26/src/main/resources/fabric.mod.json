@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "scguns",
+  "version": "0.5.5-valen.26.3",
+  "name": "ValenJEG - Scorched Guns",
+  "description": "Fabric 26.3 port of Scorched Guns 0.5.5 from the NeoForge 26.2 pin b5f131a. GPL-3.0-or-later.",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    "ribs",
+    "Tepox00",
+    "Valen"
+  ],
+  "environment": "*",
+  "mixins": [
+    "scguns.mixins.json"
+  ],
+  "entrypoints": {
+    "main": [
+      "top.ribs.scguns.fabric.ScorchedFabric"
+    ],
+    "client": [
+      "top.ribs.scguns.fabric.ScorchedFabricClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.3",
+    "fabric-api": "*",
+    "geckolib": "*",
+    "trinkets": "*"
+  },
+  "accessWidener": "scguns.accesswidener"
+}

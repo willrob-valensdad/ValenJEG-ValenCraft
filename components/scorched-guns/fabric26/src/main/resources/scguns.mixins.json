@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "package": "top.ribs.scguns.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ScorchedLivingEntityMixin",
+    "ScorchedItemMixin",
+    "ScorchedCraftingRemainderMixin",
+    "ScorchedItemEntityMixin",
+    "ScorchedCreativeTabMixin",
+    "ScorchedEntitySectionMixin",
+    "ScorchedExperienceOrbMixin",
+    "ScorchedNoteBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "ScorchedKeyboardMixin",
+    "ScorchedCameraMixin",
+    "ScorchedHandsMixin",
+    "ScorchedLayerDefinitionsMixin"
+  ]
+}

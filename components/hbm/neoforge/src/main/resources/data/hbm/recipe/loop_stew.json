@@ -1,0 +1,16 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    "hbm:loops",
+    "hbm:can_smart",
+    "minecraft:bowl"
+  ],
+  "input_state": {
+    "1": {
+      "preserve": "remainder"
+    }
+  },
+  "result": {
+    "id": "hbm:loop_stew"
+  }
+}

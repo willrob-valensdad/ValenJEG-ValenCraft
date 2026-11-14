@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "hbm:dust_tiny"
+    }
+  ],
+  "order": 512,
+  "output_items": [
+    "hbm:dust_tiny"
+  ]
+}

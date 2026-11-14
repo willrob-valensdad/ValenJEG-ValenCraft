@@ -1,0 +1,26 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "C": "scguns:vertical_grip",
+    "L": "minecraft:stick",
+    "R": "scguns:firing_unit",
+    "S": "scguns:large_iron_casing",
+    "M": "scguns:treated_iron_ingot",
+    "X": "scguns:wrecker_blueprint"
+  },
+  "pattern": [
+    "M X",
+    "LRS",
+    "  C"
+  ],
+  "result": {
+    "id": "scguns:whizzbanger"
+  }
+}

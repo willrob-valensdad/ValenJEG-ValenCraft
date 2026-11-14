@@ -1,0 +1,21 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "C": {
+      "preserve": "result"
+    }
+  },
+  "key": {
+    "B": "#c:storage_blocks/tungsten",
+    "C": "hbm:crate_steel",
+    "P": "#hbm:plates_cast/copper"
+  },
+  "pattern": [
+    "BPB",
+    "PCP",
+    "BPB"
+  ],
+  "result": {
+    "id": "hbm:crate_tungsten"
+  }
+}

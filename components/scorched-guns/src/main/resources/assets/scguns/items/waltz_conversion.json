@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/waltz_conversion",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

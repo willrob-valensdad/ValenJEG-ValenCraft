@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/drill_conversion",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

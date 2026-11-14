@@ -1,0 +1,17 @@
+{
+  "type": "mekanism:purifying",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "mekanism"
+    }
+  ],
+  "chemicalInput": {
+    "amount": 1,
+    "gas": "mekanism:oxygen"
+  },
+  "itemInput": {
+    "ingredient": "scguns:shard_anthralite"
+  },
+  "output": "scguns:clump_anthralite"
+}

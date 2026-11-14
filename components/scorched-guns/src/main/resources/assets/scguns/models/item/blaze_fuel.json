@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/blaze_fuel_3d",
+  "textures": {
+    "0": "scguns:item/blaze_fuel",
+    "particle": "scguns:item/blaze_fuel"
+  }
+}

@@ -1,0 +1,403 @@
+# ValenJEG gameplay settings. Generated from the maintained pack configuration.
+
+["attachments"]
+"glowingLaserPointers" = true
+"allowFlashlights" = true
+"flashlightDistance" = 32
+
+
+["ui"]
+"showHitFeedback" = true
+"hideMedals" = false
+"showCrosshair" = true
+
+
+["terrorRaid"]
+"waveIntervalSeconds" = 18
+"groundWaveCount" = 4
+"airWaveCount" = 4
+
+
+["gunnerGrowth"]
+
+["gunnerGrowth"."all"]
+"armorMaxTier" = 5.0
+"armorInitialTier" = 0.0
+"bomberChancePerDay" = 0.0005714286
+"rocketLauncherMaxChance" = 0.06
+"weaponAggression" = 0.55
+"weaponInitialTier" = 0.0
+"weaponTierPerDay" = 0.04
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = 3.0
+"bomberChance" = 0.06
+"bomberStartDay" = 50.0
+"rocketLauncherChancePerDay" = 0.0005714286
+"bomberMaxChance" = 0.1
+"rocketLauncherChance" = 0.02
+"rocketLauncherStartDay" = 80.0
+"armorTierPerDay" = 0.05
+
+
+["gunnerGrowth"."stray"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."zombieVillager"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."piglinBrute"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."witherSkeleton"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."zombifiedPiglin"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."generic"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."parched"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."pillager"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."vindicator"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."skeleton"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."husk"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."piglin"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."zombie"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+["gunnerGrowth"."drowned"]
+"armorMaxTier" = -1.0
+"armorInitialTier" = -1.0
+"bomberChancePerDay" = -1.0
+"rocketLauncherMaxChance" = -1.0
+"weaponAggression" = -1.0
+"weaponInitialTier" = -1.0
+"weaponTierPerDay" = -1.0
+"maxSpawnChance" = -1.0
+"minSpawnChance" = -1.0
+"spawnChancePerDay" = -1.0
+"weaponMaxTier" = -1.0
+"bomberChance" = -1.0
+"bomberStartDay" = -1.0
+"rocketLauncherChancePerDay" = -1.0
+"bomberMaxChance" = -1.0
+"rocketLauncherChance" = -1.0
+"rocketLauncherStartDay" = -1.0
+"armorTierPerDay" = -1.0
+
+
+
+["factionPatrol"]
+"minimumDays" = 5
+"intervalDays" = 5
+"randomIntervalMinTicks" = 12000
+"randomIntervalMaxTicks" = 24000
+"bossBarRange" = 64
+"enabled" = true
+"spawnChance" = 0.35
+
+
+["factionRaid"]
+"homeTriggerRadius" = 48
+"dynamicDifficultyEnabled" = true
+"minimumDays" = 15
+"intervalDays" = 30
+"randomIntervalMinTicks" = 12000
+"randomIntervalMaxTicks" = 24000
+"enabled" = true
+
+
+["combat"]
+"bulletLifetimeSeconds" = 60
+"gunnerAccuracyStartDay" = 5
+"bulletBlockDestructionEnabled" = true
+"naturalGunnerDynamicDifficultyEnabled" = true
+"recoilBackstepEnabled" = true
+"gunnerAccuracyMaxPercent" = 0.7
+"magazineFeedEnabled" = true
+"gunnerTerrainSupportBlock" = "minecraft:dirt"
+"gunnerProgressionMaxDay" = 60
+"recoilBackstepScale" = 0.5
+"gunnerTerrainPlacementEnabled" = true
+"gunnerAccuracyMaxDay" = 60
+"gunnerShotgunSpreadMultiplier" = 0.82
+"headshotMultiplier" = true
+"blockHitAnimationEnabled" = true
+"gunnerTerrainBreakMaxTier" = 2
+"hipFireSpreadMultiplier" = 1.5
+
+
+["spawns"]
+"spawnScalingDaysToMax" = 28
+"spawnScalingStartDay" = 3
+"piglinGunnerChance" = 0.3
+"witherSkeletonGunnerChance" = 0.25
+"phantomGunnerChance" = 0.12
+"phantomGunnerMaxChance" = 0.33
+"phantomGunnerDeathExplosionEnabled" = true
+"skeletonGunnerChance" = 0.14285714285714285
+"huskGunnerChance" = 0.08333333333333333
+"pillagerGunnerMaxChance" = 0.35
+"pillagerGunnerChance" = 0.14
+"zombifiedPiglinGunnerChance" = 0.1
+"zombieGunnerChance" = 0.08333333333333333
+"parchedGunnerChance" = 0.08333333333333333
+
+
+["vehicle"]
+"enemyVehicleConversionChancePerDay" = 0.0004
+"enemyVehicleSpawningEnabled" = true
+"enemyVehicleMaxConversionChance" = 0.045
+"enemyVehicleConversionChance" = 0.005
+"enemyVehicleStartDay" = 80
+"enabled" = true
+"enemyVehicleAdaptiveCombatEnabled" = true

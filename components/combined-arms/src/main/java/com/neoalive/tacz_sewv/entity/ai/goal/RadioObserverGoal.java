@@ -1,0 +1,110 @@
+package com.neoalive.tacz_sewv.entity.ai.goal;
+
+import java.util.EnumSet;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+
+import com.neoalive.tacz_sewv.config.EasyMode;
+import com.neoalive.tacz_sewv.crew.CrewRadio;
+import com.neoalive.tacz_sewv.entity.ai.support.FireMissionSupport;
+import com.neoalive.tacz_sewv.item.HandheldRadioItem;
+import com.neoalive.tacz_sewv.item.PlaneAttackMode;
+
+/**
+ * A unit carrying a handheld radio calls its own contacts in to the supporting crews behind it,
+ * turning any rifleman into a forward observer.
+ *
+ * <p>The unit keeps fighting normally — this only relays whatever it has already found to
+ * crews that could never have seen it themselves.
+ *
+ * <p><b>Nothing about this call is chosen.</b> The radio only has to be somewhere in the unit's
+ * inventory, the target is whatever the unit has already acquired for itself, and the call goes to
+ * {@link FireMissionSupport#ANY} — mortars, TOW, artillery, the missile system and aircraft alike —
+ * so what answers is decided entirely by what happens to be in range. Aircraft are put on
+ * {@code AUTO} ordnance by the call itself, since an observer reporting a contact is in no position
+ * to say what should be dropped on it; see {@code FireMissionSupport.callFireMission}.
+ */
+public class RadioObserverGoal extends Goal {
+
+    /** Game ticks between rolls. */
+    private static final int CHECK_INTERVAL = 20;
+
+    /**
+     * One roll in this many actually calls a mission. A radio that phoned in every contact
+     * the moment it saw one would keep every tube in the field permanently re-tasked to
+     * whatever was last spotted; this makes a call an occasional thing.
+     */
+    private static final int CALL_CHANCE = 10;
+
+    /**
+     * How long to wait after a call finds nothing. Scanning for crews is the expensive
+     * part of this goal, so a unit with no mortars behind it — the normal case — backs
+     * off instead of paying for that scan on every roll.
+     */
+    private static final int NO_CREWS_BACKOFF = 100;
+
+    private final PmcUnitEntity unit;
+
+    /** Game time, so the intervals mean the ticks they say; goals tick every other tick. */
+    private long nextCheck;
+
+    public RadioObserverGoal(PmcUnitEntity unit) {
+        this.unit = unit;
+        // Claims nothing: calling it in over the radio doesn't move, look at, or target
+        // anything, so this must never contend with what the unit is actually doing.
+        this.setFlags(EnumSet.noneOf(Flag.class));
+    }
+
+    @Override
+    public boolean canUse() {
+        if (this.unit.level().isClientSide()) return false;
+
+        // Cheapest checks first — canUse is polled constantly on every unit, and most of
+        // them have no target and no radio.
+        LivingEntity target = this.unit.getTarget();
+        if (target == null || !target.isAlive()) return false;
+        if (this.unit.getOwnerUUID() == null) return false;
+        return HandheldRadioItem.isCarriedBy(this.unit);
+    }
+
+    @Override
+    public void tick() {
+        long now = this.unit.level().getGameTime();
+        if (now < this.nextCheck) return;
+        this.nextCheck = now + CHECK_INTERVAL;
+
+        if (this.unit.getRandom().nextInt(CALL_CHANCE) != 0) return;
+
+        LivingEntity target = this.unit.getTarget();
+        if (target == null || !target.isAlive()) return;
+
+        FireMissionSupport.Call call = FireMissionSupport.callFireMission(
+                this.unit.level(), this.unit.getOwnerUUID(), this.unit.position(),
+                EasyMode.mortarRadioRange(), target);
+
+        if (call.empty()) {
+            this.nextCheck = now + NO_CREWS_BACKOFF;
+        } else {
+            // Caller voice first (mounted only — CrewRadio is hull-scoped); then the pilot ack.
+            if (this.unit.getVehicle() instanceof VehicleEntity hull) {
+                if (call.kinds().contains(FireMissionSupport.Kind.CAS)) {
+                    CrewRadio.playSupport(hull, FireMissionSupport.Kind.CAS);
+                } else if (call.kinds().contains(FireMissionSupport.Kind.MORTAR)
+                        || call.kinds().contains(FireMissionSupport.Kind.TOW)) {
+                    CrewRadio.playSupport(hull, FireMissionSupport.Kind.MORTAR);
+                }
+            }
+            // A unit phoning in its own contact names no ordnance — it is reporting what it sees,
+            // not choosing how the aircraft attacks.
+            var ack = FireMissionSupport.ackFor(call.kinds(), PlaneAttackMode.AUTO, CrewRadio.Faction.PMC);
+            if (ack != null) {
+                this.unit.level().playSound(null, this.unit, ack,
+                        SoundSource.VOICE, 1.8F, 1.0F);
+            }
+        }
+    }
+}

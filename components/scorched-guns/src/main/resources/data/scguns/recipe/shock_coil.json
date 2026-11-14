@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "H": "scguns:anthralite_ingot",
+    "Q": "scguns:copper_disc",
+    "X": "minecraft:redstone",
+    "Z": "scguns:turret_platform"
+  },
+  "pattern": [
+    " X ",
+    "QQQ",
+    "HZH"
+  ],
+  "result": {
+    "count": 1,
+    "id": "scguns:shock_coil"
+  }
+}

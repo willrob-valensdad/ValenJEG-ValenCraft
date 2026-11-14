@@ -1,0 +1,97 @@
+package earth.terrarium.adastra.client.dimension;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+
+/**
+ * Common implementation of IForgeDimensionSpecialEffects.
+ */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
+public class ModDimensionSpecialEffects {
+
+    private final PlanetRenderer renderer;
+    private final ModSkyRenderer skyRenderer;
+
+    public ModDimensionSpecialEffects(PlanetRenderer renderer) {
+        this.renderer = renderer;
+        this.skyRenderer = new ModSkyRenderer(renderer);
+    }
+
+
+    /**
+     * Renders the clouds of this dimension.
+     *
+     * @return true to prevent vanilla cloud rendering
+     */
+    public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
+        return renderer.customClouds();
+    }
+
+    /**
+     * Renders the sky of this dimension.
+     *
+     * @return true to prevent vanilla sky rendering
+     */
+    public boolean renderSky(ClientLevel level, int ticks, float partialTick, Matrix4f modelViewMatrix, Camera camera, Matrix4f projectionMatrix, boolean isFoggy, Runnable setupFog) {
+        skyRenderer.render(level, partialTick, new PoseStack(), camera, projectionMatrix, modelViewMatrix, isFoggy, setupFog);
+        return renderer.customSky();
+    }
+
+    /**
+     * Renders the snow and rain effects of this dimension.
+     *
+     * @return true to prevent vanilla snow and rain rendering
+     */
+    public boolean renderSnowAndRain(ClientLevel level, int ticks, float partialTick, double camX, double camY, double camZ) {
+        return renderer.customWeather();
+    }
+
+    public Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
+        if (renderer.hasFog()) {
+            return fogColor.multiply(
+                brightness * 0.94 + 0.06,
+                brightness * 0.94 + 0.06,
+                brightness * 0.91 + 0.09);
+        }
+        return Vec3.ZERO;
+    }
+
+    public boolean isFoggyAt(int x, int y) {
+        return renderer.hasThickFog();
+    }
+
+    @Nullable
+    public float[] getSunriseColor(float timeOfDay, float partialTicks) {
+        // Prevent the FogRenderer from rendering the sunrise if the sun isn't setting in the west.
+        if (renderer.sunriseAngle() != 0) return null;
+        return getSunriseColor(timeOfDay, partialTicks, renderer.sunriseColor());
+    }
+
+    @Nullable
+    public static float[] getSunriseColor(float timeOfDay, float partialTicks, int sunColor) {
+        float timeCos = Mth.cos(timeOfDay * (float) (Math.PI * 2));
+        if (timeCos >= -0.4f && timeCos <= 0.4f) {
+            float time = timeCos / 0.4f * 0.5f + 0.5f;
+            float alpha = 1 - (1 - Mth.sin(time * (float) Math.PI)) * 0.99F;
+            alpha *= alpha;
+            var rgba = new float[4];
+            rgba[0] = time * 0.3f + ARGB.red(sunColor) / 255f * 0.7f;
+            rgba[1] = time * time * 0.7f + ARGB.green(sunColor) / 255f * 0.5f;
+            rgba[2] = ARGB.blue(sunColor) / 255f * 0.6f;
+            rgba[3] = alpha;
+            return rgba;
+        } else {
+            return null;
+        }
+    }
+
+    public PlanetRenderer renderer() {
+        return renderer;
+    }
+}

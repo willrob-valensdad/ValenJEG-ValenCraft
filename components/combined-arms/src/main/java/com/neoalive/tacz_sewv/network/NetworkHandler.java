@@ -1,0 +1,851 @@
+package com.neoalive.tacz_sewv.network;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.simple.SimpleChannel;
+
+import com.neoalive.tacz_sewv.TaczSewv;
+import com.neoalive.tacz_sewv.order.OrderReport;
+
+public class NetworkHandler {
+
+    /**
+     * Result of an order, as {@link #orderLine}: {@code base + ".done"} in {@code color} when units
+     * took it, {@code base + ".none"} in GRAY when nothing did. Every caller passes the count of
+     * units the SERVER actually accepted, never the client's optimistic guess. {@code args} go to
+     * both texts unchanged, so a text names the ones it needs positionally ({@code %2$s}).
+     *
+     * <p>The {@code .none} variant is the player's <b>only</b> notice that an order did nothing —
+     * the specific reason goes to the server console, not to chat — so it is always sent.
+     */
+    public static void orderFeedback(Player player, String order, String base, int count, ChatFormatting color,
+                                     Object... args) {
+        OrderReport.ok(player, orderLine(order, count, count == 0
+                ? Component.translatable(base + ".none", args).withStyle(ChatFormatting.GRAY)
+                : Component.translatable(base + ".done", args).withStyle(color)));
+    }
+
+    /** {@link #orderLine(String, Component, Component)} with "N units" as the subject; none when 0. */
+    public static Component orderLine(String order, int count, Component what) {
+        Component subject = count <= 0 ? null : Component.translatable(
+                count == 1 ? "message.tacz_sewv.order.unit" : "message.tacz_sewv.order.units", count);
+        return orderLine(order, subject, what);
+    }
+
+    /**
+     * Every order result in chat has one shape, "[Order]: [who] [what]", each block in its own
+     * colour: the order label gold ({@code message.tacz_sewv.order.<order>}), who white, and what in
+     * the caller's colour (green taken, yellow stand-down, gray nothing happened).
+     */
+    public static Component orderLine(String order, @javax.annotation.Nullable Component subject, Component what) {
+        MutableComponent line = Component.translatable("message.tacz_sewv.order." + order)
+                .withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(": ").withStyle(ChatFormatting.DARK_GRAY));
+        if (subject != null) {
+            line.append(subject.copy().withStyle(ChatFormatting.WHITE)).append(" ");
+        }
+        return line.append(what);
+    }
+
+    /** Buffered until the end of the tick so it comes out beside any refusals it should be read with. */
+    public static void sendOrderFeedback(Player player, Component message) {
+        OrderReport.ok(player, message);
+    }
+
+    /** Straight down the wire, no buffering — {@link OrderReport}'s own flush. */
+    public static void sendRaw(ServerPlayer player, Component message) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new PacketOrderFeedback(message));
+    }
+
+    // Bumped when the wire format changes (2: list sizes/ids became VarInts; 3: added the mortar
+    // order; 4: added the vehicle formation order; 5: added the patrol order; 6: formation carries
+    // a shape id + row size, and the heli command carries a cruise altitude; 7: board carries a
+    // passenger-only flag and the area-task order carries a patrol/search mode; 8: added the escort
+    // order; 9: added the owned-vehicle map sync, this channel's first server->client packet;
+    // 10: map markers carry an allegiance so other factions can be shown; 11: the area task carries
+    // an optional origin, so it can be centred on a map click instead of on the sender; 12: the
+    // area task also carries a cruise route) so a mismatched client/server pair is rejected at
+    // handshake instead of misparsing.
+    // 13, 14, 15: Various previous changes.
+    // 16: added the player doctrine save packet.
+    // 17: world vehicle pool editor (open + update).
+    // 18: map markers carry PMC health/energy fractions.
+    // 19: order feedback became a client-gated S->C packet.
+    // 20–22: prior bumps.
+    // 23: heli firing-run phase sync for hover overlay.
+    // 83: formation packet carries WIDTH/LENGTH stretch floats.
+    // 24: PMC rappel order packet.
+    // 25: map markers carry optional OpenPAC tint RGB.
+    // 26: removed PacketToggleAdvancing (autonomous KotH scrapped).
+    // 27: PacketSweepAndAdvance (player-triggered sweep + claim). Removed in 92: the Advance Plan tool replaced its only invoker.
+    // 28: PacketOwnedVehicles optional SweepOverlayState.
+    // 29: capture_point / team_base config GUIs (open + save).
+    // 30: PacketInvasionBillboards (world-space capture UI) — removed in 32.
+    // 31: team_base aiVehicleCount on open/save packets.
+    // 32: PacketInvasionHud replaces billboards; capture_point open/save drop billboard fields.
+    // 33: invisible toggle on capture_point / team_base open+save packets.
+    // 34: PacketInvasionHud carries team names + per-vehicle side colours for overlay.
+    // 35: team_base endInvasionOnCapture on open+save packets.
+    // 36: GUARD_POSITION / REACH_GUARD packets; VehicleMarker.hasGuard.
+    // 37: vehicle faction skin sticky tag sync + reloadSkins.
+    // 38: (removed) C→S repair-tool skin cycle — spray GUI + engineer repair only.
+    // 39: Category.HELI in vehicle pool editor packets.
+    // 40: misc cue/armor editor open + update packets.
+    // 41: PacketVehicleSkin carries sticky RNG salt for numbered skin pools.
+    // 42: PacketTrenchNetworks (trench / emplacement map markers).
+    // 43: PacketEntrench (ENTRENCHED area task).
+    // 44: PacketRadioCommand (handheld radio GUI fire mission).
+    // 45: Category.TOW in vehicle pool editor packets.
+    // 47: PacketReloadVehicleSkins carries a reset-to-jar-defaults flag.
+    // 48: PacketOpenAirportGui + PacketAirportAction (PMC runway editor).
+    // 50: target-priority editor open + update packets.
+    // 51: the flight command carries HELI_CMD_EMERGENCY_LAND. The field layout is unchanged, but an
+    //     older server reads the new value as an unknown command and parks the order on the pilot,
+    //     which is a silent wrong answer rather than a parse error — exactly what this gate is for.
+    // 52: PacketOwnedVehicles carries platoon colour + commander flag.
+    // 53: PacketExitPlatoon; PacketToggleAutoOrders (TDT Platoon category).
+    // 54: PacketJoinPlatoon (TDT Platoon category).
+    // 55: PacketClearBoarding ("board my vehicle" keybind).
+    // 56: team_base PMC Owner (kind/value) + online player list on open packet.
+    // 57: team_base enemyTeams list on open+save packets.
+    // 58: team_base open packet carries per-faction GROUND (armor) pools for autofill.
+    // 59: PacketPlaneLandingDebug + PacketClearPlaneLandingDebug (sewvPlaneCombatDebug Dubins wireframe).
+    // 60: PacketReviveProgress (S->C revival ring, PlayerReviveGoal/PmcDownedSupport — player-involved only).
+    // 61: PacketHoldRevive (C->S hold-left-click-to-revive a downed PMC).
+    // 62: PacketCaptureMedic (TDT "Capture Medic" order).
+    // 67: PacketSetNameCategory (TDT "Identity" category, "Full Names" preference).
+    // 68: spawn_probe open/save GUI packets.
+    // 69: ConfigUI open/request/save/shortcut packets.
+    // 70: PacketTowRecovery (PMC tow order).
+    // 71: PacketFobData + FOB assignment/alarm/route packets.
+    // 75: PacketRequestPmcIdentity / PacketSyncPmcIdentity / PacketApplyPmcIdentity (TDT Identity).
+    // 78: PacketHudNotification (S->C top-center HUD banner queue).
+    // 79: PacketHudNotification carries Components (translatable title/body) instead of raw UTF.
+    // 80: PacketPlayerSelfRappel / PacketPlayerCrewRappel / PacketPlayerRappelWires / PacketPlayerSelfRappelLock.
+    // 81: PacketPlayerSelfRappelLock carries hover/rope mode + hull id (stale-safe).
+    // 85: WorldVehiclePools.Category.GRENADE in pool editor packets.
+    // 86: PacketCarrierOpsAction (Neo Arms carrier flight-ops deploy).
+    // 87: PacketSetFobRefillInterval + periodicRefillTicks in FobGuiSnapshot.
+    // 88: helipad packets + helipad markers in PacketOwnedVehicles.
+    // 89: PacketVehicleFormation carries an anchor mode (PLAYER/POSITION — FormationAnchorMode).
+    // 90: PacketTerritoryCommand (C->S) + PacketTerritoryState (S->C) — RTS panel / Territory Mode.
+    // 91: Territory manual Frontline — MANUAL_FRONTLINE / CLEAR_LINE actions + drawn line in PacketTerritoryState.
+    // 92: Advance Plan — PLAN_* actions in PacketTerritoryCommand + the plan block in PacketTerritoryState.
+    // 93: Advance Plan skip-layer — PLAN_SKIP action.
+    // 94: PacketOpenLoadoutEditor (S->C) + PacketUpdateLoadouts (C->S) — /sewv pool weapons loadout manager.
+    // 95: PacketEntityCamo (S->C) — biome camo number on a unit or hull.
+    // 96: PacketHudNotification + NotificationKind (signal-ticket colours / icons).
+    // 97: heli rework packet tweaks.
+    // 98: PacketOpenMiscEditor drops armor catalog (client builds from ForgeRegistries).
+    // 99: PacketOrderQueue (C->S) + PacketOrderQueueState (S->C) — Quick Wheel order queue.
+    // 100: PacketGraceStart (S->C) — grace period popup.
+    // 102: vehicle pool categories SHIP/HELI renamed SURFACE/ROTOR (same wire order); pools may hold
+    //      Limitless Vehicles ids.
+    // 103: bloat pass — sweep overlay, capture medic, trench + helipad marker packets removed;
+    //      helipads ride PacketOwnedVehicles; NotificationKind.MEDIC_CAPTURED dropped.
+    // 104: VehicleMarker.Kind.UNKNOWN (map fog of war).
+    // 105: PacketVehicleFormation carries a free yaw (45° from the wheel) after the axis.
+    // 106: team_base open/save carry TeamBaseConfig (per-kind BaseForce: ground/rotor/plane pools +
+    //      counts, infantry, player deploy options); open packet carries world pools per kind;
+    //      PacketInvasionDeployPrompt (S->C) + PacketInvasionDeployChoice (C->S).
+    // 107: InvasionHud.Snapshot carries the match clock (secondsLeft).
+    // 108: PacketQuickCommand carries explicit-selection + crosshair block; PacketDismountVehicle
+    //      removed (the wheel's Dismount pipeline replaced the TDT button).
+    // 109: PacketVehicleFormation's anchor mode may be UNIT (a formation laid on an elected unit).
+    // 110: PacketSideRelations (S->C) carries the player's diplomacy toward SEM sides ru and us.
+    // 111: PacketZoneView (C->S) + PacketSpawnZoneState (S->C) for the operator spawn zone map.
+    // 112: PacketZoneEdit (C->S), operator brush strokes on the zone map.
+    // 113: PacketRadarContacts (S->C), FPAS MTI contacts for the open panel.
+    // 114: PacketHudNotification carries an urgent flag; NotificationKind.FPAS; PacketRadioSettings (C->S)
+    //      + PacketRadioFlags (S->C) for the handheld radio comms toggles.
+    // 116: WorldVehiclePools.Category.MINE in pool editor packets; PacketMinePool (S->C).
+    private static final String PROTOCOL_VERSION = "116";
+
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
+            new ResourceLocation(TaczSewv.MODID, "main"),
+            () -> PROTOCOL_VERSION,
+            PROTOCOL_VERSION::equals,
+            PROTOCOL_VERSION::equals
+    );
+
+    private static int packetId = 0;
+
+    private static int nextId() {
+        return packetId++;
+    }
+
+    public static void register() {
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketBoardVehicle.class,
+                PacketBoardVehicle::encode,
+                PacketBoardVehicle::new,
+                PacketBoardVehicle::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketHelicopterCommand.class,
+                PacketHelicopterCommand::encode,
+                PacketHelicopterCommand::new,
+                PacketHelicopterCommand::handle
+        );
+
+        // nextId() is a plain counter, so new packets go on the end — inserting one
+        // above would renumber every packet after it.
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketManMortar.class,
+                PacketManMortar::encode,
+                PacketManMortar::new,
+                PacketManMortar::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketVehicleFormation.class,
+                PacketVehicleFormation::encode,
+                PacketVehicleFormation::new,
+                PacketVehicleFormation::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPatrolVehicle.class,
+                PacketPatrolVehicle::encode,
+                PacketPatrolVehicle::new,
+                PacketPatrolVehicle::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketEscort.class,
+                PacketEscort::encode,
+                PacketEscort::new,
+                PacketEscort::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketTowRecovery.class,
+                PacketTowRecovery::encode,
+                PacketTowRecovery::new,
+                PacketTowRecovery::handle
+        );
+
+        // The one server->client packet here (PacketDistributor.PLAYER, see OwnedVehicleTracker).
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOwnedVehicles.class,
+                PacketOwnedVehicles::encode,
+                PacketOwnedVehicles::new,
+                PacketOwnedVehicles::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOrderFeedback.class,
+                PacketOrderFeedback::encode,
+                PacketOrderFeedback::new,
+                PacketOrderFeedback::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSaveDoctrine.class,
+                PacketSaveDoctrine::encode,
+                PacketSaveDoctrine::new,
+                PacketSaveDoctrine::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenPoolEditor.class,
+                PacketOpenPoolEditor::encode,
+                PacketOpenPoolEditor::new,
+                PacketOpenPoolEditor::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketUpdateVehiclePools.class,
+                PacketUpdateVehiclePools::encode,
+                PacketUpdateVehiclePools::new,
+                PacketUpdateVehiclePools::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketHeliRunPhase.class,
+                PacketHeliRunPhase::encode,
+                PacketHeliRunPhase::new,
+                PacketHeliRunPhase::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketHeliRoll.class,
+                PacketHeliRoll::encode,
+                PacketHeliRoll::new,
+                PacketHeliRoll::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRappelHelicopter.class,
+                PacketRappelHelicopter::encode,
+                PacketRappelHelicopter::new,
+                PacketRappelHelicopter::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenCapturePointGui.class,
+                PacketOpenCapturePointGui::encode,
+                PacketOpenCapturePointGui::new,
+                PacketOpenCapturePointGui::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSaveCapturePoint.class,
+                PacketSaveCapturePoint::encode,
+                PacketSaveCapturePoint::new,
+                PacketSaveCapturePoint::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenTeamBaseGui.class,
+                PacketOpenTeamBaseGui::encode,
+                PacketOpenTeamBaseGui::new,
+                PacketOpenTeamBaseGui::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSaveTeamBase.class,
+                PacketSaveTeamBase::encode,
+                PacketSaveTeamBase::new,
+                PacketSaveTeamBase::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketInvasionHud.class,
+                PacketInvasionHud::encode,
+                PacketInvasionHud::new,
+                PacketInvasionHud::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketInvasionDeployPrompt.class,
+                PacketInvasionDeployPrompt::encode,
+                PacketInvasionDeployPrompt::new,
+                PacketInvasionDeployPrompt::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketInvasionDeployChoice.class,
+                PacketInvasionDeployChoice::encode,
+                PacketInvasionDeployChoice::new,
+                PacketInvasionDeployChoice::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSetGuardPosition.class,
+                PacketSetGuardPosition::encode,
+                PacketSetGuardPosition::new,
+                PacketSetGuardPosition::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketReachGuard.class,
+                PacketReachGuard::encode,
+                PacketReachGuard::new,
+                PacketReachGuard::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketVehicleSkin.class,
+                PacketVehicleSkin::encode,
+                PacketVehicleSkin::new,
+                PacketVehicleSkin::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketReloadVehicleSkins.class,
+                PacketReloadVehicleSkins::encode,
+                PacketReloadVehicleSkins::new,
+                PacketReloadVehicleSkins::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenMiscEditor.class,
+                PacketOpenMiscEditor::encode,
+                PacketOpenMiscEditor::new,
+                PacketOpenMiscEditor::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketUpdateVehicleClasses.class,
+                PacketUpdateVehicleClasses::encode,
+                PacketUpdateVehicleClasses::new,
+                PacketUpdateVehicleClasses::handle
+        );
+
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketEntrench.class,
+                PacketEntrench::encode,
+                PacketEntrench::new,
+                PacketEntrench::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRadioCommand.class,
+                PacketRadioCommand::encode,
+                PacketRadioCommand::new,
+                PacketRadioCommand::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenAirportGui.class,
+                PacketOpenAirportGui::encode,
+                PacketOpenAirportGui::new,
+                PacketOpenAirportGui::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketAirportAction.class,
+                PacketAirportAction::encode,
+                PacketAirportAction::new,
+                PacketAirportAction::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenTargetPriority.class,
+                PacketOpenTargetPriority::encode,
+                PacketOpenTargetPriority::new,
+                PacketOpenTargetPriority::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketUpdateTargetPriority.class,
+                PacketUpdateTargetPriority::encode,
+                PacketUpdateTargetPriority::new,
+                PacketUpdateTargetPriority::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketExitPlatoon.class,
+                PacketExitPlatoon::encode,
+                PacketExitPlatoon::new,
+                PacketExitPlatoon::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketToggleAutoOrders.class,
+                PacketToggleAutoOrders::encode,
+                PacketToggleAutoOrders::new,
+                PacketToggleAutoOrders::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketJoinPlatoon.class,
+                PacketJoinPlatoon::encode,
+                PacketJoinPlatoon::new,
+                PacketJoinPlatoon::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketClearBoarding.class,
+                PacketClearBoarding::encode,
+                PacketClearBoarding::new,
+                PacketClearBoarding::handle
+        );
+
+        // S->C, sewvPlaneCombatDebug wireframe (see PlaneLandingDebugClient / PlaneLandingDebugRenderer).
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPlaneLandingDebug.class,
+                PacketPlaneLandingDebug::encode,
+                PacketPlaneLandingDebug::new,
+                PacketPlaneLandingDebug::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketClearPlaneLandingDebug.class,
+                PacketClearPlaneLandingDebug::encode,
+                PacketClearPlaneLandingDebug::new,
+                PacketClearPlaneLandingDebug::handle
+        );
+
+        // S->C, revival progress ring (RevivalRingOverlay).
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketReviveProgress.class,
+                PacketReviveProgress::encode,
+                PacketReviveProgress::new,
+                PacketReviveProgress::handle
+        );
+
+        // C->S, hold-left-click-to-revive (ReviveHoldInput / PmcDownedSupport.handleHoldRevive).
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketHoldRevive.class,
+                PacketHoldRevive::encode,
+                PacketHoldRevive::new,
+                PacketHoldRevive::handle
+        );
+
+        // C->S, TDT "Identity" category "Full Names" control (NamePreference / NpcIdentity).
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSetNameCategory.class,
+                PacketSetNameCategory::encode,
+                PacketSetNameCategory::new,
+                PacketSetNameCategory::handle
+        );
+
+        // S->C / C->S, spawn_probe structure-prep editor.
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenSpawnProbeGui.class,
+                PacketOpenSpawnProbeGui::encode,
+                PacketOpenSpawnProbeGui::new,
+                PacketOpenSpawnProbeGui::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSaveSpawnProbe.class,
+                PacketSaveSpawnProbe::encode,
+                PacketSaveSpawnProbe::new,
+                PacketSaveSpawnProbe::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRequestConfigUI.class,
+                PacketRequestConfigUI::encode,
+                PacketRequestConfigUI::new,
+                PacketRequestConfigUI::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenConfigUI.class,
+                PacketOpenConfigUI::encode,
+                PacketOpenConfigUI::new,
+                PacketOpenConfigUI::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSaveConfigUI.class,
+                PacketSaveConfigUI::encode,
+                PacketSaveConfigUI::new,
+                PacketSaveConfigUI::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketConfigShortcut.class,
+                PacketConfigShortcut::encode,
+                PacketConfigShortcut::new,
+                PacketConfigShortcut::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketBailOutVehicle.class,
+                PacketBailOutVehicle::encode,
+                PacketBailOutVehicle::new,
+                PacketBailOutVehicle::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketParatroop.class,
+                PacketParatroop::encode,
+                PacketParatroop::new,
+                PacketParatroop::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSavePreferredPathway.class,
+                PacketSavePreferredPathway::encode,
+                PacketSavePreferredPathway::new,
+                PacketSavePreferredPathway::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPreferredPathwaysSync.class,
+                PacketPreferredPathwaysSync::encode,
+                PacketPreferredPathwaysSync::new,
+                PacketPreferredPathwaysSync::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketFunnelPreferredPathway.class,
+                PacketFunnelPreferredPathway::encode,
+                PacketFunnelPreferredPathway::new,
+                PacketFunnelPreferredPathway::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketFobData.class,
+                PacketFobData::encode,
+                PacketFobData::new,
+                PacketFobData::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketAssignFobLiving.class,
+                PacketAssignFobLiving::encode,
+                PacketAssignFobLiving::new,
+                PacketAssignFobLiving::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketAssignFobVehicle.class,
+                PacketAssignFobVehicle::encode,
+                PacketAssignFobVehicle::new,
+                PacketAssignFobVehicle::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketToggleFobCommand.class,
+                PacketToggleFobCommand::encode,
+                PacketToggleFobCommand::new,
+                PacketToggleFobCommand::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPlayFobAlarm.class,
+                PacketPlayFobAlarm::encode,
+                PacketPlayFobAlarm::new,
+                PacketPlayFobAlarm::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRouteToFob.class,
+                PacketRouteToFob::encode,
+                PacketRouteToFob::new,
+                PacketRouteToFob::handle
+        );
+
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRequestPmcIdentity.class,
+                PacketRequestPmcIdentity::encode,
+                PacketRequestPmcIdentity::new,
+                PacketRequestPmcIdentity::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSyncPmcIdentity.class,
+                PacketSyncPmcIdentity::encode,
+                PacketSyncPmcIdentity::new,
+                PacketSyncPmcIdentity::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketApplyPmcIdentity.class,
+                PacketApplyPmcIdentity::encode,
+                PacketApplyPmcIdentity::new,
+                PacketApplyPmcIdentity::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketVehicleDogTag.class,
+                PacketVehicleDogTag::encode,
+                PacketVehicleDogTag::new,
+                PacketVehicleDogTag::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketHudNotification.class,
+                PacketHudNotification::encode,
+                PacketHudNotification::new,
+                PacketHudNotification::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPlayerSelfRappel.class,
+                PacketPlayerSelfRappel::encode,
+                PacketPlayerSelfRappel::new,
+                PacketPlayerSelfRappel::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPlayerCrewRappel.class,
+                PacketPlayerCrewRappel::encode,
+                PacketPlayerCrewRappel::new,
+                PacketPlayerCrewRappel::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPlayerRappelWires.class,
+                PacketPlayerRappelWires::encode,
+                PacketPlayerRappelWires::new,
+                PacketPlayerRappelWires::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketPlayerSelfRappelLock.class,
+                PacketPlayerSelfRappelLock::encode,
+                PacketPlayerSelfRappelLock::new,
+                PacketPlayerSelfRappelLock::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketQuickCommand.class,
+                PacketQuickCommand::encode,
+                PacketQuickCommand::new,
+                PacketQuickCommand::handle
+        );
+        // 86: PacketCarrierOpsAction (Neo Arms static-carrier deploy + result).
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketCarrierOpsAction.class,
+                PacketCarrierOpsAction::encode,
+                PacketCarrierOpsAction::new,
+                PacketCarrierOpsAction::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSetFobRefillInterval.class,
+                PacketSetFobRefillInterval::encode,
+                PacketSetFobRefillInterval::new,
+                PacketSetFobRefillInterval::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenHelipadGui.class,
+                PacketOpenHelipadGui::encode,
+                PacketOpenHelipadGui::new,
+                PacketOpenHelipadGui::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketHelipadAction.class,
+                PacketHelipadAction::encode,
+                PacketHelipadAction::new,
+                PacketHelipadAction::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketTerritoryCommand.class,
+                PacketTerritoryCommand::encode,
+                PacketTerritoryCommand::new,
+                PacketTerritoryCommand::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketTerritoryState.class,
+                PacketTerritoryState::encode,
+                PacketTerritoryState::new,
+                PacketTerritoryState::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOpenLoadoutEditor.class,
+                PacketOpenLoadoutEditor::encode,
+                PacketOpenLoadoutEditor::new,
+                PacketOpenLoadoutEditor::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketUpdateLoadouts.class,
+                PacketUpdateLoadouts::encode,
+                PacketUpdateLoadouts::new,
+                PacketUpdateLoadouts::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketEntityCamo.class,
+                PacketEntityCamo::encode,
+                PacketEntityCamo::new,
+                PacketEntityCamo::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOrderQueue.class,
+                PacketOrderQueue::encode,
+                PacketOrderQueue::new,
+                PacketOrderQueue::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketOrderQueueState.class,
+                PacketOrderQueueState::encode,
+                PacketOrderQueueState::new,
+                PacketOrderQueueState::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketMinePool.class,
+                PacketMinePool::encode,
+                PacketMinePool::new,
+                PacketMinePool::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketGraceStart.class,
+                PacketGraceStart::encode,
+                PacketGraceStart::new,
+                PacketGraceStart::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSideRelations.class,
+                PacketSideRelations::encode,
+                PacketSideRelations::new,
+                PacketSideRelations::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketZoneView.class,
+                PacketZoneView::encode,
+                PacketZoneView::new,
+                PacketZoneView::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketSpawnZoneState.class,
+                PacketSpawnZoneState::encode,
+                PacketSpawnZoneState::new,
+                PacketSpawnZoneState::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRadarContacts.class,
+                PacketRadarContacts::encode,
+                PacketRadarContacts::new,
+                PacketRadarContacts::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRadioSettings.class,
+                PacketRadioSettings::encode,
+                PacketRadioSettings::new,
+                PacketRadioSettings::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketRadioFlags.class,
+                PacketRadioFlags::encode,
+                PacketRadioFlags::new,
+                PacketRadioFlags::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PacketZoneEdit.class,
+                PacketZoneEdit::encode,
+                PacketZoneEdit::new,
+                PacketZoneEdit::handle
+        );
+    }
+}

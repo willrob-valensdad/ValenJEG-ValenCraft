@@ -1,0 +1,21 @@
+{
+  "type": "scguns:powered_macerating",
+  "processingTime": 50,
+  "energyUse": 1000,
+  "ingredients": [
+    "scguns:nitro_powder_dust",
+    "scguns:buckshot",
+    "scguns:buckshot",
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "scguns:raw_phosphor",
+        "#c:dusts/phosphorus"
+      ]
+    }
+  ],
+  "result": {
+    "count": 5,
+    "id": "scguns:nitro_buckshot"
+  }
+}

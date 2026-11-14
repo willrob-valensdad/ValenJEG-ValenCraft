@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/grandle",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

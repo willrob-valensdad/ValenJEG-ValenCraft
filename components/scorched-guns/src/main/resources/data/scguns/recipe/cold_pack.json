@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": "#c:dusts/saltpeter",
+    "Q": "minecraft:paper",
+    "Z": "minecraft:snowball"
+  },
+  "pattern": [
+    " Q ",
+    "ZHZ",
+    " Q "
+  ],
+  "result": {
+    "id": "scguns:cold_pack",
+    "count": 2
+  }
+}

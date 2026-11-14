@@ -1,0 +1,28 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "L": "scguns:energy_core",
+    "R": "scguns:heavy_gun_parts",
+    "S": "scguns:gun_barrel",
+    "M": "scguns:diamond_steel_ingot",
+    "X": "scguns:diamond_steel_blueprint",
+    "J": "#minecraft:planks",
+    "K": "scguns:diamond_steel_gun_frame"
+  },
+  "pattern": [
+    "MKMX",
+    "LRSS",
+    "Q J "
+  ],
+  "result": {
+    "id": "scguns:minksy"
+  }
+}

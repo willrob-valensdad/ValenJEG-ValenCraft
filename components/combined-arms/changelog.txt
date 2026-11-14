@@ -1,0 +1,23 @@
+SBW: Combined Arms — Changelog
+================================
+
+0.1.2
+-----
+Fortifications
+- Sandbag fighting positions: craftable (4 sand + 2 string), shovel-soft, directional seat pose
+  from Bedrock animation; break drops sand + string (not the block).
+- ENTRENCHED orders seat units on free sandbags; RU/US auto-seek sandbags alongside trenches /
+  emplacements. Dismiss clears the task (not vehicle dismount); RU/US scramble on leave.
+- Emplacement pad uses a custom Blockbench model/texture; pickaxe-mineable with correct tool drops.
+- Trenches, foxholes, and emplacement pads remain the core of network entrenchment.
+
+AI / command
+- Soft sandbag claims stored on the block entity (no world-wide claimant scan).
+- Seek cooldown after leaving a contested sandbag so infantry do not immediately re-enter.
+
+0.1.1 and earlier
+-----------------
+- Bridge: SEM units crew Superb Warfare vehicles (ground, heli, plane, ship), mortars, TOWs.
+- Faction spawn pools, procedural events, invasion mode, doctrine ledger / TDT / handheld radio.
+- Xaero World Map markers and orders (optional), berezka structure vehicle fields (optional).
+- Utility-scored ground vehicle doctrine, IFV dismount / tank-rider handling, support roles.

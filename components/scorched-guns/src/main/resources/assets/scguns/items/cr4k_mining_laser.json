@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/cr4k_mining_laser",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

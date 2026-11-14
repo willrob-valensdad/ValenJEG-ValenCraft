@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:anthralite_ingot",
+    "Q": "minecraft:iron_ingot",
+    "X": "minecraft:redstone"
+  },
+  "pattern": [
+    " # ",
+    "#X#",
+    "Q#Q"
+  ],
+  "result": {
+    "id": "scguns:player_turret_targeting_module"
+  }
+}

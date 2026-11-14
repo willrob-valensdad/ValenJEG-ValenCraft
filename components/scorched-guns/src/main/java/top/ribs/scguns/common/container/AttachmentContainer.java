@@ -1,0 +1,178 @@
+package top.ribs.scguns.common.container;
+
+
+import top.ribs.scguns.util.ScgunsNbtCompat;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import top.ribs.scguns.common.Gun;
+import top.ribs.scguns.common.container.slot.AttachmentSlot;
+import top.ribs.scguns.init.ModContainers;
+import top.ribs.scguns.item.attachment.IAttachment;
+
+import net.minecraft.tags.ItemTags;
+/**
+ * Author: MrCrayfish
+ */
+public class AttachmentContainer extends AbstractContainerMenu
+{
+    private final ItemStack weapon;
+    private final Player player;
+    private final Container playerInventory;
+    private final Container weaponInventory = new SimpleContainer(IAttachment.Type.values().length)
+    {
+        @Override
+        public void setChanged()
+        {
+            super.setChanged();
+            AttachmentContainer.this.slotsChanged(this);
+        }
+    };
+    private boolean loaded = false;
+
+    public AttachmentContainer(int windowId, Inventory playerInventory, ItemStack stack)
+    {
+        this(windowId, playerInventory);
+        ItemStack[] attachments = new ItemStack[IAttachment.Type.values().length];
+        for(int i = 0; i < attachments.length; i++)
+        {
+            attachments[i] = Gun.getAttachment(IAttachment.Type.values()[i], stack);
+        }
+        for(int i = 0; i < attachments.length; i++)
+        {
+            this.weaponInventory.setItem(i, attachments[i]);
+        }
+        this.loaded = true;
+    }
+
+    public AttachmentContainer(int windowId, Inventory playerInventory)
+    {
+        super(ModContainers.ATTACHMENTS.get(), windowId);
+        this.weapon = playerInventory.getSelectedItem();
+        this.player = playerInventory.player;
+        this.playerInventory = playerInventory;
+
+        int numSlots = IAttachment.Type.values().length;
+
+        int attachmentX = 88 - (numSlots * 18) / 2 + 18 - 5 - 6;
+        for(int i = 0; i < numSlots; i++)
+        {
+            this.addSlot(new AttachmentSlot(this, this.weaponInventory, this.weapon, IAttachment.Type.values()[i], playerInventory.player, i, attachmentX + i * 18, 108));
+        }
+
+        // Inventory slots
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = 0; j < 9; j++)
+            {
+                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 14 + j * 18, 125 + i * 18));
+            }
+        }
+
+        // Hotbar slots
+        for(int i = 0; i < 9; i++)
+        {
+            if(i == playerInventory.getSelectedSlot())
+            {
+                this.addSlot(new Slot(playerInventory, i, 14 + i * 18, 183)
+                {
+                    @Override
+                    public boolean mayPickup(Player playerIn)
+                    {
+                        return false;
+                    }
+                });
+            }
+            else
+            {
+                this.addSlot(new Slot(playerInventory, i, 14 + i * 18, 183));
+            }
+        }
+    }
+
+    public boolean isLoaded()
+    {
+        return this.loaded;
+    }
+
+    @Override
+    public boolean stillValid(Player playerIn)
+    {
+        return true;
+    }
+
+    @Override
+    public void slotsChanged(Container inventoryIn)
+    {
+        CompoundTag attachments = new CompoundTag();
+
+        for(int i = 0; i < this.getWeaponInventory().getContainerSize(); i++)
+        {
+            ItemStack attachment = this.getSlot(i).getItem();
+            if(attachment.is(ItemTags.SWORDS))
+            {
+                attachments.put(("Barrel"), ScgunsNbtCompat.writeItemStack(this.player.registryAccess(), attachment));
+            }
+            if(attachment.getItem() instanceof IAttachment)
+            {
+                attachments.put(((IAttachment) attachment.getItem()).getType().getTagKey(), ScgunsNbtCompat.writeItemStack(this.player.registryAccess(), attachment));
+            }
+        }
+
+        CompoundTag tag = this.weapon.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        tag.put("Attachments", attachments);
+        this.weapon.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        super.broadcastChanges();
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player playerIn, int index)
+    {
+        ItemStack copyStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+        if(slot != null && slot.hasItem())
+        {
+            ItemStack slotStack = slot.getItem();
+            copyStack = slotStack.copy();
+            if(index < this.weaponInventory.getContainerSize())
+            {
+                if(!this.moveItemStackTo(slotStack, this.weaponInventory.getContainerSize(), this.slots.size(), true))
+                {
+                    return ItemStack.EMPTY;
+                }
+            }
+            else if(!this.moveItemStackTo(slotStack, 0, this.weaponInventory.getContainerSize(), false))
+            {
+                return ItemStack.EMPTY;
+            }
+
+            if(slotStack.isEmpty())
+            {
+                slot.set(ItemStack.EMPTY);
+            }
+            else
+            {
+                slot.setChanged();
+            }
+        }
+
+        return copyStack;
+    }
+
+    public Container getPlayerInventory()
+    {
+        return this.playerInventory;
+    }
+
+    public Container getWeaponInventory()
+    {
+        return this.weaponInventory;
+    }
+}

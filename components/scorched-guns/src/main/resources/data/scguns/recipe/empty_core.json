@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:treated_iron_nugget",
+    "Q": "scguns:treated_iron_ingot"
+  },
+  "pattern": [
+    " Q ",
+    " # ",
+    " Q "
+  ],
+  "result": {
+    "id": "scguns:empty_core"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:plasmabuss",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:antique_blueprint",
+    "gun_internal_1": "scguns:plasma_core",
+    "gun_internal_2": "minecraft:smooth_stone",
+    "gun_barrel_2": "scguns:stone_gun_barrel",
+    "gun_barrel_1": "scguns:stone_gun_barrel",
+    "gun_grip": "scguns:gun_grip",
+    "gun_magazine": "#minecraft:planks"
+  }
+}

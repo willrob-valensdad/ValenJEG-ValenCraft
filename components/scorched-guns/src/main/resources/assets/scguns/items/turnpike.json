@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/turnpike",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

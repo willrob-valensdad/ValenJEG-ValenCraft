@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/gas_grenade_3d",
+  "textures": {
+    "0": "scguns:item/gas_grenade",
+    "particle": "scguns:item/gas_grenade"
+  }
+}

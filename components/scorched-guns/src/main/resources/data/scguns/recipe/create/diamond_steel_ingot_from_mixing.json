@@ -1,0 +1,26 @@
+{
+  "type": "create:mixing",
+  "heatRequirement": "superheated",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredients": [
+    "#scguns:create/anthralite_materials",
+    "minecraft:diamond",
+    "#scguns:create/treated_iron_materials",
+    "minecraft:lapis_lazuli"
+  ],
+  "results": [
+    {
+      "count": 5,
+      "id": "scguns:depleted_diamond_steel_ingot"
+    },
+    {
+      "chance": 0.15,
+      "id": "scguns:depleted_diamond_steel_ingot"
+    }
+  ]
+}

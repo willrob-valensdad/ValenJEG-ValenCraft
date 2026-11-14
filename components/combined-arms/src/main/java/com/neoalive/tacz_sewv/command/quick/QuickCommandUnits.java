@@ -1,0 +1,103 @@
+package com.neoalive.tacz_sewv.command.quick;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+
+import com.neoalive.tacz_sewv.crew.OrderAuth;
+import com.neoalive.tacz_sewv.entity.ai.support.MortarSupport;
+import com.neoalive.tacz_sewv.fob.FobSupport;
+import com.neoalive.tacz_sewv.order.OrderFailure;
+import com.neoalive.tacz_sewv.order.OrderGuard;
+import com.neoalive.tacz_sewv.order.OrderReport;
+
+/** Shared server-side unit filters for quick-command pipelines. */
+public final class QuickCommandUnits {
+
+    private QuickCommandUnits() {}
+
+    /**
+     * Owned PMCs from the client id list (team-aware). Skips dead units.
+     * Optional radius re-check against the issuer (client pick is not authoritative).
+     */
+    /**
+     * A crewman of an aircraft is in reach out to the aircraft command radius, not the on-foot one:
+     * an aircraft in flight is essentially never within 64 blocks of whoever is ordering it, and the
+     * on-foot radius here used to drop every such order silently.
+     */
+    static boolean aircrew(PmcUnitEntity pmc) {
+        return pmc.getVehicle() instanceof com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity hull
+                && (com.neoalive.tacz_sewv.entity.ai.core.HullFacts.isPlaneHull(hull)
+                        || com.neoalive.tacz_sewv.entity.ai.core.HullFacts.isHelicopterHull(hull));
+    }
+
+    private static double aircraftR2() {
+        double r = com.neoalive.tacz_sewv.config.SewvConfig.PLANE_COMMAND_RADIUS.get();
+        return r * r;
+    }
+
+    public static List<PmcUnitEntity> owned(ServerPlayer issuer, ServerLevel level,
+                                            List<Integer> unitIds, double radius) {
+        double r2 = radius * radius;
+        List<PmcUnitEntity> out = new ArrayList<>();
+        for (int id : unitIds) {
+            Entity e = level.getEntity(id);
+            if (!(e instanceof PmcUnitEntity pmc) || !pmc.isAlive()) continue;
+            if (!OrderAuth.check(issuer, pmc, "QuickCommand")) continue;
+            if (pmc.distanceToSqr(issuer) > (aircrew(pmc) ? Math.max(r2, aircraftR2()) : r2)) continue;
+            out.add(pmc);
+        }
+        return out;
+    }
+
+    /** Owned on-foot PMCs (downed / mortar-claimed / FOB-command / route-pending skipped). */
+    public static List<PmcUnitEntity> onFootOwned(ServerPlayer issuer, ServerLevel level,
+                                                  List<Integer> unitIds, double radius) {
+        return onFootOwned(issuer, level, unitIds, radius, false);
+    }
+
+    /**
+     * @param allowFobCommand true for orders that are part of the FOB's own logistics (Quick Refill):
+     *        a unit under FOB command is still accepted. A pending route is always refused.
+     */
+    public static List<PmcUnitEntity> onFootOwned(ServerPlayer issuer, ServerLevel level,
+                                                  List<Integer> unitIds, double radius,
+                                                  boolean allowFobCommand) {
+        List<PmcUnitEntity> out = new ArrayList<>();
+        for (PmcUnitEntity pmc : owned(issuer, level, unitIds, radius)) {
+            if (pmc.getVehicle() != null) continue;
+            if (OrderGuard.rejectIfDowned(issuer, pmc)) continue;
+            if (MortarSupport.hasMortarClaim(pmc)) continue;
+            if (refuseFobOrRoute(issuer, pmc, allowFobCommand)) continue;
+            out.add(pmc);
+        }
+        return out;
+    }
+
+    /**
+     * Gate for movement / board / formation orders under FOB command or an in-flight FOB route.
+     * Cancel / dismount skip this — stand-down must always win.
+     */
+    public static boolean refuseFobOrRoute(ServerPlayer issuer, PmcUnitEntity pmc) {
+        return refuseFobOrRoute(issuer, pmc, false);
+    }
+
+    public static boolean refuseFobOrRoute(ServerPlayer issuer, PmcUnitEntity pmc,
+                                           boolean allowFobCommand) {
+        // Territory posts refuse regardless of allowFobCommand: a posted unit is never FOB-garrisoned.
+        if (OrderGuard.rejectIfTerritory(issuer, pmc, "quick_wheel")) return true;
+        if (!allowFobCommand && FobSupport.blocksOrders(pmc)) {
+            OrderReport.fail(issuer, OrderFailure.FOB_COMMAND, pmc);
+            return true;
+        }
+        if (FobSupport.hasRoutePending(pmc)) {
+            OrderReport.fail(issuer, OrderFailure.ROUTE_ACTIVE, pmc);
+            return true;
+        }
+        return false;
+    }
+}

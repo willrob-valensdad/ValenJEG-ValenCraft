@@ -1,0 +1,27 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "L": "scguns:firing_unit",
+    "R": "minecraft:iron_block",
+    "S": "scguns:heavy_gun_barrel",
+    "I": "scguns:heavy_gun_parts",
+    "X": "scguns:treated_iron_ingot",
+    "O": "scguns:iron_blueprint"
+  },
+  "pattern": [
+    "XIRO",
+    "LRSS",
+    "Q   "
+  ],
+  "result": {
+    "id": "scguns:ultra_knight_hawk"
+  }
+}

@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"formed=false": {
+			"model": "spacereloaded:block/assembly_pylon"
+		},
+		"formed=true": {
+			"model": "spacereloaded:block/assembly_pylon_formed"
+		}
+	}
+}

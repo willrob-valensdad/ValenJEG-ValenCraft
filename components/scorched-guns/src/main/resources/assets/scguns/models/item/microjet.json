@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/microjet_3d",
+  "textures": {
+    "0": "scguns:item/microjet",
+    "particle": "scguns:item/microjet"
+  }
+}

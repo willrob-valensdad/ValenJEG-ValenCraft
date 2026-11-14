@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:medium_brass_casing",
+    "minecraft:paper",
+    "scguns:nitro_buckshot"
+  ],
+  "result": {
+    "id": "scguns:bearpack_shell",
+    "count": 1
+  }
+}

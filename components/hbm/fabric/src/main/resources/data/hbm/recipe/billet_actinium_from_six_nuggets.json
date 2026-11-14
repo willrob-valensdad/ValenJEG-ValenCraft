@@ -1,0 +1,13 @@
+{
+  "type": "hbm:crafting_shaped",
+  "key": {
+    "#": "#c:nuggets/actinium_227"
+  },
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "hbm:billet_actinium"
+  }
+}

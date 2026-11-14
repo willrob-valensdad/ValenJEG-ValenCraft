@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/mak_mkii",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

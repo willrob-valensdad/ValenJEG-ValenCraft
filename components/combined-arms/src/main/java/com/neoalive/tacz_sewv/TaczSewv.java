@@ -1,0 +1,256 @@
+package com.neoalive.tacz_sewv;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import com.mojang.logging.LogUtils;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+import net.nekoyuni.SimpleEnemyMod.procedural.events.DynamicEventManager;
+import org.slf4j.Logger;
+
+import com.neoalive.tacz_sewv.block.TrenchPathTypes;
+import com.neoalive.tacz_sewv.command.SewvCommand;
+import com.neoalive.tacz_sewv.compat.BerezkaStructureCompat;
+import com.neoalive.tacz_sewv.compat.CorpseCompat;
+import com.neoalive.tacz_sewv.compat.OpenPacCompat;
+import com.neoalive.tacz_sewv.compat.PlayerReviveCompat;
+import com.neoalive.tacz_sewv.config.ClientConfig;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.crew.NpcArmor;
+import com.neoalive.tacz_sewv.crew.NpcIdentity;
+import com.neoalive.tacz_sewv.crew.NpcNvg;
+import com.neoalive.tacz_sewv.crew.NpcSbwWeapon;
+import com.neoalive.tacz_sewv.entity.ai.core.VehicleTargeting;
+import com.neoalive.tacz_sewv.entity.ai.utility.Doctrine;
+import com.neoalive.tacz_sewv.entity.ai.utility.UtilityWeights;
+import com.neoalive.tacz_sewv.fob.FobTickHandler;
+import com.neoalive.tacz_sewv.grace.GracePeriodData;
+import com.neoalive.tacz_sewv.grace.GraceTickHandler;
+import com.neoalive.tacz_sewv.init.ModBlockEntities;
+import com.neoalive.tacz_sewv.init.ModBlocks;
+import com.neoalive.tacz_sewv.init.ModCreativeTabs;
+import com.neoalive.tacz_sewv.init.ModEntities;
+import com.neoalive.tacz_sewv.init.ModGameRules;
+import com.neoalive.tacz_sewv.init.ModItems;
+import com.neoalive.tacz_sewv.init.ModMenus;
+import com.neoalive.tacz_sewv.init.ModSounds;
+import com.neoalive.tacz_sewv.map.MapIdentity;
+import com.neoalive.tacz_sewv.map.OwnedVehicleTracker;
+import com.neoalive.tacz_sewv.network.NetworkHandler;
+import com.neoalive.tacz_sewv.procedural.events.AsymmetricInvasionEvent;
+import com.neoalive.tacz_sewv.procedural.events.ConvoyEvent;
+import com.neoalive.tacz_sewv.procedural.events.DerelictVehicleEvent;
+import com.neoalive.tacz_sewv.procedural.events.LargeCombatEvent;
+import com.neoalive.tacz_sewv.procedural.events.MortarShellingEvent;
+import com.neoalive.tacz_sewv.procedural.events.NavalBattleEvent;
+import com.neoalive.tacz_sewv.procedural.events.OverflightEvent;
+import com.neoalive.tacz_sewv.skin.CamoSupport;
+import com.neoalive.tacz_sewv.spawn.SupportSpawner;
+import com.neoalive.tacz_sewv.util.ChunkTicketSweep;
+import com.neoalive.tacz_sewv.util.WorldTargetPriority;
+
+@Mod(TaczSewv.MODID)
+public class TaczSewv {
+    public static final String MODID = "tacz_sewv";
+    public static final Logger LOGGER = LogUtils.getLogger();
+
+    public TaczSewv() {
+        // Before any Mob.<init>: custom BlockPathTypes must already exist or pathfindingMalus[]
+        // is short and getPathfindingMalus(TRENCH) AIOOBEs mid-tick (seen on crewed TOWs).
+        TrenchPathTypes.bootstrap();
+
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modEventBus.addListener(this::commonSetup);
+        ModBlocks.BLOCKS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        ModMenus.MENUS.register(modEventBus);
+        ModItems.ITEMS.register(modEventBus);
+        ModCreativeTabs.CREATIVE_TABS.register(modEventBus);
+        ModSounds.SOUNDS.register(modEventBus);
+        ModEntities.register(modEventBus);
+        // Soft compat: MineColonies is compileOnly; only MineColoniesCompat and the two gated
+        // mixins may touch com.minecolonies.*, and only after isLoaded(). It goes here rather
+        // than in commonSetup because half of what it registers is the colony event type, and
+        // RegisterEvent has already fired by the time common setup runs.
+        if (ModList.get().isLoaded(com.neoalive.tacz_sewv.compat.MineColoniesCompat.MODID)) {
+            com.neoalive.tacz_sewv.compat.MineColoniesCompat.register(modEventBus);
+        }
+        MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(ChunkTicketSweep.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.util.ChunkTicketCoverage.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.entity.ai.core.ObbHitIndex.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.entity.ai.support.UnitLod.class);
+        if (com.neoalive.tacz_sewv.compat.TripodCompat.present()) {
+            MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.compat.TripodCompat.Events.class);
+        }
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.crew.UnitJoinBudget.class);
+        // Server-side half of the map markers: it only ever SENDS, so it is registered
+        // unconditionally — a client with no map mod simply ignores the packet.
+        MinecraftForge.EVENT_BUS.register(OwnedVehicleTracker.class);
+        MinecraftForge.EVENT_BUS.register(MapIdentity.class);
+        MinecraftForge.EVENT_BUS.register(FobTickHandler.class);
+        MinecraftForge.EVENT_BUS.register(GraceTickHandler.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.invasion.InvasionSession.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.invasion.InvasionHudTracker.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.entity.ai.command.CommandCoordinator.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.entity.ai.sensor.CombatantIndex.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.entity.ai.command.platoon.PlatoonRegistry.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.crew.PlayerJoinHandler.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.util.VehicleDrops.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.util.CreativeAmmoConsumable.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.territory.TerritoryManager.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.zone.SpawnZoneViewers.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.territory.AdvancePlanManager.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.territory.LegacySweepCleanup.class);
+        MinecraftForge.EVENT_BUS.register(com.neoalive.tacz_sewv.order.OrderReport.class);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SewvConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
+        // SEM is loaded before this bridge (see mods.toml), so these become normal
+        // SEM dynamic events: they are listed, can be toggled, and can be forced by SEM.
+        DynamicEventManager.registerEvent(new ConvoyEvent());
+        DynamicEventManager.registerEvent(new MortarShellingEvent());
+        DynamicEventManager.registerEvent(new DerelictVehicleEvent());
+        DynamicEventManager.registerEvent(new LargeCombatEvent());
+        DynamicEventManager.registerEvent(new NavalBattleEvent());
+        DynamicEventManager.registerEvent(new AsymmetricInvasionEvent());
+        DynamicEventManager.registerEvent(new OverflightEvent());
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+    event.enqueueWork(() -> {
+        ModGameRules.bootstrap();
+        NetworkHandler.register();
+        com.neoalive.tacz_sewv.command.quick.QuickCommandRegistry.init();
+    });
+    ChunkTicketSweep.register(event);
+    // Soft compat: only touch berezka_api's classes when it is actually present, so the
+    // structure-vehicle listener never classloads its event type on a berezka-less install.
+    if (ModList.get().isLoaded(BerezkaStructureCompat.MODID)) {
+        BerezkaStructureCompat.register();
+    }
+    // Soft compat: OpenPAC is compileOnly; only the facade may touch xaero.pac.*, and only
+    // after isLoaded(). reportAvailability() never classloads Access when the mod is absent.
+    OpenPacCompat.reportAvailability();
+    // Soft compat: PlayerReviveMod is compileOnly; only PlayerReviveCompat may touch
+    // team.creative.playerrevive.*, and only after isLoaded().
+    PlayerReviveCompat.reportAvailability();
+    // Soft compat: Corpse is compileOnly; only CorpseCompat.Access may touch
+    // de.maxhenkel.corpse.*, and only after isLoaded().
+    CorpseCompat.reportAvailability();
+    // Limitless Vehicles: LvCompat imports no LV type, so this is safe with the mod absent.
+    com.neoalive.tacz_sewv.compat.lv.LvCompat.reportAvailability();
+    com.neoalive.tacz_sewv.compat.NeoArmsCompat.bootstrap();
+    // MixinVehicleDamageRedirect yields the DamageModifier.compute call to DNV's own redirect
+    // (two @Redirects on one call is a load-time crash), so say what that turns off.
+    if (ModList.get().isLoaded("doggiesnewvehicle")) {
+        LOGGER.warn("[sewv] Doggie's New Vehicle owns SBW's vehicle damage hook - TaCZ ballistic "
+                + "translation and mob melee damage against vehicles are inactive on this install.");
+    }
+    LOGGER.info("SEM<->SW vehicle bridge loading");
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        SewvCommand.register(event.getDispatcher());
+        com.neoalive.tacz_sewv.command.RelightCommand.register(event.getDispatcher());
+    }
+
+    /**
+     * The vehicle AI's utility weights are a datapack file, so they load and reload with the rest
+     * of the server's data. See {@link com.neoalive.tacz_sewv.entity.ai.utility.UtilityWeights}.
+     */
+    @SubscribeEvent
+    public void onAddReloadListener(AddReloadListenerEvent event) {
+        event.addListener(new UtilityWeights.Loader());
+        // Helicopter airframe rows (physics rework); see com.neoalive.tacz_sewv.heli.data.HeliAirframes.
+        event.addListener(new com.neoalive.tacz_sewv.heli.data.HeliAirframes.Loader());
+        // Fixed-wing airframe rows; see com.neoalive.tacz_sewv.wing.data.WingAirframes.
+        event.addListener(new com.neoalive.tacz_sewv.wing.data.WingAirframes.Loader());
+        // Which formation each play role takes; see com.neoalive.tacz_sewv.entity.ai.formation.FormationTemplates.
+        event.addListener(new com.neoalive.tacz_sewv.entity.ai.formation.FormationTemplates.Loader());
+        // See com.neoalive.tacz_sewv.ballistics.TranslationTable.
+        event.addListener(new com.neoalive.tacz_sewv.ballistics.TranslationTable.Loader());
+        // See com.neoalive.tacz_sewv.entity.ai.suppression.SuppressionTable.
+        event.addListener(new com.neoalive.tacz_sewv.entity.ai.suppression.SuppressionTable.Loader());
+        // How each MINE pool item is laid; see com.neoalive.tacz_sewv.entity.ai.support.mines.MineKinds.
+        event.addListener(new com.neoalive.tacz_sewv.entity.ai.support.mines.MineKinds.Loader());
+        // See com.neoalive.tacz_sewv.crew.NamePools.
+        event.addListener(new com.neoalive.tacz_sewv.crew.NamePools.Loader());
+        event.addListener(new com.neoalive.tacz_sewv.crew.LogoPoolIndex.Loader());
+        // Which structure templates carry spawn probes; see com.neoalive.tacz_sewv.worldgen.ProbeCatalog.
+        event.addListener(new com.neoalive.tacz_sewv.worldgen.ProbeCatalog());
+    }
+
+    /**
+     * Snapshot SimpleEnemyMod's faction-friendly toggles before anything can tick.
+     *
+     * <p>This is the one safe moment to read another mod's config: every mod's config is baked by
+     * now, and no entity has ticked yet. It cannot be done from {@code ModConfigEvent} — that fires
+     * on the owning mod's bus, and the config is SEM's — and it must not be done from the AI itself,
+     * because {@code ConfigValue.get()} throws while a config is unbaked and a modpack that defers
+     * startup work (ModernFix et al.) can order things so the crew scans first. See
+     * {@code VehicleTargeting.refreshFactionFriendlyFlags}.
+     */
+    @SubscribeEvent
+    public void onServerAboutToStart(ServerAboutToStartEvent event) {
+        VehicleTargeting.refreshFactionFriendlyFlags();
+        // Same moment, same reason: doctrine presets are read from our own config, which is
+        // equally unsafe to touch from an AI tick before it has been baked.
+        Doctrine.refreshPresets();
+        WorldTargetPriority.refreshCatalog();
+    }
+
+    /**
+     * SEM's loadout files are parsed before any level exists, so the world's loadout layer cannot be
+     * merged in on that first pass — apply it now. See {@code loadout/LoadoutManager}.
+     */
+    @SubscribeEvent
+    public void onServerStarted(ServerStartedEvent event) {
+        com.neoalive.tacz_sewv.loadout.LoadoutManager.reapply(event.getServer());
+    }
+
+    // Every unit reaches the world through here, whichever door it came in by, which is what makes
+    // this the one place that can armor all of them. See NpcArmor.
+    @SubscribeEvent
+    public void onEntityJoinLevel(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide) return;
+        if (event.getEntity() instanceof AbstractUnit unit) {
+            // Grace period: RU/US units baked into a Berezka structure never reach the level.
+            if (GracePeriodData.active(event.getLevel())
+                    && ModList.get().isLoaded(BerezkaStructureCompat.MODID)
+                    && BerezkaStructureCompat.refusesOnJoin(event.getLevel(), unit)) {
+                event.setCanceled(true);
+                return;
+            }
+            if (event.getLevel() instanceof net.minecraft.server.level.ServerLevel sl
+                    && com.neoalive.tacz_sewv.zone.SpawnZoneJoin.refuses(sl, unit, event.loadedFromDisk())) {
+                event.setCanceled(true);
+                return;
+            }
+            // Prefer trench floors (TrenchPathTypes.TRENCH malus 0) over open ground.
+            unit.setPathfindingMalus(BlockPathTypes.WALKABLE, TrenchPathTypes.OPEN_GROUND_MALUS);
+            NpcSbwWeapon.issue(unit, event.loadedFromDisk());
+            NpcArmor.issue(unit);
+            CamoSupport.issue(unit);
+            NpcNvg.issue(unit);
+            if (unit instanceof PmcUnitEntity pmc) NpcIdentity.issue(pmc);
+            SupportSpawner.maybeSpawnCompanions(unit);
+        } else if (event.getEntity() instanceof VehicleEntity hull) {
+            CamoSupport.retrofitHull(hull);
+        }
+    }
+}

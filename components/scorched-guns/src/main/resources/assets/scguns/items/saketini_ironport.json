@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/saketini_ironport",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

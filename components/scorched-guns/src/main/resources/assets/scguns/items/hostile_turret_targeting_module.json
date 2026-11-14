@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "scguns:item/hostile_turret_targeting_module"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    "#c:dusts/iron",
+    "minecraft:clay_ball"
+  ],
+  "result": {
+    "id": "hbm:catalyst_clay"
+  }
+}

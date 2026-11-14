@@ -1,0 +1,128 @@
+package com.neoalive.tacz_sewv.network;
+
+import java.util.List;
+import java.util.function.Supplier;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+
+import com.neoalive.tacz_sewv.compat.NpcVehicleOverrides;
+import com.neoalive.tacz_sewv.compat.lv.LvCompat;
+import com.neoalive.tacz_sewv.crew.VehicleAccess.Verdict;
+import com.neoalive.tacz_sewv.crew.VehicleAccessLive;
+import com.neoalive.tacz_sewv.entity.ai.support.BoardOrders;
+import com.neoalive.tacz_sewv.entity.ai.support.MortarSupport;
+import com.neoalive.tacz_sewv.order.OrderFailure;
+import com.neoalive.tacz_sewv.order.OrderGuard;
+import com.neoalive.tacz_sewv.order.OrderReport;
+
+public class PacketBoardVehicle {
+
+    private final List<Integer> unitIds;
+    private final int vehicleId;
+    private final boolean passengerOnly; // fill non-driver seats only — see IVehicleBoarder
+
+    public PacketBoardVehicle(List<Integer> unitIds, int vehicleId, boolean passengerOnly) {
+        this.unitIds = unitIds;
+        this.vehicleId = vehicleId;
+        this.passengerOnly = passengerOnly;
+    }
+
+    public PacketBoardVehicle(FriendlyByteBuf buf) {
+        this.unitIds = PacketLists.readUnitIds(buf);
+        this.vehicleId = buf.readVarInt();
+        this.passengerOnly = buf.readBoolean();
+    }
+
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeCollection(this.unitIds, FriendlyByteBuf::writeVarInt);
+        buf.writeVarInt(this.vehicleId);
+        buf.writeBoolean(this.passengerOnly);
+    }
+
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
+    ctx.get().enqueueWork(() -> {
+        Player player = ctx.get().getSender();
+        if (player == null) return;
+        if (player instanceof net.minecraft.server.level.ServerPlayer sp
+                && com.neoalive.tacz_sewv.command.quick.OrderQueue.capture(sp, () -> handle(ctx))) return;
+
+        Entity hull = player.level().getEntity(this.vehicleId);
+        // A Limitless Vehicles hull takes the same order; LvBoardGoal executes it. Its own
+        // refusals (aircraft, wrecks, no free seat) read as "gone" — there is no hull to board.
+        boolean lv = LvCompat.isLvHull(hull);
+        if (lv && !LvCompat.boardable(hull)) {
+            OrderReport.fail(player, OrderFailure.VEHICLE_GONE);
+            return;
+        }
+        if (!lv && (!(hull instanceof VehicleEntity vehicle) || !vehicle.isAlive())) {
+            OrderReport.fail(player, OrderFailure.VEHICLE_GONE);
+            return;
+        }
+        // Refused up front rather than left to BoardVehicleGoal's backstop: the player should
+        // hear why nobody moved, not watch the squad walk over and silently give up.
+        if (hull instanceof VehicleEntity vehicle && NpcVehicleOverrides.refusesNpcRiders(vehicle)) {
+            OrderReport.fail(player, OrderFailure.VEHICLE_PLAYER_ONLY);
+            NetworkHandler.sendOrderFeedback(player, NetworkHandler.orderLine("board", 0, Component.translatable(
+                    "message.tacz_sewv.board.player_only").withStyle(ChatFormatting.GRAY)));
+            return;
+        }
+        Verdict access = VehicleAccessLive.verdict(player, hull);
+        if (access != Verdict.ALLOW) {
+            OrderReport.fail(player, OrderFailure.VEHICLE_NOT_OWNED);
+            String key = access == Verdict.HOSTILE
+                    ? "message.tacz_sewv.interact.enemy_crew"
+                    : "message.tacz_sewv.interact.not_owner";
+            NetworkHandler.sendOrderFeedback(player, NetworkHandler.orderLine("board", 0, Component.translatable(key)
+                    .withStyle(ChatFormatting.GRAY)));
+            return;
+        }
+
+        int ordered = 0;
+        for (int unitId : this.unitIds) {
+            Entity e = player.level().getEntity(unitId);
+            if (!(e instanceof PmcUnitEntity pmc)) {
+                OrderReport.fail(player, OrderFailure.NOT_A_UNIT);
+                continue;
+            }
+            if (!com.neoalive.tacz_sewv.crew.OrderAuth.owns(player, pmc, "PacketBoardVehicle")) {
+                OrderReport.fail(player, OrderFailure.NOT_OWNED);
+                continue;
+            }
+            if (OrderGuard.rejectIfDowned(player, pmc)) continue;
+            if (OrderGuard.rejectIfTerritory(player, pmc, "board")) continue;
+            // A board order goes out to every owned unit in range, so leave crews that
+            // are already committed to a mortar out of it — otherwise pressing this at
+            // a vehicle silently pulls a working mortar team off its tube, including
+            // the units that would only walk over and bounce off a full hull anyway.
+            // Stand a crew down with the dismount key first to free it up.
+            if (MortarSupport.hasMortarClaim(pmc)) {
+                OrderReport.fail(player, OrderFailure.BUSY_MORTAR, pmc);
+                continue;
+            }
+            // A rider's board order would sit unused until it next dismounts, then fire out of nowhere.
+            if (pmc.getVehicle() != null) {
+                OrderReport.fail(player, OrderFailure.MUST_BE_ON_FOOT, pmc);
+                continue;
+            }
+            if (com.neoalive.tacz_sewv.command.quick.QuickCommandUnits.refuseFobOrRoute((net.minecraft.server.level.ServerPlayer) player, pmc)) continue;
+
+            BoardOrders.issue(pmc, this.vehicleId, this.passengerOnly);
+            ordered++;
+        }
+
+        // The ".none" this emits at zero is suppressed by OrderReport whenever one of the refusals
+        // above already said something more specific — which is why the old bespoke "busy on a
+        // mortar" branch is gone rather than moved.
+        NetworkHandler.orderFeedback(player, "board", "message.tacz_sewv.board.ordered", ordered,
+                ChatFormatting.GREEN, ordered);
+    });
+    ctx.get().setPacketHandled(true);
+}
+}

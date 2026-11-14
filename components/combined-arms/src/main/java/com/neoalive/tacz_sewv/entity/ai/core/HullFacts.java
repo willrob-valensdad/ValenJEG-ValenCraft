@@ -1,0 +1,558 @@
+package com.neoalive.tacz_sewv.entity.ai.core;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+
+import com.atsuishio.superbwarfare.data.vehicle.subdata.EngineInfo;
+import com.atsuishio.superbwarfare.data.vehicle.subdata.EngineType;
+import com.atsuishio.superbwarfare.data.vehicle.subdata.SeatInfo;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import com.neoalive.tacz_sewv.compat.NpcVehicleOverrides;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.entity.ai.maneuver.WheelTurnModel;
+import com.neoalive.tacz_sewv.util.WorldVehicleClasses;
+
+/**
+ * Drivetrain facts about the hull a crew is riding, cached for its lifetime.
+ *
+ * <p>Both are read from {@code data().compute()}, which is far too expensive to call from
+ * an AI tick, and neither can change mid-drive — so they are resolved once per hull and
+ * held. {@link #attach} is keyed on entity identity, so calling it every tick costs a
+ * reference comparison and re-boarding the same hull reuses the answers.
+ *
+ * <p>Reads are defensive: unreadable hull data must never crash the AI tick, and each
+ * fact falls back to the answer whose behaviour is the safe one.
+ */
+public final class HullFacts {
+
+    private static final List<String> IFV_NAME_CLUES = List.of(
+            "bradley", "bmp", "bmd", "cv90", "cv_90", "puma", "marder",
+            "lav", "aavp", "btr", "stryker", "zbd", "ajax");
+    private static final List<String> MISSILE_SYSTEM_NAME_CLUES = List.of("sapsan", "grim2");
+    private static final List<String> ANTI_AIR_NAME_CLUES = List.of("gepard", "pantsir", "pa_pantsir");
+    private static final List<String> ARTILLERY_NAME_CLUES = List.of(
+            "plz_05", "mk_42", "mle_1934", "bl_132", "tos");
+    /** Substrings that look like IFV clues but are softskin technicals. */
+    private static final List<String> IFV_DENY = List.of("hilux_bmp", "toyota_hilux_bmp");
+
+    /** Identity only: an SBW {@code VehicleEntity}, or a profiled hull (see {@link #attachProfile}). */
+    private Object hullKey;
+    private boolean helicopter;
+    private boolean plane;
+    private boolean tracked;
+    private boolean wheeled;
+    private boolean ship;
+    private boolean groundMobile;
+    private boolean ifv;
+    private boolean missileSystem;
+    private boolean antiAir;
+    private boolean artillery;
+    /** SBW {@code SteeringSpeed} for a wheeled hull; NaN = unreadable (the maneuver planner refuses). */
+    private double steeringSpeed = Double.NaN;
+    private Set<Integer> crewSeats = Set.of(0);
+    private Set<Integer> climbSeats = Set.of();
+
+    // Keyed on entity identity, not per-instance: callers with no attached HullFacts (the ballistic
+    // translation redirect, which fires on a bullet hit rather than a crew AI tick) still want the
+    // cache. EngineType cannot change during a hull's lifetime (see computeShip below), so unlike
+    // VehicleWeapons' per-tick GunMapCache this never needs invalidating - only server-thread callers
+    // ever reach it (ballistic translation gates client-side out first), so a plain WeakHashMap is safe.
+    private static final Map<VehicleEntity, EngineType> ENGINE_TYPE_CACHE = new WeakHashMap<>();
+
+    public void attach(VehicleEntity v) {
+        if (this.hullKey == v) return;
+        this.hullKey = v;
+        this.helicopter = computeHelicopter(v);
+        this.plane = computePlane(v);
+        this.tracked = computeTracked(v);
+        this.wheeled = computeWheeled(v);
+        this.steeringSpeed = this.wheeled ? computeSteeringSpeed(v) : Double.NaN;
+        this.ship = computeShip(v);
+        this.groundMobile = computeGroundMobile(v);
+        this.ifv = computeIfv(v);
+        this.missileSystem = computeMissileSystem(v);
+        this.antiAir = computeAntiAir(v);
+        this.artillery = computeArtillery(v);
+        this.crewSeats = this.ifv ? computeCrewSeats(v) : Set.of(0);
+        this.climbSeats = SewvConfig.TANK_RIDER_DISMOUNT_ENABLED.get() ? computeClimbSeats(v) : Set.of();
+    }
+
+    /**
+     * Facts for a hull that is not an SBW one (compat/lv). Only the locomotion class is known;
+     * every role a hull's SBW data would reveal (IFV, artillery, AA, missile system) reads false,
+     * the crew is the driver alone, and steering speed is NaN so the maneuver planner refuses and
+     * the legacy back-and-fill turns a wheeled hull.
+     */
+    public void attachProfile(Entity hull, HullProfile p) {
+        if (this.hullKey == hull) return;
+        this.hullKey = hull;
+        this.helicopter = false;
+        this.plane = false;
+        this.tracked = p.tracked();
+        this.wheeled = p.wheeled();
+        this.steeringSpeed = p.steeringSpeed();
+        this.ship = p.ship();
+        this.groundMobile = p.tracked() || p.wheeled();
+        this.ifv = false;
+        this.missileSystem = false;
+        this.antiAir = false;
+        this.artillery = false;
+        this.crewSeats = Set.of(0);
+        this.climbSeats = Set.of();
+    }
+
+    /**
+     * Rotary-wing hulls, flown by {@link DriveHelicopterGoal} (hover/vertical climb). Read off the
+     * engine TYPE, not {@code getEngineInfo() instanceof EngineInfo.Helicopter}: SBW's fixed-wing
+     * {@code EngineInfo.Aircraft} <b>subclasses</b> {@code Helicopter}, so the instanceof test also
+     * matched planes and handed them to the hover autopilot. {@code EngineType.HELICOPTER} and
+     * {@code EngineType.AIRCRAFT} are distinct enum values, so this cleanly excludes planes — which
+     * fly through {@link DrivePlaneGoal} instead.
+     */
+    public boolean isHelicopter() {
+        return this.helicopter;
+    }
+
+    /** Fixed-wing aircraft ({@link EngineType#AIRCRAFT}): forward-airspeed lift, no hover — flown by
+     * {@link DrivePlaneGoal}. Mutually exclusive with {@link #isHelicopter()}. */
+    public boolean isPlane() {
+        return this.plane;
+    }
+
+    /** Tracked hulls pivot in place; wheeled ones must roll through a turn. */
+    public boolean isTracked() {
+        return this.tracked;
+    }
+
+    /**
+     * {@link EngineType#WHEEL} — cannot turn in place; must roll through turns and back-and-fill
+     * when the bearing is behind the beam. See {@link VehicleDriver}.
+     */
+    public boolean isWheeled() {
+        return this.wheeled;
+    }
+
+    /**
+     * SBW {@code SteeringSpeed} of a wheeled hull, the one per-hull input to its turn radius (SBW
+     * has no wheelbase or steer angle; see {@code WheelTurnModel}). NaN when not wheeled or
+     * unreadable. An absent field is SBW's own default, which is what SBW really drives it at.
+     */
+    public double steeringSpeed() {
+        return this.steeringSpeed;
+    }
+
+    /** Wheel or track hulls only — excludes {@code FIXED} emplacements (they don't drive),
+     * ships, helicopters and planes. Gates {@link TreeFellingSupport}. */
+    public boolean isGroundMobile() {
+        return this.groundMobile;
+    }
+
+    /**
+     * Ships ({@link EngineInfo.Ship}) drive through {@link DriveVehicleGoal} the same as any
+     * ground hull — same input flags, same combat doctrine, same terrain sensor (already
+     * amphibious-aware, see {@code GroundTerrainSensor.computeAmphibious}) — the only thing this
+     * fact changes is which {@code PathFinder}/node evaluator pair {@code recomputePath} picks,
+     * since a hull that floats needs {@code ShipVehicleNodeEvaluator}'s water-surface search
+     * instead of {@code GroundVehicleNodeEvaluator}'s land one (which blocks only water deeper
+     * than a one-block ford).
+     * {@code isTracked()} is already correctly {@code false} for a ship (no {@code TrackRotSpeed}
+     * in its data), so the existing wheeled "roll through the turn" steering branch already
+     * matches a ship's own physics (turn rate scales with speed — it can't pivot at a standstill)
+     * with no changes needed there either.
+     */
+    public boolean isShip() {
+        return this.ship;
+    }
+
+    /**
+     * Carries a dismount squad rather than just a crew, so it puts its infantry on the ground when
+     * the shooting starts — see {@link com.neoalive.tacz_sewv.entity.ai.support.DismountSequence}.
+     */
+    public boolean isIfv() {
+        return this.ifv;
+    }
+
+    /**
+     * Coordinate ballistic launcher (ASH Sapsan): no SBW gun loop — stop, arm pod, fire at a mark.
+     * See {@link ManMissileSystemGoal}.
+     */
+    public boolean isMissileSystem() {
+        return this.missileSystem;
+    }
+
+    /** Prefers airborne targets (HELICOPTER / AIRCRAFT riders). See {@link CrewTargetPriorityGoal}. */
+    public boolean isAntiAir() {
+        return this.antiAir;
+    }
+
+    /**
+     * Self-propelled / bindable artillery (PLZ-05, coastal guns). Waits for fire missions rather
+     * than free-fighting at close range. See {@link ArtillerySupport}.
+     */
+    public boolean isArtillery() {
+        return this.artillery;
+    }
+
+    public static boolean isArtilleryHull(VehicleEntity v) {
+        return computeArtillery(v);
+    }
+
+    /**
+     * The seats that stay buttoned up on an IFV: the <b>driver</b> and the <b>turret</b>. Everyone
+     * else is a dismount.
+     *
+     * <p>Deliberately not "every seat that has a weapon", which is the obvious rule and does not
+     * survive the actual data: SuperbWarfare's own {@code bmp_2} arms all six of its rear seats
+     * with firing-port MGs, so that rule would empty nothing at all from one of the commonest RU
+     * hulls, while {@code t_90a} — a tank — has a weaponless seat that rule would empty.
+     * Counting weapons finds the turret wherever the pack put it, which matters because that is
+     * not a convention either: SBW and MCSP hulls put the turret in seat 0, while FCP's BMPs put a
+     * <em>weaponless driver</em> there and the turret in seat 1. Seat 0 is always the driver
+     * regardless — SuperbWarfare's driver is simply the first passenger.
+     */
+    public Set<Integer> crewSeats() {
+        return this.crewSeats;
+    }
+
+    /**
+     * Seats posed as a tank-rider handhold (SuperbWarfare's {@code Pose == "Climb"}) rather than a
+     * real crew station — {@code DriveVehicleGoal}'s dismount-utilization feature empties these out
+     * in combat and {@code SeekAbandonedVehicleGoal} lets an idle unit refill them once quiet.
+     *
+     * <p>Deliberately NOT "seats with no weapon", the same trap {@link #crewSeats} already avoids
+     * for IFVs: {@code m_1a_2}/{@code ztz_99a} both carry a SECOND weaponless seat (a loader/extra
+     * crewman) alongside their two actual {@code Climb} seats, and a "no weapon" rule would empty
+     * that seat too — exactly the "commander walks off the tank" bug this is written to not have.
+     * {@code Pose} is a real, SBW-rendered animation state (see {@code HumanoidModelMixin}, which
+     * special-cases {@code "Climb"}/{@code "Pilot"}/{@code "Tow"}/{@code "Stand"} for how a
+     * passenger is drawn), not a loose convention — any addon hull wanting a rider visibly clinging
+     * to the exterior has to use the same value to get that rendering, so this holds up on
+     * MCSP/FCP/ashvehicles hulls the same way it does on SuperbWarfare's own.
+     */
+    public Set<Integer> climbSeats() {
+        return this.climbSeats;
+    }
+
+    private static Set<Integer> computeClimbSeats(VehicleEntity v) {
+        try {
+            int seats = Math.max(1, v.getMaxPassengers());
+            Set<Integer> result = new HashSet<>();
+            for (int seat = 0; seat < seats; seat++) {
+                SeatInfo info = v.getSeat(seat);
+                if (info != null && "Climb".equals(info.pose)) result.add(seat);
+            }
+            return result;
+        } catch (Exception ignored) {
+            return Set.of(); // unreadable seats: nothing to dismount rather than guessing
+        }
+    }
+
+    /** What a seat index IS, per the hull's own seat data — callers layer policy on top. */
+    public enum SeatKind {
+        /** Seat 0 — SuperbWarfare's driver is simply the first passenger, data or no data. */
+        DRIVER,
+        /** A seat with one or more weapons bound to it (a gunner / firing-port station). */
+        WEAPONED,
+        /** A {@code Pose == "Climb"} tank-rider handhold. */
+        CLIMB,
+        /** Readable, unarmed, not Climb — a passenger compartment seat. */
+        PLAIN,
+        /** Unreadable hull data or a seat index past the data's end. */
+        UNKNOWN
+    }
+
+    /**
+     * Direct (uncached) seat classification for one-off reads — the per-hull cached path is
+     * {@link #crewSeats}/{@link #climbSeats}. {@code CommanderSeating} and
+     * {@code CrewSeatPromotion} layer their opposite Climb policies over this shared kernel.
+     */
+    public static SeatKind seatKind(VehicleEntity v, int seat) {
+        if (seat == 0) return SeatKind.DRIVER;
+        try {
+            SeatInfo info = v.getSeat(seat);
+            if (info == null) return SeatKind.UNKNOWN;
+            if ("Climb".equals(info.pose)) return SeatKind.CLIMB;
+            List<String> weapons = info.weapons();
+            return weapons != null && !weapons.isEmpty() ? SeatKind.WEAPONED : SeatKind.PLAIN;
+        } catch (Exception ignored) {
+            return SeatKind.UNKNOWN;
+        }
+    }
+
+    /**
+     * True when {@code v} has at least one unoccupied seat and EVERY unoccupied seat is a
+     * {@link #climbSeats} seat — the signal {@code SeekAbandonedVehicleGoal} uses to let a
+     * still-crewed tank-rider hull count as worth boarding without reintroducing the IFV recall
+     * ({@code DismountSequence}'s troop-compartment seats are never {@code Climb}-posed,
+     * so they never match this and stay excluded exactly as before). A vacant DRIVER/gunner/commander
+     * seat does not qualify — this is refilling a hitchhiker slot, not reinforcing a partial crew.
+     *
+     * <p>Static, not part of the per-instance cache above: this evaluates arbitrary CANDIDATE hulls
+     * during a scavenging scan, not the one hull a drive goal is attached to for its whole tick.
+     */
+    public static boolean hasFreeClimbSeat(VehicleEntity v) {
+        if (!SewvConfig.TANK_RIDER_DISMOUNT_ENABLED.get()) return false;
+        try {
+            int seats = Math.max(1, v.getMaxPassengers());
+            Set<Integer> occupied = new HashSet<>();
+            for (Entity passenger : v.getPassengers()) {
+                int seat = v.getSeatIndex(passenger);
+                if (seat >= 0) occupied.add(seat);
+            }
+            boolean foundFreeClimb = false;
+            for (int seat = 0; seat < seats; seat++) {
+                if (occupied.contains(seat)) continue;
+                SeatInfo info = v.getSeat(seat);
+                if (info == null || !"Climb".equals(info.pose)) return false; // a non-climb seat is free
+                foundFreeClimb = true;
+            }
+            return foundFreeClimb;
+        } catch (Exception ignored) {
+            return false; // unreadable: don't treat as board-worthy
+        }
+    }
+
+    private static Set<Integer> computeCrewSeats(VehicleEntity v) {
+        int turret = 0;
+        int most = -1;
+        try {
+            int seats = Math.max(1, v.getMaxPassengers());
+            for (int seat = 0; seat < seats; seat++) {
+                SeatInfo info = v.getSeat(seat);
+                List<String> weapons = info == null ? null : info.weapons();
+                int count = weapons == null ? 0 : weapons.size();
+                if (count > most) {
+                    most = count;
+                    turret = seat;
+                }
+            }
+        } catch (Exception ignored) {
+            return Set.of(0); // unreadable seats: keep everyone aboard rather than empty the hull
+        }
+        // Set.of rejects duplicates, and on most hulls the driver IS the turret.
+        return turret == 0 ? Set.of(0) : Set.of(0, turret);
+    }
+
+    /**
+     * Matched on the registry id rather than read from the hull data, because <b>nothing in the
+     * vehicle data says "IFV"</b>. Seat counts don't separate them (a T-90A has a spare seat too)
+     * and neither do weapons (SuperbWarfare's BMP-2 arms all six of its rear seats with
+     * firing-port MGs). The id is the only signal that actually tracks the vehicle class, which
+     * is why the clue list is config — an addon's hull is caught without this mod knowing it.
+     */
+    /**
+     * The same IFV test, for callers with no crew to attach a {@link HullFacts} to (the map
+     * markers, which classify a hull they only ever look at). Cheap — a registry-id string match,
+     * no vehicle-data compute.
+     */
+    public static boolean isIfvHull(VehicleEntity v) {
+        return computeIfv(v);
+    }
+
+    public static boolean isMissileSystemHull(VehicleEntity v) {
+        return computeMissileSystem(v);
+    }
+
+    public static boolean isAntiAirHull(VehicleEntity v) {
+        return computeAntiAir(v);
+    }
+
+    /**
+     * Design crew-seat count for AI aim scaling — driver (+ turret on IFVs), never the
+     * infantry squad hanging in rear seats. At least 1.
+     */
+    public static int crewSeatCount(VehicleEntity v) {
+        HullFacts facts = new HullFacts();
+        facts.attach(v);
+        return Math.max(1, facts.crewSeats().size());
+    }
+
+    private static boolean computeIfv(VehicleEntity v) {
+        if (!SewvConfig.IFV_DISMOUNTS_ENABLED.get()) return false;
+        return idMatchesClues(v, cuesFor(v, WorldVehicleClasses.CueKind.IFV, IFV_NAME_CLUES));
+    }
+
+    private static boolean computeMissileSystem(VehicleEntity v) {
+        return idMatchesClues(v, cuesFor(v, WorldVehicleClasses.CueKind.MISSILE_SYSTEM, MISSILE_SYSTEM_NAME_CLUES));
+    }
+
+    private static boolean computeAntiAir(VehicleEntity v) {
+        return idMatchesClues(v, cuesFor(v, WorldVehicleClasses.CueKind.ANTI_AIR, ANTI_AIR_NAME_CLUES));
+    }
+
+    private static boolean computeArtillery(VehicleEntity v) {
+        return idMatchesClues(v, cuesFor(v, WorldVehicleClasses.CueKind.ARTILLERY, ARTILLERY_NAME_CLUES));
+    }
+
+    private static List<? extends String> cuesFor(VehicleEntity v, WorldVehicleClasses.CueKind kind,
+                                                  List<String> fallback) {
+        try {
+            return WorldVehicleClasses.get(v.level()).listCues(kind);
+        } catch (Throwable ignored) {
+            return fallback;
+        }
+    }
+
+    private static boolean idMatchesClues(VehicleEntity v, List<? extends String> clues) {
+        try {
+            String id = ForgeRegistries.ENTITY_TYPES.getKey(v.getType()).toString().toLowerCase(Locale.ROOT);
+            for (String clue : clues) {
+                if (clue.isBlank()) continue;
+                String c = clue.toLowerCase(Locale.ROOT);
+                if (!id.contains(c)) continue;
+                if (isIfvClue(c) && isDeniedIfv(id)) continue;
+                return true;
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    private static boolean isIfvClue(String clue) {
+        for (String c : IFV_NAME_CLUES) {
+            if (c.equalsIgnoreCase(clue)) return true;
+        }
+        return false;
+    }
+
+    private static boolean isDeniedIfv(String id) {
+        for (String deny : IFV_DENY) {
+            if (!deny.isBlank() && id.contains(deny.toLowerCase(Locale.ROOT))) return true;
+        }
+        return false;
+    }
+
+    private static boolean computeHelicopter(VehicleEntity v) {
+        try {
+            EngineType t = NpcVehicleOverrides.applyEngineHint(
+                    ForgeRegistries.ENTITY_TYPES.getKey(v.getType()).toString(),
+                    v.computed().getEngineType());
+            return t == EngineType.HELICOPTER;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private static boolean computePlane(VehicleEntity v) {
+        try {
+            EngineType t = NpcVehicleOverrides.applyEngineHint(
+                    ForgeRegistries.ENTITY_TYPES.getKey(v.getType()).toString(),
+                    v.computed().getEngineType());
+            return t == EngineType.AIRCRAFT;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    // computed() (static datapack data), NOT getEngineInfo() — that field is populated lazily on
+    // the hull's first travel(), so a crew whose goal evaluates on the spawn tick would read null
+    // and, because attach() caches per hull identity, keep that wrong answer for the hull's life.
+    /**
+     * The same ship test for callers with no crew to attach a {@link HullFacts} to — the radio,
+     * which needs to know whether the hull under a speaker is a boat to pick the right voice pool.
+     */
+    public static boolean isShipHull(VehicleEntity v) {
+        return computeShip(v);
+    }
+
+    /** The fixed-wing test for callers with no crew to attach a {@link HullFacts} to (the fire-mission
+     * crew filter, which asks whether a PMC is flying a plane). */
+    public static boolean isPlaneHull(VehicleEntity v) {
+        return computePlane(v);
+    }
+
+    /** Rotary-wing test for callers with no attached {@link HullFacts} (AA target preference). */
+    public static boolean isHelicopterHull(VehicleEntity v) {
+        return computeHelicopter(v);
+    }
+
+    /** Wheel/track ground hull (not FIXED / ship / air) for callers with no attached facts. */
+    public static boolean isGroundMobileHull(VehicleEntity v) {
+        return computeGroundMobile(v);
+    }
+
+    /**
+     * Cached raw {@code EngineType} for callers with no attached {@link HullFacts} and no interest
+     * in the derived helicopter/plane/ship/groundMobile booleans above - currently just the
+     * ballistic translation redirect, which needs the hull CLASS (WHEEL/TRACK/SHIP/...) to key an
+     * optional per-category datapack override, not any one of those booleans.
+     *
+     * <p>Reads {@code computed()} (static datapack data), same as every other engine-type read in
+     * this class - never {@code getEngineInfo()}, which is null until the hull's first
+     * {@code travel()}.
+     */
+    public static EngineType engineType(VehicleEntity v) {
+        synchronized (ENGINE_TYPE_CACHE) {
+            return ENGINE_TYPE_CACHE.computeIfAbsent(v, HullFacts::computeEngineType);
+        }
+    }
+
+    private static EngineType computeEngineType(VehicleEntity v) {
+        try {
+            return v.computed().getEngineType();
+        } catch (Throwable ignored) {
+            return EngineType.EMPTY;
+        }
+    }
+
+    private static boolean computeShip(VehicleEntity v) {
+        try {
+            return v.computed().getEngineType() == EngineType.SHIP;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private static boolean computeGroundMobile(VehicleEntity v) {
+        try {
+            // Same applyEngineHint path as plane/heli — raw datapack WHEEL on an override-AIRCRAFT
+            // hull must not read as towable ground (that was linking planes into SBW tow chains).
+            EngineType t = NpcVehicleOverrides.applyEngineHint(
+                    ForgeRegistries.ENTITY_TYPES.getKey(v.getType()).toString(),
+                    v.computed().getEngineType());
+            return t == EngineType.WHEEL || t == EngineType.TRACK;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private static boolean computeWheeled(VehicleEntity v) {
+        try {
+            return v.computed().getEngineType() == EngineType.WHEEL;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    /** Same engine-info read as {@link #computeTracked}; no engine-type read. Absent field: SBW's
+     * default. Throws, or not a positive finite number: NaN, and the planner falls back to legacy. */
+    private static double computeSteeringSpeed(VehicleEntity v) {
+        try {
+            var data = v.data().compute();
+            if (data == null) return Double.NaN;
+            var value = data.getEngineInfo().get("SteeringSpeed");
+            if (value == null) return WheelTurnModel.SBW_DEFAULT_STEERING_SPEED;
+            double s = value.getAsDouble();
+            return s > 0.0 && !Double.isInfinite(s) ? s : Double.NaN;
+        } catch (Throwable ignored) {
+            return Double.NaN;
+        }
+    }
+
+    private static boolean computeTracked(VehicleEntity v) {
+        try {
+            var data = v.data().compute();
+            if (data != null) {
+                var trackRotSpeed = data.getEngineInfo().get("TrackRotSpeed");
+                return trackRotSpeed != null && trackRotSpeed.getAsInt() > 0;
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+}

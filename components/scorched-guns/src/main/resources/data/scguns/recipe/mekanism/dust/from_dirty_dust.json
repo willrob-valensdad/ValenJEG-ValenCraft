@@ -1,0 +1,13 @@
+{
+  "type": "mekanism:enriching",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "mekanism"
+    }
+  ],
+  "input": {
+    "ingredient": "scguns:dirty_dust_anthralite"
+  },
+  "output": "scguns:anthralite_dust"
+}

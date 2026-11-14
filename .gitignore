@@ -1,0 +1,8 @@
+# Reproducible local output and supplied API dependencies.
+/dist/
+/.cache/
+/**/__pycache__/
+/**/*.pyc
+/components/**/build/
+/components/**/.gradle/
+/components/**/compile-inputs/

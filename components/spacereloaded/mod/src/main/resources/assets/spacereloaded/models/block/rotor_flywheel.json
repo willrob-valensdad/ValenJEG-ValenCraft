@@ -1,0 +1,77 @@
+{
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "spacereloaded:block/flywheel",
+		"all": "spacereloaded:block/flywheel"
+	},
+	"elements": [
+		{
+			"from": [
+				-4,
+				3,
+				-4
+			],
+			"to": [
+				20,
+				13,
+				20
+			],
+			"faces": {
+				"north": {
+					"texture": "#all",
+					"uv": [
+						0.0,
+						3,
+						16.0,
+						13
+					]
+				},
+				"south": {
+					"texture": "#all",
+					"uv": [
+						0.0,
+						3,
+						16.0,
+						13
+					]
+				},
+				"east": {
+					"texture": "#all",
+					"uv": [
+						0.0,
+						3,
+						16.0,
+						13
+					]
+				},
+				"west": {
+					"texture": "#all",
+					"uv": [
+						0.0,
+						3,
+						16.0,
+						13
+					]
+				},
+				"up": {
+					"texture": "#all",
+					"uv": [
+						0.0,
+						0.0,
+						16.0,
+						16.0
+					]
+				},
+				"down": {
+					"texture": "#all",
+					"uv": [
+						0.0,
+						0.0,
+						16.0,
+						16.0
+					]
+				}
+			}
+		}
+	]
+}

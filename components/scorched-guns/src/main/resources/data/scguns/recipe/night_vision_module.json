@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "scguns:treated_iron_ingot",
+    "S": "minecraft:redstone",
+    "Q": "minecraft:glass",
+    "R": "scguns:plasma_nugget"
+  },
+  "pattern": [
+    "QSX",
+    "R X"
+  ],
+  "result": {
+    "id": "scguns:night_vision_module"
+  }
+}

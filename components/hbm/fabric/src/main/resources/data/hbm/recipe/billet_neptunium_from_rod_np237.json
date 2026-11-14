@@ -1,0 +1,14 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    "hbm:rod_np237"
+  ],
+  "input_state": {
+    "0": {
+      "preserve": "remainder"
+    }
+  },
+  "result": {
+    "id": "hbm:billet_neptunium"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "X": "scguns:plasma_block",
+    "#": "#scguns:anthralite_plates"
+  },
+  "pattern": [
+    " # ",
+    "#X#",
+    " # "
+  ],
+  "result": {
+    "id": "scguns:anthralite_lamp",
+    "count": 4
+  }
+}

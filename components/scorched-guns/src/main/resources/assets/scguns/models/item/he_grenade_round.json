@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/he_grenade_round_3d",
+  "textures": {
+    "0": "scguns:item/he_grenade_round",
+    "particle": "scguns:item/he_grenade_round"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/molotov_cocktail_3d",
+  "textures": {
+    "0": "scguns:item/molotov_cocktail",
+    "particle": "scguns:item/molotov_cocktail"
+  }
+}

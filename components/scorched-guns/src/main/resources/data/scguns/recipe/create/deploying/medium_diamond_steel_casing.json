@@ -1,0 +1,19 @@
+{
+  "type": "create:deploying",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredients": [
+    "scguns:depleted_diamond_steel_ingot",
+    "scguns:medium_casing_mold"
+  ],
+  "results": [
+    {
+      "id": "scguns:medium_diamond_steel_casing",
+      "count": 10
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:plates/cmbsteel"
+    }
+  ],
+  "order": 73984,
+  "output_items": [
+    "hbm:powder_combine_steel"
+  ]
+}

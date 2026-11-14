@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 9
+  },
+  "gives": {
+    "id": "scguns:gun_barrel"
+  },
+  "max_uses": 10,
+  "xp": 2,
+  "reputation_discount": 0.02
+}

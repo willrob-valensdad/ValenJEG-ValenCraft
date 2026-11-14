@@ -1,0 +1,861 @@
+{
+  "markers": [
+    {
+      "pos": [
+        3,
+        5,
+        9
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_FLAREGUN",
+      "min": 0,
+      "max": 2,
+      "rot": 172.62213134765625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        6,
+        5,
+        13
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_green",
+      "replace_meta": 0,
+      "source_pool": "POOL_OFFICE_TRASH",
+      "min": 3,
+      "max": 8,
+      "rot": 357.7214660644531,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        13,
+        5,
+        9
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_SHIT",
+      "min": 0,
+      "max": 1,
+      "rot": -180.92791748046875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        13,
+        5,
+        12
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_SHIT",
+      "min": 0,
+      "max": 1,
+      "rot": -4.82659912109375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        15,
+        5,
+        9
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MEDICINE",
+      "min": 0,
+      "max": 1,
+      "rot": -178.67791748046875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        20,
+        4,
+        10
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_BONES",
+      "min": 0,
+      "max": 2,
+      "rot": -202.3780059814453,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        22,
+        4,
+        2
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_MACHINE_PARTS",
+      "min": 5,
+      "max": 12,
+      "rot": 163.618896484375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        24,
+        4,
+        18
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_BLUEPRINTS",
+      "min": 3,
+      "max": 5,
+      "rot": -84.02854919433594,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        33,
+        4,
+        10
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_SUPPLIES",
+      "min": 8,
+      "max": 16,
+      "rot": 183.273681640625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    }
+  ],
+  "class_notes": [
+    {
+      "pos": [
+        3,
+        0,
+        8
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        3,
+        0,
+        14
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        3,
+        1,
+        8
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        3,
+        1,
+        14
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        3,
+        2,
+        8
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        3,
+        2,
+        14
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        14,
+        0,
+        8
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        14,
+        0,
+        14
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        14,
+        1,
+        8
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        14,
+        1,
+        14
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        14,
+        2,
+        8
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        14,
+        2,
+        14
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        19,
+        0,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        19,
+        0,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        19,
+        1,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        19,
+        1,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        19,
+        2,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        19,
+        2,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        0,
+        2
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        0,
+        5
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        0,
+        17
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        0,
+        20
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        1,
+        2
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        1,
+        5
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        1,
+        17
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        1,
+        20
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        2,
+        2
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        2,
+        5
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        2,
+        17
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        2,
+        20
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        0,
+        2
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        0,
+        5
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        0,
+        17
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        0,
+        20
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        1,
+        2
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        1,
+        5
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        1,
+        17
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        1,
+        20
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        2,
+        2
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        2,
+        5
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        2,
+        17
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        2,
+        20
+      ],
+      "block": "steel_scaffold",
+      "meta": 10,
+      "color_index": 2,
+      "bound_orient": "ew_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        26,
+        0,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        26,
+        0,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        26,
+        1,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        26,
+        1,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        26,
+        2,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        26,
+        2,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        31,
+        0,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        31,
+        0,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        31,
+        1,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        31,
+        1,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        31,
+        2,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        31,
+        2,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        35,
+        0,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        35,
+        0,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        35,
+        1,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        35,
+        1,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        35,
+        2,
+        9
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        35,
+        2,
+        13
+      ],
+      "block": "steel_scaffold",
+      "meta": 2,
+      "color_index": 2,
+      "bound_orient": "ns_upright",
+      "port_has_color_property": false
+    }
+  ]
+}

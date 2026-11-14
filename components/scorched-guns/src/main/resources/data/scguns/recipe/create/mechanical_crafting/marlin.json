@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "#minecraft:planks",
+    "L": "scguns:firing_unit",
+    "R": "minecraft:heart_of_the_sea",
+    "S": "scguns:gun_barrel",
+    "I": "scguns:iron_gun_frame",
+    "X": "scguns:treated_brass_ingot",
+    "O": "scguns:ocean_blueprint",
+    "P": "minecraft:prismarine_shard"
+  },
+  "pattern": [
+    "XICO",
+    "LRSS",
+    "Q P "
+  ],
+  "result": {
+    "id": "scguns:marlin"
+  }
+}

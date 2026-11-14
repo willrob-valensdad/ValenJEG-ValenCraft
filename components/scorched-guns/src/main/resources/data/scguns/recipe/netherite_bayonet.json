@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "minecraft:netherite_ingot",
+  "base": "scguns:diamond_bayonet",
+  "result": {
+    "id": "scguns:netherite_bayonet"
+  },
+  "template": "minecraft:netherite_upgrade_smithing_template"
+}

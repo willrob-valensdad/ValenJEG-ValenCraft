@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": "minecraft:diamond",
+    "Q": "minecraft:stick"
+  },
+  "pattern": [
+    " X ",
+    "Q  "
+  ],
+  "result": {
+    "id": "scguns:diamond_bayonet"
+  }
+}

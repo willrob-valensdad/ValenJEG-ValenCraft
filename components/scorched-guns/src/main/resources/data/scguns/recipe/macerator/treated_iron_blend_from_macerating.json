@@ -1,0 +1,20 @@
+{
+  "type": "scguns:macerating",
+  "processingTime": 200,
+  "ingredients": [
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "minecraft:iron_ingot",
+        "minecraft:raw_iron"
+      ]
+    },
+    "#c:dusts/saltpeter",
+    "minecraft:charcoal",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "scguns:treated_iron_blend",
+    "count": 3
+  }
+}

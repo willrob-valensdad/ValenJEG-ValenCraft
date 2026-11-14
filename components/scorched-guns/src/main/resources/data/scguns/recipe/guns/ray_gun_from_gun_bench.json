@@ -1,0 +1,15 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:raygun",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:end_blueprint",
+    "gun_internal_1": "scguns:plasma_core",
+    "gun_internal_2": "scguns:heavy_gun_parts",
+    "gun_top_internal_2": "scguns:anthralite_ingot",
+    "gun_barrel_1": "scguns:gun_barrel",
+    "gun_grip": "scguns:gun_grip"
+  }
+}

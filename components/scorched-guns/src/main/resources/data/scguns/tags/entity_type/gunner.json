@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:zombie",
+    "minecraft:zombie_villager",
+    "minecraft:husk",
+    "minecraft:skeleton",
+    "minecraft:stray",
+    "minecraft:vindicator",
+    "minecraft:pillager",
+    "minecraft:piglin",
+    "minecraft:piglin_brute",
+    "minecraft:zombified_piglin",
+    "minecraft:wither_skeleton",
+    "scguns:hornlin",
+    "scguns:zombified_hornlin",
+    "scguns:adjudicator",
+    "scguns:subjugator",
+    "scguns:finforcer"
+  ]
+}

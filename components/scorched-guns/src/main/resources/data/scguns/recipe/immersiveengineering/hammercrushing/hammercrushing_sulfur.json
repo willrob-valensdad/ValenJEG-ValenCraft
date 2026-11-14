@@ -1,0 +1,13 @@
+{
+  "type": "immersiveengineering:hammer_crushing",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "immersiveengineering"
+    }
+  ],
+  "input": "scguns:sulfur_ore",
+  "result": {
+    "id": "scguns:sulfur_chunk"
+  }
+}

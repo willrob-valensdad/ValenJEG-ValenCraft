@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/nail_bomb_3d",
+  "textures": {
+    "0": "scguns:item/nail_bomb",
+    "particle": "scguns:item/nail_bomb"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/stun_grenade_3d",
+  "textures": {
+    "0": "scguns:item/stun_grenade",
+    "particle": "scguns:item/stun_grenade"
+  }
+}

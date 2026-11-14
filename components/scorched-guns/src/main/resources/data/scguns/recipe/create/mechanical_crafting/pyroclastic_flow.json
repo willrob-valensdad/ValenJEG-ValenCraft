@@ -1,0 +1,28 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "P": "scguns:vehement_coal",
+    "S": "scguns:gun_barrel",
+    "G": "scguns:heavy_gun_parts",
+    "C": "scguns:gun_magazine",
+    "I": "scguns:anthralite_ingot",
+    "B": "minecraft:crimson_planks",
+    "A": "scguns:piglin_blueprint"
+  },
+  "pattern": [
+    "AIB",
+    "PGS",
+    "Q C"
+  ],
+  "result": {
+    "id": "scguns:pyroclastic_flow"
+  }
+}

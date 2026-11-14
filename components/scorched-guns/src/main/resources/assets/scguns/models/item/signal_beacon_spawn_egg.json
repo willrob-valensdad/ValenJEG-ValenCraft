@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "scguns:item/signal_beacon_spawn_egg"
+  }
+}

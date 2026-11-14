@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/bomb_lance",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

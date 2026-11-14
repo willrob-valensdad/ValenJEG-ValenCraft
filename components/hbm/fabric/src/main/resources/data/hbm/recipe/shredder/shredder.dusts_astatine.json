@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/astatine"
+    }
+  ],
+  "order": 117248,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

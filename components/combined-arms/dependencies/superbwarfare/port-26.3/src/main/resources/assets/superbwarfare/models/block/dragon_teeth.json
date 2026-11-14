@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/smooth_stone",
+    "dragon_teeth": "superbwarfare:block/dragon_teeth"
+  }
+}

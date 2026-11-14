@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": "minecraft:redstone",
+    "Q": "scguns:anthralite_nugget",
+    "X": "scguns:anthralite_ingot"
+  },
+  "pattern": [
+    "   ",
+    " # ",
+    "QXQ"
+  ],
+  "result": {
+    "id": "scguns:mine_unit"
+  }
+}

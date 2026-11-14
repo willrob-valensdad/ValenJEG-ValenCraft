@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:chest",
+  "hbm:random_slots": true,
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "hbm:chests/generic"
+        }
+      ],
+      "rolls": 8.0
+    }
+  ],
+  "random_sequence": "hbm:chests/generic_8_8"
+}

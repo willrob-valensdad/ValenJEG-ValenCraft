@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.0,
+  "ingredient": {
+    "neoforge:ingredient_type": "hbm:recipe_input",
+    "base": "hbm:blade_meteorite"
+  },
+  "result": {
+    "components": {
+      "hbm:hot_item_heat": 200
+    },
+    "id": "hbm:blade_meteorite"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/shulkshot_3d",
+  "textures": {
+    "0": "scguns:item/shulkshot",
+    "particle": "scguns:item/shulkshot"
+  }
+}

@@ -1,0 +1,1113 @@
+{
+  "markers": [
+    {
+      "pos": [
+        9,
+        5,
+        59
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_WEAPONS",
+      "min": 8,
+      "max": 16,
+      "rot": 97.49755859375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        9,
+        14,
+        68
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_FLAREGUN",
+      "min": 1,
+      "max": 1,
+      "rot": 5.253173828125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        12,
+        5,
+        58
+      ],
+      "marker": "wand_logic",
+      "block": "minecraft:air",
+      "npc": false
+    },
+    {
+      "pos": [
+        12,
+        6,
+        42
+      ],
+      "marker": "wand_logic",
+      "block": "minecraft:air",
+      "npc": false
+    },
+    {
+      "pos": [
+        14,
+        6,
+        57
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MECHANICAL",
+      "min": 0,
+      "max": 1,
+      "rot": -99.00390625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        14,
+        6,
+        59
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_FLAREGUN",
+      "min": 0,
+      "max": 1,
+      "rot": -90.754638671875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        15,
+        6,
+        57
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MAKESHIFT_GUN",
+      "min": 0,
+      "max": 1,
+      "rot": 112.195556640625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        15,
+        6,
+        58
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MEDICINE",
+      "min": 0,
+      "max": 1,
+      "rot": 100.6455078125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        17,
+        6,
+        43
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_VAULT_RUSTY",
+      "min": 6,
+      "max": 12,
+      "rot": -18.768798828125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        22,
+        5,
+        36
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_BONES",
+      "min": 0,
+      "max": 1,
+      "rot": 162.449462890625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        22,
+        14,
+        36
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_MAKESHIFT_GUN",
+      "min": 1,
+      "max": 3,
+      "rot": -179.2514190673828,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        23,
+        5,
+        72
+      ],
+      "marker": "wand_logic",
+      "block": "minecraft:air",
+      "npc": false
+    },
+    {
+      "pos": [
+        24,
+        5,
+        54
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_CAPNUKE",
+      "min": 1,
+      "max": 2,
+      "rot": 36.4429931640625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        27,
+        5,
+        52
+      ],
+      "marker": "wand_logic",
+      "block": "minecraft:air",
+      "npc": false
+    },
+    {
+      "pos": [
+        28,
+        5,
+        48
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_SHIT",
+      "min": 1,
+      "max": 1,
+      "rot": -172.806640625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        33,
+        6,
+        52
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_MACHINE_PARTS",
+      "min": 5,
+      "max": 10,
+      "rot": 6.449403285980225,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        34,
+        14,
+        36
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:deco_loot",
+      "replace_meta": 0,
+      "source_pool": "LOOT_BONES",
+      "min": 0,
+      "max": 1,
+      "rot": -121.94970703125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        35,
+        7,
+        59
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_iron",
+      "replace_meta": 0,
+      "source_pool": "POOL_SUPPLIES",
+      "min": 8,
+      "max": 15,
+      "rot": -12.29443359375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        37,
+        7,
+        44
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_green",
+      "replace_meta": 0,
+      "source_pool": "POOL_FILING_CABINET",
+      "min": 5,
+      "max": 8,
+      "rot": -94.9505615234375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        37,
+        13,
+        68
+      ],
+      "marker": "wand_logic",
+      "block": "minecraft:air",
+      "npc": false
+    }
+  ],
+  "class_notes": [
+    {
+      "pos": [
+        8,
+        16,
+        67
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        8,
+        16,
+        68
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        8,
+        16,
+        69
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        9,
+        16,
+        67
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        9,
+        16,
+        68
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        9,
+        16,
+        69
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        10,
+        16,
+        67
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        10,
+        16,
+        68
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        10,
+        16,
+        69
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        21,
+        5,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        5,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        5,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        5,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        6,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        6,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        6,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        6,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        7,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        7,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        7,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        21,
+        7,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        22,
+        8,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        22,
+        8,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        22,
+        8,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        22,
+        8,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        23,
+        8,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        23,
+        8,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        23,
+        8,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        23,
+        8,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        24,
+        8,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        24,
+        8,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        24,
+        8,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        24,
+        8,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        5,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        5,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        5,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        5,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        6,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        6,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        6,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        6,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        7,
+        69
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        7,
+        70
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        7,
+        72
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        25,
+        7,
+        73
+      ],
+      "block": "steel_scaffold",
+      "meta": 4,
+      "color_index": 0,
+      "bound_orient": "ew_flat",
+      "port_has_color_property": false
+    },
+    {
+      "pos": [
+        32,
+        8,
+        24
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        32,
+        8,
+        25
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        32,
+        8,
+        26
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        32,
+        8,
+        27
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        33,
+        8,
+        24
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        33,
+        8,
+        25
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        33,
+        8,
+        26
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        33,
+        8,
+        27
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        34,
+        7,
+        57
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        34,
+        7,
+        61
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        34,
+        8,
+        25
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        34,
+        8,
+        26
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        35,
+        7,
+        57
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        35,
+        7,
+        61
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        35,
+        8,
+        25
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        35,
+        8,
+        26
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        35,
+        8,
+        59
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        36,
+        7,
+        57
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        36,
+        7,
+        61
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        36,
+        16,
+        67
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        36,
+        16,
+        68
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        36,
+        16,
+        69
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        37,
+        8,
+        50
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        37,
+        8,
+        51
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        37,
+        8,
+        52
+      ],
+      "block": "steel_roof",
+      "meta": 5,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        37,
+        16,
+        67
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        37,
+        16,
+        68
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        37,
+        16,
+        69
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        38,
+        16,
+        67
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        38,
+        16,
+        68
+      ],
+      "block": "steel_roof",
+      "meta": 4,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        38,
+        16,
+        69
+      ],
+      "block": "steel_roof",
+      "meta": 3,
+      "class_ignores_meta": true
+    }
+  ]
+}

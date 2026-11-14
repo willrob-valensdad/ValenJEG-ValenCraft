@@ -1,0 +1,32 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "techreborn"
+      ]
+    }
+  ],
+  "type": "techreborn:industrial_sawmill",
+  "ingredients": [
+    {
+      "tag": "ad_astra:aeronos_caps"
+    }
+  ],
+  "power": 40,
+  "outputs": [
+    {
+      "count": 4,
+      "id": "ad_astra:aeronos_planks"
+    },
+    {
+      "count": 3,
+      "id": "techreborn:saw_dust"
+    }
+  ],
+  "fluid": {
+    "amount": { "value": 81000 },
+    "fluid": { "fluid": "minecraft:water" }
+  },
+  "time": 200
+}

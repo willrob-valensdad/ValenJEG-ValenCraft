@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "R": "minecraft:leather",
+    "S": "#minecraft:wool",
+    "X": "scguns:anthralite_ingot"
+  },
+  "pattern": [
+    "R R",
+    "S S",
+    "X X"
+  ],
+  "result": {
+    "id": "scguns:shock_absorber"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": "scguns:blueprint_scrap",
+    "Q": "scguns:gold_idol",
+    "Z": "minecraft:paper"
+  },
+  "pattern": [
+    "HZH",
+    "ZQZ",
+    "HZH"
+  ],
+  "result": {
+    "count": 1,
+    "id": "scguns:piglin_blueprint"
+  }
+}

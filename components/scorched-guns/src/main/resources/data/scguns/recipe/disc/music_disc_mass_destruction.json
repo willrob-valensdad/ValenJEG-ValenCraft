@@ -1,0 +1,14 @@
+{
+  "type": "scguns:mechanical_pressing",
+  "processingTime": 400,
+  "ingredients": [
+    "minecraft:slime_ball",
+    "minecraft:charcoal",
+    "scguns:vehement_coal"
+  ],
+  "mold": "scguns:disc_mold",
+  "result": {
+    "id": "scguns:music_disc_mass_destruction",
+    "count": 1
+  }
+}

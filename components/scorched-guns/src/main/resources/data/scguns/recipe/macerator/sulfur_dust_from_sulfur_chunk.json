@@ -1,0 +1,11 @@
+{
+  "type": "scguns:macerating",
+  "processingTime": 100,
+  "ingredients": [
+    "scguns:sulfur_chunk"
+  ],
+  "result": {
+    "id": "scguns:sulfur_dust",
+    "count": 3
+  }
+}

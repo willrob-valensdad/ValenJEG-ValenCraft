@@ -1,0 +1,15 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "hbm:crystal_lapis"
+    }
+  ],
+  "order": 25856,
+  "output_items": [
+    {
+      "count": 8,
+      "id": "hbm:powder_lapis"
+    }
+  ]
+}

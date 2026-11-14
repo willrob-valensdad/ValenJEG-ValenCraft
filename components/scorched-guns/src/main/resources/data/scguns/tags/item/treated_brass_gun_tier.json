@@ -1,0 +1,26 @@
+{
+  "replace": false,
+  "values": [
+    "scguns:m22_waltz",
+    "scguns:waltz_conversion",
+    "scguns:osgood_50",
+    "scguns:grandle_og",
+    "scguns:grandle",
+    "scguns:cogloader",
+    "scguns:gale",
+    "scguns:jr_wristbreaker",
+    "scguns:jackhammer",
+    "scguns:hammer_gl",
+    "scguns:howler",
+    "scguns:howler_conversion",
+    "scguns:gauss_rifle",
+    "scguns:niami",
+    "scguns:spitfire",
+    "scguns:gattaler",
+    "scguns:thunderhead",
+    "scguns:scratches",
+    "scguns:cr4k_mining_laser",
+    "scguns:dozier_rl",
+    "scguns:libertas"
+  ]
+}

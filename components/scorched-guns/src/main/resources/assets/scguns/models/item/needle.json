@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/needle_3d",
+  "textures": {
+    "0": "scguns:item/needle",
+    "particle": "scguns:item/needle"
+  }
+}

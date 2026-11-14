@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "minecraft:redstone",
+    "scguns:nitro_powder",
+    "scguns:sulfur_dust",
+    "scguns:phosphor_dust",
+    "minecraft:water_bucket",
+    "scguns:niter_dust",
+    "minecraft:glowstone_dust",
+    "scguns:plasma",
+    "minecraft:blaze_powder"
+  ],
+  "result": {
+    "id": "scguns:vicious_acid_bucket",
+    "count": 1
+  }
+}

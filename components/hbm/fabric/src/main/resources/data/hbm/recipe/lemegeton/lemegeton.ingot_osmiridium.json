@@ -1,0 +1,12 @@
+{
+  "type": "hbm:lemegeton",
+  "input_items": [
+    {
+      "ingredient": "#c:ingots/bismuth"
+    }
+  ],
+  "order": 3072,
+  "output_items": [
+    "hbm:ingot_osmiridium"
+  ]
+}

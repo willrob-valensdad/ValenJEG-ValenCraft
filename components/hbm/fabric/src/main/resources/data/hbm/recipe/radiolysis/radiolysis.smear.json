@@ -1,0 +1,20 @@
+{
+  "type": "hbm:radiolysis",
+  "input_fluids": [
+    {
+      "type": "hbm:smear",
+      "amount": 100
+    }
+  ],
+  "order": 768,
+  "output_fluids": [
+    {
+      "type": "hbm:naphtha",
+      "amount": 60
+    },
+    {
+      "type": "hbm:petroleum",
+      "amount": 40
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "scguns:empty_tank",
+    "M": "minecraft:lever",
+    "Q": "scguns:treated_iron_ingot"
+  },
+  "pattern": [
+    "MQ ",
+    "XX ",
+    "QQ "
+  ],
+  "result": {
+    "id": "scguns:reinforced_air_canister"
+  }
+}

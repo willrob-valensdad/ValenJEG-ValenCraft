@@ -1,0 +1,19 @@
+{
+  "type": "create:deploying",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredients": [
+    "create:experience_nugget",
+    "scguns:depleted_diamond_steel_ingot"
+  ],
+  "results": [
+    {
+      "id": "scguns:diamond_steel_ingot",
+      "count": 1
+    }
+  ]
+}

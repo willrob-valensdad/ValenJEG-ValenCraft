@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/trotters",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

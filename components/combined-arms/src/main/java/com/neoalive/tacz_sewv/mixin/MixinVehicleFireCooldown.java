@@ -1,0 +1,332 @@
+package com.neoalive.tacz_sewv.mixin;
+
+import java.util.UUID;
+
+import com.atsuishio.superbwarfare.entity.vehicle.MortarEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.Type63Entity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import com.neoalive.tacz_sewv.bridge.IAiFireTracker;
+import com.neoalive.tacz_sewv.compat.FcpMortarCompat;
+import com.neoalive.tacz_sewv.config.EasyMode;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.entity.ai.core.HullFacts;
+import com.neoalive.tacz_sewv.entity.ai.core.LineOfFireCache;
+import com.neoalive.tacz_sewv.entity.ai.core.VehicleTargeting;
+import com.neoalive.tacz_sewv.entity.ai.navigation.VehiclePathObstacles;
+import com.neoalive.tacz_sewv.entity.ai.sensor.Acquisition;
+import com.neoalive.tacz_sewv.entity.ai.support.FireHesitation;
+import com.neoalive.tacz_sewv.entity.ai.support.FireRhythm;
+import com.neoalive.tacz_sewv.entity.ai.support.FormationSubjects;
+import com.neoalive.tacz_sewv.entity.ai.support.TowRecoverySupport;
+import com.neoalive.tacz_sewv.entity.ai.suppression.SuppressionBus;
+import com.neoalive.tacz_sewv.entity.ai.utility.TacticalPosture;
+import com.neoalive.tacz_sewv.util.LoadedClip;
+import com.neoalive.tacz_sewv.util.SmokeVision;
+
+@Mixin(targets = "com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity")
+public abstract class MixinVehicleFireCooldown implements IAiFireTracker {
+
+    @Unique
+    private long tacz_sewv$lastAiShotTick = Long.MIN_VALUE;
+
+    // Published to the drive goal via IAiFireTracker so a crew can tell "parked and
+    // shooting" from "parked and achieving nothing". Not @Unique: an interface
+    // implementation has to keep its declared name.
+    @Override
+    public long tacz_sewv$getLastAiShotTick() {
+        return this.tacz_sewv$lastAiShotTick;
+    }
+
+    // Line-of-fire verdicts, one slot per seat, each valid for aiLosCacheTicks rather than just
+    // the current tick: SBW's AI fire loop consults canShoot for every Mob seat on every tick,
+    // and for a fast automatic weapon (see tacz_sewv$effectiveCooldown) the AI cooldown gate
+    // above stops blocking the call after 1 tick, which would otherwise re-run the full verdict
+    // (occupancy check, allied LOF check, 2 block clips, a smoke entity query) every single tick
+    // for as long as the weapon keeps firing. Terrain/smoke occlusion does not change
+    // meaningfully within a few ticks, so the window trades a small amount of staleness (a
+    // target that fully breaks LOS mid-burst can draw up to that many extra ticks of fire) for
+    // a large cut in raycast frequency. Per SEAT, not one shared slot: a shared slot was
+    // overwritten by every other gunner on the same hull in turn, so a BMP's firing ports never
+    // hit it at all. Each slot is also keyed on the shooter and the target, so a seat swap or a
+    // retarget inside the window (the contact board makes that routine) never inherits a
+    // stale verdict.
+    @Unique
+    private LineOfFireCache tacz_sewv$lofCache = new LineOfFireCache();
+
+    // Throttle for SuppressionBus.onVehicleShot. SEM debounces suppression per source anyway, so a
+    // 1200 RPM gun emitting every round would only pay for the weapon lookup and the index query.
+    @Unique
+    private static final int TACZ_SEWV$SUPPRESS_EMIT_TICKS = 10;
+
+    @Unique
+    private long tacz_sewv$lastSuppressEmitTick = Long.MIN_VALUE;
+
+    // The AI-crew gate lives on canShoot: SBW's AI fire loop (VehicleEntity.baseTick
+    // and each tank's muzzle-flash override) checks it before every shot, for every
+    // weapon, so denying it here suppresses the shot AND its flash upstream of the
+    // subclass overrides. Players aim manually and aren't AbstractUnit, so they're
+    // untouched. Three things are gated, cheapest first:
+    //
+    // 1. CEASE_FIRE order — the crew still repositions, it just doesn't shoot.
+    // 2. AI fire cooldown — minimum ticks between AI shots, on top of weapon RPM.
+    //    (The timestamp is stamped by the vehicleShoot injections below.)
+    // 3. Line of fire — terrain (SBW never asks what's between muzzle and target,
+    //    so crews would hose the wall a target hides behind; this also covers
+    //    targets that never went through the scan goal's acquisition LOS check)
+    //    and smoke (SmokeDecoyEntity has no collision, so a block raycast alone
+    //    would land shots straight through the cloud). Turret auto-aim is
+    //    independent, so the barrel keeps tracking; fire resumes when the line
+    //    clears.
+    @Inject(method = "canShoot", at = @At("HEAD"), cancellable = true, remap = false)
+    private void tacz_sewv$gateAiFire(
+            LivingEntity living, CallbackInfoReturnable<Boolean> cir) {
+        if (tacz_sewv$aiFireDenied(living)) cir.setReturnValue(false);
+    }
+
+    /**
+     * The whole canShoot gate as a predicate, so a subclass that overrides {@code canShoot}
+     * WITHOUT calling super (SBW's {@code AnnihilatorEntity} does) can run the same verdict from
+     * its own mixin — a HEAD injection on the base method never sees such a call.
+     */
+    @Override
+    public boolean tacz_sewv$aiFireDenied(LivingEntity living) {
+        if (!(living instanceof AbstractUnit unit)) return false;
+
+        VehicleEntity self = (VehicleEntity) (Object) this;
+        if (TowRecoverySupport.hasTowOrder(unit) && self.getFirstPassenger() == unit) {
+            return true;
+        }
+
+        if (living instanceof PmcUnitEntity pmc && FormationSubjects.ceaseFire(pmc)) {
+            return true;
+        }
+
+        LivingEntity ambushTarget = unit.getTarget();
+        if (ambushTarget != null && TacticalPosture.ambushHoldsFire(unit, ambushTarget)) {
+            return true;
+        }
+
+        long now = self.level().getGameTime();
+        if (this.tacz_sewv$lastAiShotTick != Long.MIN_VALUE
+                && now - this.tacz_sewv$lastAiShotTick
+                        < tacz_sewv$effectiveCooldown(self, living)) {
+            return true;
+        }
+
+        LivingEntity target = unit.getTarget();
+        if (target == null) {
+            FireHesitation.clear(unit);
+            return false;
+        }
+        if (FireHesitation.denies(unit, self, target, now)) return true;
+
+        int losCacheTicks;
+        try {
+            losCacheTicks = SewvConfig.AI_LOS_CACHE_TICKS.get();
+        } catch (Throwable ignored) {
+            losCacheTicks = 8;
+        }
+        int seat = self.getSeatIndex(living);
+        int cached = this.tacz_sewv$lofCache.lookup(seat, living.getId(), target.getId(), now, losCacheTicks);
+        if (cached != LineOfFireCache.MISS) return cached == LineOfFireCache.HIT_BLOCKED;
+
+        // SBW asks canShoot before it checks the seat has a gun, so a weaponless rear seat
+        // holding a target came through here too. SBW's own canShoot is already false for it
+        // (getGunData(seat) is null), so skip the raycasts and let SBW say no.
+        boolean blocked = (seat < 0 || self.hasWeapon(seat))
+                && tacz_sewv$lineOfFireBlocked(self, living, target);
+        this.tacz_sewv$lofCache.store(seat, living.getId(), target.getId(), now, blocked);
+        return blocked;
+    }
+
+    @Override
+    public boolean tacz_sewv$lineOfFireBlocked(LivingEntity living, LivingEntity target) {
+        return tacz_sewv$lineOfFireBlocked((VehicleEntity) (Object) this, living, target);
+    }
+
+    @Unique
+    private static boolean tacz_sewv$lineOfFireBlocked(
+            VehicleEntity self, LivingEntity living, LivingEntity target) {
+        Vec3 from = self.getShootPos(living, 1f);            // muzzle
+        Vec3 to = target.getBoundingBox().getCenter();       // target center
+
+        // DEFERRED(firing-run-los): this gate is deliberately UNCOMPENSATED for a helicopter's firing-run
+        // bank/pitch (no inFiringRun exemption anywhere in this mixin). Where that compensation belongs,
+        // acquisition or here, is unresolved and on hold; the claim that fire-time LoS is strictly
+        // stronger than acquisition LoS (and so that dropping acquisition LoS at range is safe) depends
+        // on this staying uncompensated. See docs/fire-los-audit.md.
+        // Indirect-fire hulls (howitzers, FCP mortar carriers) lob over the terrain a direct
+        // line would hit: line-of-fire is the wrong question for them, and asking it silenced
+        // exactly the radio / contact-board missions they exist for. Danger-close still applies.
+        if (HullFacts.isArtilleryHull(self) || FcpMortarCompat.isMortarHull(self)) {
+            return living instanceof AbstractUnit unit
+                    && VehicleTargeting.friendlyNearPoint(
+                            unit, to, SewvConfig.FRIENDLY_FIRE_VEHICLE_RADIUS.get());
+        }
+
+        // Empty hulls and wrecks: the allied check below only names crewed friends,
+        // so a parked wreck between muzzle and target was a free shot. Same occupancy
+        // map infantry use; this hull and the target's ride are excluded.
+        if (self.level() instanceof ServerLevel server
+                && VehiclePathObstacles.occludes(server, from, to,
+                        self.getId(), VehiclePathObstacles.rideId(target))) {
+            return true;
+        }
+        // Hold fire if a friendly hull or on-foot unit is in the way — prevents the crew
+        // shelling an ally that has driven/walked between it and its target (living is
+        // always an AbstractUnit here; the caller gated on it). Extra 1-block margin
+        // beyond the occupancy voxels, for near-grazes and shell blast.
+        if (living instanceof AbstractUnit unit
+                && VehicleTargeting.alliedInLineOfFire(unit, self, from, to)) {
+            return true;
+        }
+        // Danger-close: enemy next to the owning player / a friendly PMC (TOWs and
+        // other splashy vehicle weapons). Radius 0 disables.
+        if (living instanceof AbstractUnit unit
+                && VehicleTargeting.friendlyNearPoint(
+                        unit, to, SewvConfig.FRIENDLY_FIRE_VEHICLE_RADIUS.get())) {
+            return true;
+        }
+        if (EasyMode.vehicleTargetRequireLos()
+                && tacz_sewv$terrainBlocksLine(self, from, target, to)) {
+            return true;
+        }
+        return SmokeVision.lineBlockedBySmoke(
+                self.level(), self, from, to, EasyMode.smokeBlockRadius());
+    }
+
+    // vehicleShoot has TWO independent overloads and the AI paths split between
+    // them: baseTick's AI-crew loop fires the (LivingEntity, UUID, Vec3) one,
+    // while mortars/artillery/auto-aim turrets fire the (LivingEntity, String, Vec3)
+    // one. Both are hooked — as a backstop gate for any caller that skipped
+    // canShoot, and to stamp the cooldown the canShoot gate above enforces.
+    // 0.8.9.1 added a targetPos parameter to both; the UUID overload's descriptor
+    // is unchanged, only this named-weapon one needed retargeting.
+    @Inject(
+            method = "vehicleShoot(Lnet/minecraft/world/entity/LivingEntity;Ljava/lang/String;Lnet/minecraft/world/phys/Vec3;)V",
+            at = @At("HEAD"), cancellable = true, remap = false)
+    private void tacz_sewv$throttleNamedFire(
+            LivingEntity living, String weaponName, Vec3 targetPos, CallbackInfo ci) {
+        tacz_sewv$gateAndStampAiShot(living, ci);
+    }
+
+    @Inject(
+            method = "vehicleShoot(Lnet/minecraft/world/entity/LivingEntity;Ljava/util/UUID;Lnet/minecraft/world/phys/Vec3;)V",
+            at = @At("HEAD"), cancellable = true, remap = false)
+    private void tacz_sewv$throttleAimedFire(
+            LivingEntity living, UUID targetId, Vec3 shootVec, CallbackInfo ci) {
+        tacz_sewv$gateAndStampAiShot(living, ci);
+    }
+
+    @Unique
+    private void tacz_sewv$gateAndStampAiShot(LivingEntity living, CallbackInfo ci) {
+        if (!(living instanceof AbstractUnit)) return;
+
+        // Mortars are exempt: ManMortarGoal already paces them with
+        // mortarFireCooldownTicks and only shoots once the barrel has settled, so
+        // throttling here as well would silently tie a mortar's rate of fire to a tank
+        // setting. The line-of-fire gate on canShoot never applied to them anyway —
+        // they're indirect fire, and this overload doesn't consult canShoot.
+        if ((Object) this instanceof MortarEntity || (Object) this instanceof Type63Entity) return;
+
+        AbstractUnit unit = (AbstractUnit) living;
+        VehicleEntity self = (VehicleEntity) (Object) this;
+
+        if (TowRecoverySupport.hasTowOrder(unit) && self.getFirstPassenger() == unit) {
+            ci.cancel();
+            return;
+        }
+
+        if (living instanceof PmcUnitEntity pmc && FormationSubjects.ceaseFire(pmc)) {
+            ci.cancel();
+            return;
+        }
+
+        LivingEntity ambushTarget = unit.getTarget();
+        if (ambushTarget != null && TacticalPosture.ambushHoldsFire(unit, ambushTarget)) {
+            ci.cancel();
+            return;
+        }
+
+        long now = self.level().getGameTime();
+        if (this.tacz_sewv$lastAiShotTick != Long.MIN_VALUE
+                && now - this.tacz_sewv$lastAiShotTick
+                        < tacz_sewv$effectiveCooldown(self, living)) {
+            ci.cancel();
+            return;
+        }
+        this.tacz_sewv$lastAiShotTick = now;
+        Acquisition.noteFired(unit.getId(), now);
+
+        if (this.tacz_sewv$lastSuppressEmitTick == Long.MIN_VALUE
+                || now - this.tacz_sewv$lastSuppressEmitTick >= TACZ_SEWV$SUPPRESS_EMIT_TICKS) {
+            this.tacz_sewv$lastSuppressEmitTick = now;
+            SuppressionBus.onVehicleShot(self, unit);
+        }
+    }
+
+    /**
+     * The configured wait, but never slower than the weapon's own cyclic rate allows.
+     *
+     * <p>{@code aiFireCooldownTicks} is a pacing knob written for a main gun: a tank shell, a TOW
+     * missile, one loud thing at a time. Applied flat it also rate-limits an <b>automatic</b>
+     * weapon, and there it is not pacing, it is a different gun. The A-10's GAU-8 declares 1200
+     * RPM — a round a tick — and five ticks between shots turns it into a 240 RPM cannon, so a
+     * firing pass of a second and a half delivers six rounds where it should deliver thirty.
+     * Volume of fire is the entire reason a 4-block-blast cannon can hit anything from a moving
+     * aircraft, and throttling it read in-game as an accuracy problem rather than a rate one.
+     *
+     * <p>Taking the minimum is safe for the weapons the knob was written for: a 12 RPM tank gun
+     * has a natural interval of 100 ticks, so the configured 5 still binds — and SBW's own RPM
+     * gate independently enforces the 100 regardless. Only a weapon that genuinely cycles faster
+     * than the config is let off it.
+     */
+    @Unique
+    private static int tacz_sewv$effectiveCooldown(VehicleEntity self, LivingEntity living) {
+        // Easy Mode stretches the weapon's own interval for a hostile crew instead of taking the min.
+        int interval = EasyMode.aiFireIntervalTicks(self, living);
+        LivingEntity target = living instanceof Mob mob ? mob.getTarget() : null;
+        return target == null ? interval : FireRhythm.stretch(interval, living.getId(), target.getId());
+    }
+
+    // Blocked only when BOTH the target's center and its eyes are behind blocks:
+    // a target peeking over low cover (sandbags, fences) has an exposed head a
+    // direct-fire shot can genuinely reach, so the second raycast keeps those
+    // engagements alive instead of silencing the guns against half cover.
+    // Skip the eyes ray when the center is already clear and the target is not
+    // meaningfully elevated — center clear already means a shot path exists.
+    @Unique
+    private static boolean tacz_sewv$terrainBlocksLine(
+            VehicleEntity self, Vec3 from, LivingEntity target, Vec3 center) {
+        // LoadedClip, never Level.clip: a long shot crosses chunks nobody has loaded, and
+        // Level.clip would load each one synchronously (7.5 ms/tick in a large battle).
+        // Not even with the hull as the ray's context: SBW's collision-shape hook would read the
+        // world through it and load the chunk all the same. See LoadedClip.clipAsVehicle.
+        if (LoadedClip.clipAsVehicle(self.level(), from, center,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE)
+                .getType() == HitResult.Type.MISS) {
+            return false;
+        }
+        if (Math.abs(target.getEyeY() - center.y) < 2.0) {
+            return true;
+        }
+        return LoadedClip.clipAsVehicle(self.level(), from, target.getEyePosition(),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE)
+                .getType() != HitResult.Type.MISS;
+    }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 0.1,
+  "ingredient": "scguns:asgharian_bricks",
+  "result": {
+    "id": "scguns:cracked_asgharian_bricks"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:shellurker",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:end_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:heavy_gun_parts",
+    "gun_top_internal_1": "scguns:diamond_steel_gun_frame",
+    "gun_top_internal_2": "scguns:diamond_steel_gun_frame",
+    "gun_barrel_2": "scguns:gun_barrel",
+    "gun_grip": "scguns:gun_grip",
+    "gun_barrel_1": "scguns:heavy_gun_barrel",
+    "gun_top_barrel_1": "minecraft:shulker_shell",
+    "gun_top_barrel_2": "minecraft:shulker_shell",
+    "gun_magazine": "minecraft:shulker_shell"
+  }
+}

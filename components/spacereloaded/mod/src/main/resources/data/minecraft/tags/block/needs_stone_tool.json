@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"spacereloaded:halite_ore",
+		"spacereloaded:anorthosite",
+		"spacereloaded:borax_ore",
+		"spacereloaded:galena_ore"
+	]
+}

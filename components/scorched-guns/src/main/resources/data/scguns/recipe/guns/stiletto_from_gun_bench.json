@@ -1,0 +1,15 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:stiletto",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:wrecker_blueprint",
+    "gun_internal_1": "scguns:treated_iron_ingot",
+    "gun_internal_2": "scguns:firing_unit",
+    "gun_barrel_2": "scguns:heavy_gun_barrel",
+    "gun_barrel_1": "scguns:heavy_gun_parts",
+    "gun_magazine": "scguns:gun_grip"
+  }
+}

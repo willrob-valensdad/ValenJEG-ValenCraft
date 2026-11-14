@@ -1,0 +1,15 @@
+{
+  "type": "hbm:liquefaction",
+  "input_items": [
+    {
+      "ingredient": "minecraft:obsidian"
+    }
+  ],
+  "order": 3840,
+  "output_fluids": [
+    {
+      "type": "minecraft:lava",
+      "amount": 500
+    }
+  ]
+}

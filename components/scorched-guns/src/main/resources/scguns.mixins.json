@@ -1,0 +1,29 @@
+{
+  "required": true,
+  "package": "top.ribs.scguns.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "refmap": "scguns.refmap.json",
+  "plugin": "top.ribs.scguns.mixin.MixinPlugin",
+  "mixins": [
+    "common.EndPortalBlockMixin",
+    "common.EnchantedCountIncreaseFunctionMixin",
+    "common.ItemRarityMixin",
+    "common.LivingEntityMixin",
+    "common.LootItemRandomChanceWithEnchantedBonusConditionMixin",
+    "common.SittingPhaseMixin",
+    "common.compat.guardvillagers.GuardGunnerEquipmentMixin",
+    "common.compat.sable.TurretBlockEntitySableActorMixin"
+  ],
+  "client": [
+    "client.ArmedEntityRenderStateMixin",
+    "client.ItemInHandLayerMixin",
+    "client.MinecraftMixin",
+    "client.PlayerModelMixin",
+    "client.VehiclePoseMixin",
+    "client.compat.guardvillagers.GuardModelGunPoseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

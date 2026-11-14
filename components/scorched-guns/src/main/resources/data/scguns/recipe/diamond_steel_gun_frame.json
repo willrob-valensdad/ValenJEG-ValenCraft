@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "scguns:diamond_steel_ingot"
+  },
+  "pattern": [
+    " Q ",
+    "Q Q",
+    "QQQ"
+  ],
+  "result": {
+    "id": "scguns:diamond_steel_gun_frame"
+  }
+}

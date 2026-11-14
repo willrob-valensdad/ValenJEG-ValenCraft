@@ -1,0 +1,24 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "C": "scguns:wooden_stock",
+    "L": "scguns:firing_unit",
+    "R": "scguns:gun_parts",
+    "S": "scguns:stone_gun_barrel",
+    "M": "#minecraft:planks"
+  },
+  "pattern": [
+    "LRSS ",
+    "C M  "
+  ],
+  "result": {
+    "id": "scguns:fencer_carabine"
+  }
+}

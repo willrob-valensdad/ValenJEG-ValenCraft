@@ -1,0 +1,22 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "S": {
+      "preserve": "remainder"
+    }
+  },
+  "key": {
+    "B": "#hbm:plates_cast/cmbsteel",
+    "C": "hbm:circuit_controller",
+    "S": "hbm:cell_sas3",
+    "T": "hbm:ball_tatb"
+  },
+  "pattern": [
+    "BCB",
+    "TST",
+    "BCB"
+  ],
+  "result": {
+    "id": "hbm:grenade_filling_schrab"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "valenjeg",
+  "name": "ValenJEG",
+  "parent": "valencraft",
+  "type": "mini-modpack",
+  "version": "0.1.0-dev.r61",
+  "summary": "Weapons, authored military structures, technology and exploration within the modular ValenCraft modpack.",
+  "game": {
+    "minecraft": "26.3",
+    "fabric_loader": "0.20.1",
+    "java": 25
+  },
+  "license": "MIT",
+  "component_licenses": "components/**/LICENSE* and THIRD_PARTY_NOTICES.md",
+  "repository": "https://github.com/willrob-valensdad/ValenJEG-ValenCraft",
+  "status": "development; full donor ports and native qualification pending",
+  "composition": {
+    "component_root": "components",
+    "dependency_lock": "mods.lock.json",
+    "shared_overrides": "overrides",
+    "client_overrides": "client-overrides",
+    "server_overrides": "server-overrides"
+  },
+  "branding": {
+    "logo": "branding/valenjeg-logo.png",
+    "supporting_jar_prefix": "ValenJEG--",
+    "preserve_upstream_authors_ids_versions_and_bytes": true
+  }
+}

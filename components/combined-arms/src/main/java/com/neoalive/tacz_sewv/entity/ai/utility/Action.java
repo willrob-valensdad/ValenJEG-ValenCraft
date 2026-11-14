@@ -1,0 +1,108 @@
+package com.neoalive.tacz_sewv.entity.ai.utility;
+
+import javax.annotation.Nullable;
+
+/**
+ * The things a vehicle crew can decide to do.
+ *
+ * <p>Every constant here <b>must</b> have a case in the drive goal's dispatch. An action that
+ * scores but cannot execute is worse than one that does not exist: it wins the vote and the hull
+ * then sits releasing its steering inputs, which is exactly the parked-statue failure this whole
+ * layer replaces. So the enum grows only alongside the dispatch, never ahead of it.
+ */
+public enum Action {
+
+    /** Hold the standoff band for the target's type and work the gun. The default fight. */
+    ATTACK("attack"),
+    /** Close on the target. */
+    ADVANCE("advance"),
+    /** Stop where we are. Still fires — a hull is a turret that happens to have tracks. */
+    HOLD("hold"),
+    /** Open the distance, front armor and gun kept on the threat. */
+    RETREAT("retreat"),
+    /** Pop a smoke volley. Screens the hull and breaks the enemy's line of fire. */
+    DEPLOY_SMOKE("deploySmoke"),
+    /** Work around the ring anticlockwise for a better shot or a weaker facing. */
+    FLANK_LEFT("flankLeft"),
+    /** Work around the ring clockwise. */
+    FLANK_RIGHT("flankRight"),
+
+    /**
+     * Call the target in to a mortar battery behind us.
+     *
+     * <p>This and the three below are <b>requests, not manoeuvres</b>: making the call takes no
+     * time and moves nothing, so each one carries on holding the standoff band exactly as
+     * {@link #ATTACK} would. That is deliberate — a crew that stopped driving to use its radio
+     * would be a crew standing still in a tank battle.
+     */
+    CALL_MORTARS("callMortars"),
+    /** Call the target in to a TOW launcher covering us. */
+    CALL_TOW("callTow"),
+    /** Call the target in to a friendly aircraft already airborne nearby. */
+    CALL_CAS("callCas"),
+    /** Hand our target to nearby friendlies who have none of their own. */
+    DELEGATE_TARGET("delegateTarget"),
+
+    /**
+     * Work the standing destination: a player's order, a patrol leg, or the idle wander that
+     * {@code VehicleTargeting.resolveDestination} already produces.
+     *
+     * <p>The default out-of-contact action, and the one that keeps a crew doing what it was doing.
+     * It executes nothing new — it simply lets the existing destination pipeline run, which is why
+     * a standing order can never be overridden by a crew that fancies a wander.
+     */
+    PATROL("patrol"),
+    /** Go and look where an enemy was last seen. */
+    SEARCH_LAST_KNOWN("searchLastKnown"),
+    /** Fall back on the nearest friendly. Also the answer to being out of ammo. */
+    REGROUP("regroup"),
+    /**
+     * Hold and rake the spot a target just vanished from with a machine gun, for a few seconds after
+     * losing sight (Steve's Army's last-known-position suppression). Out of contact by definition:
+     * the target is gone, which is the whole point. One hull per lost contact (see
+     * {@code SuppressiveFire}).
+     */
+    SUPPRESS("suppress"),
+
+    /**
+     * Out-of-contact polygon formation with nearby friendly idle ground vehicles.
+     *
+     * <p>Replaces random wander for ground hulls when hybrid idle is enabled. Dispatch lives in
+     * {@code DriveVehicleGoal}; geometry lives in {@code IdleGroupSupport}.
+     */
+    IDLE_HOLD("idleHold"),
+    /**
+     * Out-of-contact constant-bearing single-file column. Triggered by hold timeout, group size
+     * over five, or commander tasking.
+     */
+    IDLE_TRAVEL("idleTravel");
+
+    /** The key naming this action in the weights file. */
+    public final String key;
+
+    Action(String key) {
+        this.key = key;
+    }
+
+    public static final Action[] VALUES = values();
+
+    @Nullable
+    public static Action byKey(String key) {
+        for (Action action : VALUES) {
+            if (action.key.equals(key)) return action;
+        }
+        return null;
+    }
+
+    /** True for the two flanks, which share every scoring rule but their direction. */
+    public boolean isFlank() {
+        return this == FLANK_LEFT || this == FLANK_RIGHT;
+    }
+
+    public boolean needsTarget() {
+        return switch (this) {
+            case HOLD, PATROL, SEARCH_LAST_KNOWN, REGROUP, SUPPRESS, IDLE_HOLD, IDLE_TRAVEL -> false;
+            default -> true;
+        };
+    }
+}

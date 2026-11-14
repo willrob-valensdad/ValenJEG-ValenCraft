@@ -1,0 +1,16 @@
+{
+  "type": "hbm:crafting_shaped",
+  "key": {
+    "A": "#c:plates/titanium",
+    "C": "hbm:crate_steel",
+    "L": "#c:plates/lead"
+  },
+  "pattern": [
+    "LAL",
+    "ACA",
+    "LAL"
+  ],
+  "result": {
+    "id": "hbm:safe"
+  }
+}

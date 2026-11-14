@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/zilk_45",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

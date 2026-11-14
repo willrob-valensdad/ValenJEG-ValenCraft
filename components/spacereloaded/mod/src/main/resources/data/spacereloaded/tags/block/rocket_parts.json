@@ -1,0 +1,23 @@
+{
+	"replace": false,
+	"values": [
+		"spacereloaded:rocket_hull",
+		"spacereloaded:fuel_tank",
+		"spacereloaded:rocket_engine",
+		"spacereloaded:command_module",
+		"spacereloaded:gyroscope",
+		"spacereloaded:rocket_seat",
+		"spacereloaded:hydrolox_engine",
+		"spacereloaded:docking_clamp",
+		"spacereloaded:return_capsule",
+		"spacereloaded:cargo_hold",
+		"spacereloaded:methalox_engine",
+		"spacereloaded:satellite",
+		"spacereloaded:power_satellite",
+		"spacereloaded:stage_separator",
+		"spacereloaded:aluminium_fuel_tank",
+		"spacereloaded:al_li_fuel_tank",
+		"spacereloaded:imaging_satellite",
+		"spacereloaded:hyperspectral_satellite"
+	]
+}

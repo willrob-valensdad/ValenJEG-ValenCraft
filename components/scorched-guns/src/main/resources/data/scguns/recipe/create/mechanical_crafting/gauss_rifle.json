@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "scguns:gun_magazine",
+    "L": "scguns:plasma_core",
+    "R": "scguns:heavy_gun_parts",
+    "S": "scguns:gun_barrel",
+    "M": "scguns:treated_brass_ingot",
+    "X": "scguns:treated_brass_blueprint",
+    "J": "#minecraft:planks",
+    "K": "scguns:treated_brass_gun_frame"
+  },
+  "pattern": [
+    "MKX ",
+    "LRJS",
+    "Q C "
+  ],
+  "result": {
+    "id": "scguns:gauss_rifle"
+  }
+}

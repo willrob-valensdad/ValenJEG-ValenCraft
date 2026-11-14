@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "valen_nerospace_rei",
+  "version": "0.1.0",
+  "name": "Valen Pack Recipe Compatibility",
+  "environment": "*",
+  "license": "MIT",
+  "entrypoints": {
+    "rei_common": [
+      "dev.valen.compat.nerospace.NeroCommonPlugin",
+      "dev.valen.compat.nerospace.PackCommonPlugin"
+    ],
+    "rei_client": [
+      "dev.valen.compat.nerospace.NeroClientPlugin",
+      "dev.valen.compat.nerospace.PackClientPlugin"
+    ]
+  },
+  "depends": {
+    "minecraft": "26.3",
+    "java": ">=25",
+    "fabricloader": ">=0.20.1",
+    "roughlyenoughitems": "26.3.824",
+    "nerospace": "1.6.0",
+    "nerolandcore": "1.15.0",
+    "betterend": "26.301.2",
+    "bclib": "*",
+    "aerialhell": "1.0.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "scguns:scorched_ingot"
+  },
+  "pattern": [
+    " Q ",
+    "Q Q",
+    "QQQ"
+  ],
+  "result": {
+    "id": "scguns:scorched_gun_frame"
+  }
+}

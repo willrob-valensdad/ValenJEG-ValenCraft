@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "X": "#c:dusts/saltpeter",
+    "Q": "minecraft:gray_stained_glass"
+  },
+  "pattern": [
+    "QQQ",
+    "QXQ",
+    "QQQ"
+  ],
+  "result": {
+    "id": "scguns:gray_niter_glass",
+    "count": 8
+  }
+}

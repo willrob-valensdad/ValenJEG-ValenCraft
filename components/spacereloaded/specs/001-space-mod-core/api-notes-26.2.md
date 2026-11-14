@@ -1,0 +1,98 @@
+# Шпаргалка API Minecraft 26.2 + Fabric (верифицировано javap по deobf-jar, 2026-07-07)
+
+Все сигнатуры проверены по `minecraft-common-deobf-26.2.jar` и модулям Fabric API 0.154.2+26.2 (суффикс хэша `9e`). **Не писать API по памяти** — официальные имена расходятся и со старыми mojmap, и с yarn.
+
+## Критические переименования
+
+| Было (память/yarn/mojmap) | Стало в 26.2 |
+|---|---|
+| `ResourceLocation` | **`net.minecraft.resources.Identifier`** (`fromNamespaceAndPath`, `parse`; метода `of` НЕТ) |
+| `ResourceKey.location()` | `ResourceKey.identifier()` (у TagKey остался `location()`) |
+| `net.minecraft.Util` | `net.minecraft.util.Util`; `backgroundExecutor()` → `TracingExecutor implements Executor` |
+| `addRegionTicket/removeRegionTicket` | `ServerChunkCache.addTicketWithRadius / addTicketAndLoadWithRadius / removeTicketWithRadius` |
+| `TicketType.create(...)` c компаратором | `new TicketType(long timeout, int flags)` + `Registry.register(BuiltInRegistries.TICKET_TYPE, id, type)`; флаги: PERSIST/LOADING/SIMULATION/KEEP_DIMENSION_ACTIVE/CAN_EXPIRE_IF_UNLOADED |
+| `Entity.hurt()` → boolean | `hurt()` — final void; используем **`hurtServer(ServerLevel, DamageSource, float)`** |
+| `saveAdditional(CompoundTag)` | **`saveAdditional(ValueOutput)` / `loadAdditional(ValueInput)`** (`putX`/`getXOr`, `store/read` с Codec) |
+| `BlockEntityType.Builder` | `new BlockEntityType<>(BE::new, Set.of(BLOCK))` или Fabric `FabricBlockEntityTypeBuilder` |
+| `FabricBlockSettings/FabricItemSettings` | Удалены — только ванильные `BlockBehaviour.Properties` / `Item.Properties` |
+| `PayloadTypeRegistry.playS2C()/playC2S()` | `clientboundPlay()/serverboundPlay()` |
+| `ServerWorldEvents`, `END_WORLD_TICK` | `ServerLevelEvents` (LOAD/UNLOAD), `END_LEVEL_TICK` |
+| `HudRenderCallback` | `HudElementRegistry.addLast(id, HudElement)`; `HudElement.extractRenderState(GuiGraphicsExtractor, DeltaTracker)` |
+| `ItemGroupEvents` (item-group-api) | `CreativeModeTabEvents` (fabric-creative-tab-api-v1), `FabricCreativeModeTab.builder()` |
+| `source.hasPermission(2)` | `Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)` — Predicate для `.requires(...)`; PermissionSet/PermissionLevel вместо int |
+| `state.is(...)` объявлен на BlockStateBase | Теперь default-методы интерфейса `net.minecraft.core.TypedInstance<T>` (важно для миксинов) |
+
+## Регистрация блока/предмета (контракт setId, 26.2)
+
+```java
+Identifier id = Identifier.fromNamespaceAndPath(MOD_ID, name);
+ResourceKey<Block> bk = ResourceKey.create(Registries.BLOCK, id);
+Block b = Registry.register(BuiltInRegistries.BLOCK, bk, new Block(
+        BlockBehaviour.Properties.of().setId(bk).strength(3f).sound(SoundType.METAL)));
+ResourceKey<Item> ik = ResourceKey.create(Registries.ITEM, id);
+Registry.register(BuiltInRegistries.ITEM, ik,
+        new BlockItem(b, new Item.Properties().setId(ik).useBlockDescriptionPrefix()));
+```
+ID ванили теперь в `net.minecraft.references.{BlockIds,ItemIds,BlockItemIds}` («отделяй id от блоков»).
+
+## Снапшоты чанков для фоновых расчётов
+
+- `LevelChunkSection.getStates()` → `PalettedContainer<BlockState>`, у него есть **`copy()`** (дёшево, O(палитра)) и `get(x,y,z)` (локальные 0–15).
+- `chunk.getSectionIndexFromSectionY(sy)`, `level.getMinY()/getMaxY()/getMinSectionY()` — из `LevelHeightAccessor`.
+- `chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z)` — высота верхнего блока (колонка heightmap).
+- `ServerChunkCache.getChunkNow(cx, cz)` — без синхронной загрузки, null если не прогружен.
+- `MinecraftServer implements Executor` → `server.execute(...)`, `server.isSameThread()`.
+
+## Прочее проверенное
+
+- `DamageSources.source(key)` приватен: `new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(KEY))`; JSON: `data/<ns>/damage_type/<name>.json` `{message_id, scaling: never|always|when_caused_by_living_non_player, exhaustion, effects}`.
+- Экипировка предмета: `Item.Properties().component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).build())`.
+- `Level.explode(...)` — все перегрузки void; `Level.ExplosionInteraction.{NONE,BLOCK,MOB,TNT,TRIGGER}`.
+- Пуш сущности: `entity.push(Vec3)` + **`entity.hurtMarked = true`** для синка скорости на клиент.
+- Сообщения: `ServerPlayer.sendSystemMessage(Component)`, оверлей — `sendOverlayMessage(Component)` (не displayClientMessage).
+- Fabric-события места блока НЕТ (`*Place*` отсутствует): ловить `UseBlockCallback`/`BlockEvents.USE_ITEM_ON` + отложенная проверка в конце тика.
+- События взрыва в Fabric API 26.2 нет — только mixin.
+- Форматы данных: item-модели `assets/<ns>/items/*.json` (`{"model":{"type":"minecraft:model","model":...}}`), лут `data/<ns>/loot_table/blocks/`, теги `data/<ns>/tags/block/`.
+- Рендер: `ChunkSectionLayer` вместо RenderType для террейна; Vulkan experimental; только Blaze3D-абстракции.
+- Gametest: `@net.fabricmc.fabric.api.gametest.v1.GameTest` — модуль жив для 26.2.
+- Team Reborn Energy **5.0.0**: `minecraft >=26.1-`, Java 25, зависит от `fabric-transfer-api-v1` (maven.fabricmc.net, координаты `teamreborn:energy:5.0.0`).
+
+## Дополнено при US7 (пушка/HUD)
+
+- `ResourceKey.identifier()` — НЕ `location()` (переименовано в 26.2).
+- `TicketType` флаги: `FLAG_LOADING`, `FLAG_SIMULATION`, `FLAG_PERSIST` (тикет переживает перезапуск — TicketStorage сохраняет ТОЛЬКО persist-тикеты), `FLAG_KEEP_DIMENSION_ACTIVE` (без него измерение без игроков перестаёт тикать сущности через 300 тиков — обязательно для межпространственных снарядов), `FLAG_CAN_EXPIRE_IF_UNLOADED`.
+- `BlockEntity.preRemoveSideEffects(BlockPos, BlockState)` — хук сноса блока (дроп содержимого BE); `Block.popResource(...)` на месте.
+- `BlockBehaviour.useItemOn(...)`: возврат `TRY_WITH_EMPTY_HAND` для MAIN_HAND вызывает `useWithoutItem` ДАЖЕ с предметом в руке — для «только пустой рукой» возвращать `PASS`.
+- `Block.getExplosionResistance()` — публичный геттер взрывостойкости.
+- HUD (Fabric): `HudElementRegistry.addLast(Identifier, HudElement)`; `HudElement.extractRenderState(GuiGraphicsExtractor, DeltaTracker)`; текст — `gfx.text(Font, Component, x, y, argb)`.
+- `Level.isLoaded(BlockPos)` = bounds + `ChunkSource.hasChunk` (FULL). После дальнего `/tp` чанки грузятся ЛЕНИВО: `/fill`/`/setblock` в ещё не догруженной области молча отказывают («That position is not loaded») — в тестах форсировать `/forceload add` и ждать `isLoaded` поллингом.
+- `DustParticleOptions(int color, float scale)`; `ServerLevel.sendParticles(T, x, y, z, count, dx, dy, dz, speed)`.
+- `SimpleEnergyStorage` — пакет `team.reborn.energy.api.base` (поле `amount` публичное — удобно в тестах).
+- 26.2 «медное» переименование: `minecraft:chain` → `minecraft:iron_chain`; медные варианты (цепи/решётки) — `WeatheringCopperCollection`. Битая запись в теге валит ВЕСЬ тег — ванильные id в тегах писать `{"id": ..., "required": false}` либо сверять по javap Blocks.
+- Звук: миксин-точка `SoundEngine.calculateVolume(Lnet/.../SoundInstance;)F` (private, @Inject RETURN + cancellable); `SoundInstance.isRelative()` = «у уха».
+- Сеть (Fabric 6.x): `PayloadTypeRegistry.clientboundPlay().register(TYPE, CODEC)` (НЕ playS2C), `ServerPlayNetworking.send(player, payload)`, `ClientPlayNetworking.registerGlobalReceiver`.
+- Конфиг-делители тик-циклов (`getGameTime() % config.interval`) ОБЯЗАНЫ валидироваться `>= 1`: `long % 0` → ArithmeticException валит весь ServerTickEvents-обработчик (нет try/catch) на первом тике. Все интервалы/диапазоны в SpaceReloadedConfig.validate() (философия «жёсткие лимиты = константы конфига»).
+
+## Дополнено при Полёте 2.0 (002-staged-flight-physics, 2026-09-06)
+
+- `net.minecraft.world.entity.player.Input` — запись `(forward, backward, left, right, jump, shift, sprint)`; `ServerPlayer.getLastClientInput()` / `setLastClientInput(Input)` (клиент шлёт пакет только при изменении клавиш — серверное значение держится, стенд может его подменять).
+- `Player.rideTick()` на сервере: `wantsToStopRiding()` = `isShiftKeyDown()` → `stopRiding()` (единственный серверный путь ссаживания по вводу; остальные — удаление аппарата, `ServerPlayer.teleport`, `setGameMode`, `PlayerList.remove`, тег `dismounts_underwater`).
+- Клиентский gametest-стенд: серверный `player.startRiding(rocket, true, true)` держится только до конца текущей серверной задачи — на следующем тике игрок уже не пассажир (sneak=false, аппарат жив, id тот же; причина не найдена по байткоду 26.2, вероятно клиентская сторона харнесса). Стенд сажает пилота заново каждый тик и подаёт ввод `setLastClientInput(...)`; в игре реальные игроки летают штатно.
+- `Entity.startRiding(Entity, boolean force, boolean)` — трёхаргументная форма; `getYHeadRot()/setYHeadRot(float)` есть на `Entity`.
+- Yaw Minecraft: 0 = юг (+Z), рост по часовой; forward = (−sin, cos), right = (−cos, −sin) — для «наклонить туда, куда смотрю».
+- `RecordCodecBuilder.group` — не больше 16 полей; вложенный `MapCodec.forGetter` (плоские JSON-поля) экономит слоты (`PlanetProfile.aero`).
+- `StreamCodec.unit(T)` — пустой C2S-пакет (отделение ступени).
+- `Codec.doubleRange(min, max)` — валидация диапазонов датапак-полей прямо в кодеке.
+- Fabric client gametest: `TestInput.holdKey/pressKey/holdKeyFor/lookAt` есть, но стенд управляет ракетой серверными методами — надёжнее под Xvfb.
+- `SoundEvents.GENERIC_EXPLODE` — `Holder`, звук через `.value()`; `ParticleTypes.SOUL_FIRE_FLAME/POOF` для плазмы и разделения.
+
+## Дополнено при межпланетной логистике (003-interplanetary-logistics, 2026-09-09)
+
+- `RecordCodecBuilder.group` 16 полей: при 17 компонентах записи — вложить пару скаляров в `MapCodec` (`ThermalSpec` temperature/temperature_amplitude) и собирать запись статической фабрикой `fromCodec(...)`; JSON остаётся плоским.
+- `Codec.unboundedMap(Identifier.CODEC, Codec.doubleRange(...))` + `optionalFieldOf("...", Map.of())` — таблица «id → число» в датапаке.
+- `ServerChunkCache.getChunkNow(cx, cz)` → `LevelChunk` (или null) без загрузки; `LevelChunk.getBlockEntities()` — `Map<BlockPos, BlockEntity>` для обхода блок-сущностей чанка по клику (ЦУП).
+- Направленный блок без `HorizontalDirectionalBlock`: свойство `BlockStateProperties.HORIZONTAL_FACING` добавляется в `createBlockStateDefinition` подкласса; `Block`-конструктор вызывает `createBlockStateDefinition` ДО инициализации полей подкласса — свойства должны быть `static`. `getStateForPlacement` — `context.getHorizontalDirection().getOpposite()` (лицом к игроку).
+- Blockstate `orientable` + варианты `facing=…,open=…,cycling=…` с поворотом `y`; `/setblock … block[facing=west]` в стенде.
+- `Entity.setAssembly`-подобные инициализации на сервере: `level()` доступен уже в конструкторе сущности — цель по умолчанию можно вычислить из реестра там же.
+- `ValueOutput.putString/putLong/putDouble`, `ValueInput.getStringOr/getLongOr/getDoubleOr` — для BE достаточно; UUID и списки — строками.
+- Стенд: `config` мода — обычный объект с публичными полями, сценарий может временно менять лимиты (выдержка терминала) и обязан вернуть их в `finally`.

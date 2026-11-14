@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "W": "#minecraft:planks",
+    "R": "scguns:anthralite_ingot",
+    "X": "scguns:heavy_gun_parts"
+  },
+  "pattern": [
+    "   ",
+    "WXR",
+    "WW "
+  ],
+  "result": {
+    "id": "scguns:bump_stock"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "scguns:gunpowder_dust",
+    "scguns:gunpowder_dust",
+    "scguns:gunpowder_dust",
+    "scguns:gunpowder_dust",
+    "scguns:gunpowder_dust",
+    "scguns:gunpowder_dust"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:gunpowder"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "hbm",
+  "version": "${version}",
+  "name": "ValenJEG - Nuclear Tech",
+  "description": "Private modified port of NTM NEXT (upstream 05496ec) for Minecraft 26.3 Fabric. Not an official NTM NEXT release. Modified 2026-11-13. The hbm registry id is unchanged.",
+  "authors": [
+    "HbmMods (The Bobcat) - creating the original mod",
+    "movblock - porting to 26.2",
+    "hbm-valen - private 26.3 Fabric modification, 2026-11-13"
+  ],
+  "contributors": [
+    "MrNorwood - raw ore textures: thorium, cobalt, lithium, schrabidium",
+    "Mr. Morgan - raw ore textures: aluminium, beryllium, lead, plutonium, titanium, tungsten, uranium",
+    "NuclearGrandFather - raw ore textures: aluminium, beryllium, lead, plutonium, titanium, tungsten, uranium"
+  ],
+  "license": "LGPL-3.0-only",
+  "icon": "hbm.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.hbm.fabric.NuclearTechFabric"
+    ],
+    "client": [
+      "com.hbm.fabric.client.NuclearTechFabricClient"
+    ],
+    "fabric-datagen": [
+      "com.hbm.fabric.datagen.HbmDataGenerator"
+    ],
+    "jei_mod_plugin": [
+      "com.hbm.integration.jei.NTMJeiPlugin"
+    ],
+    "rei_client": [
+      "com.hbm.integration.rei.NTMReiClientPlugin",
+      "com.hbm.integration.rei.NTMReiCommonPlugin"
+    ],
+    "jade": [
+      "com.hbm.integration.jade.NTMJadePlugin"
+    ]
+  },
+  "mixins": [
+    "hbm-common.mixins.json",
+    "hbm-iris-compat.mixins.json",
+    "hbm-network-optimizer.mixins.json",
+    "hbm-fabric.mixins.json"
+  ],
+  "accessWidener": "hbm.classtweaker",
+  "jars": [
+    {
+      "file": "META-INF/jars/hbm-client-dependency.jar"
+    }
+  ],
+  "depends": {
+    "hbm_client": "*",
+    "fabricloader": ">=0.19.3",
+    "fabric-api": ">=0.161.0+26.3",
+    "minecraft": "~26.3"
+  },
+  "suggests": {
+    "team_reborn_energy": ">=5.0.0"
+  },
+  "breaks": {
+    "fusion": "<1.3.13",
+    "iris": "<1.11.4",
+    "sodium": "<0.9.2-beta.1",
+    "scalablelux": "<0.3.0-alpha.0.3",
+    "lithium": [
+      "<0.25.3",
+      ">=0.26"
+    ]
+  }
+}

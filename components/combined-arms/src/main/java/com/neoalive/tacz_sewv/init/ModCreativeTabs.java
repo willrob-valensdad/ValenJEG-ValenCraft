@@ -1,0 +1,68 @@
+package com.neoalive.tacz_sewv.init;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
+
+import com.neoalive.tacz_sewv.TaczSewv;
+
+/**
+ * Dedicated creative inventory tab for every SEWV item (except {@code trench_x_cross} and
+ * {@code spawn_probe} — those stay registered but are command-only via {@code /give}).
+ */
+public final class ModCreativeTabs {
+
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, TaczSewv.MODID);
+
+    public static final RegistryObject<CreativeModeTab> MAIN = CREATIVE_TABS.register("main",
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.tacz_sewv"))
+                    .icon(() -> new ItemStack(ModItems.HANDHELD_RADIO.get()))
+                    .displayItems((params, output) -> {
+                        // Command & equipment
+                        output.accept(ModItems.HANDHELD_RADIO.get());
+                        output.accept(ModItems.SIGNAL_RELAY.get());
+                        output.accept(ModItems.TACTICAL_DATA_TERMINAL.get());
+                        output.accept(ModItems.POOL_CLIPBOARD.get());
+                        output.accept(ModItems.DOCTRINE_LEDGER.get());
+                        output.accept(ModItems.MEDAL_OF_HONOR.get());
+                        output.accept(ModItems.LOCK.get());
+                        output.accept(ModItems.PMC_HELMET_MICH.get());
+
+                        // Field fortifications
+                        output.accept(ModItems.SANDBAG.get());
+                        output.accept(ModItems.TRENCH.get());
+                        output.accept(ModItems.FOXHOLE.get());
+                        output.accept(ModItems.EMPLACEMENT.get());
+                        output.accept(ModItems.CAPTURE_POINT.get());
+                        output.accept(ModItems.TEAM_BASE.get());
+
+                        // Airfield
+                        output.accept(ModItems.RUNWAY.get());
+                        output.accept(ModItems.HELIPAD.get());
+
+                        // Forward Operating Base
+                        output.accept(ModItems.QUARTERS_BENCH.get());
+                        output.accept(ModItems.STOCKPILE_AMMO.get());
+                        output.accept(ModItems.PARKING_FIELD.get());
+                        output.accept(ModItems.ZONE_BEACON.get());
+                        // spawn_probe: command-only (/give), not listed in creative — it is a
+                        // structure-authoring marker, not a player-placed FOB block.
+
+                        // Spawn eggs
+                        output.accept(ModItems.PMC_COMMANDER_SPAWN_EGG.get());
+                        output.accept(ModItems.RU_MEDIC_SPAWN_EGG.get());
+                        output.accept(ModItems.US_MEDIC_SPAWN_EGG.get());
+                        output.accept(ModItems.RU_ENGINEER_SPAWN_EGG.get());
+                        output.accept(ModItems.US_ENGINEER_SPAWN_EGG.get());
+                        output.accept(ModItems.RU_COMBAT_ENGINEER_SPAWN_EGG.get());
+                        output.accept(ModItems.US_COMBAT_ENGINEER_SPAWN_EGG.get());
+                    })
+                    .build());
+
+    private ModCreativeTabs() {}
+}

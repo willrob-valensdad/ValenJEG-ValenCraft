@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:small_diamond_steel_casing",
+    "scguns:nitro_powder_dust",
+    "#scguns:advanced_bullet_tips"
+  ],
+  "result": {
+    "id": "scguns:beowulf_round",
+    "count": 1
+  }
+}

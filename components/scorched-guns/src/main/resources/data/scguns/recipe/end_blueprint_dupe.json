@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": "scguns:blueprint_scrap",
+    "Q": "scguns:shulker_core",
+    "Z": "minecraft:paper"
+  },
+  "pattern": [
+    "HZH",
+    "ZQZ",
+    "HZH"
+  ],
+  "result": {
+    "id": "scguns:end_blueprint",
+    "count": 1
+  }
+}

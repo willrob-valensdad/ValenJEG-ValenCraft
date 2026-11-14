@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/spitfire",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

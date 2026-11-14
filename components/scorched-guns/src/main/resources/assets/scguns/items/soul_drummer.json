@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/soul_drummer",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

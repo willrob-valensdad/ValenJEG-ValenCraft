@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "minecraft:leather",
+    "S": "scguns:anthralite_ingot",
+    "R": "scguns:heavy_gun_parts",
+    "U": "minecraft:redstone"
+  },
+  "pattern": [
+    "SUS",
+    "XRX"
+  ],
+  "result": {
+    "id": "scguns:rebreather_module"
+  }
+}

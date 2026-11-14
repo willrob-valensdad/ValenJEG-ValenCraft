@@ -1,0 +1,56 @@
+// SPDX-FileCopyrightText: 2026 movblock <admin@movblock.mov>
+// SPDX-License-Identifier: LGPL-3.0-only
+
+package com.hbm.inventory.recipes.crafting;
+
+import com.hbm.blocks.network.FluidPipeBlock;
+import com.hbm.blocks.network.FluidPipeBlockItem;
+import com.hbm.inventory.recipes.ingredient.RecipeInputState;
+import com.hbm.items.ModDataComponents;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluids;
+
+public class DuctUntypeRecipe extends HbmCustomRecipe {
+
+    public static final DuctUntypeRecipe INSTANCE = new DuctUntypeRecipe();
+    public static final MapCodec<DuctUntypeRecipe> MAP_CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, DuctUntypeRecipe> STREAM_CODEC =
+            StreamCodec.unit(INSTANCE);
+    public static final RecipeSerializer<DuctUntypeRecipe> SERIALIZER =
+            new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
+
+    @Override
+    protected boolean matchesInput(CraftingInput input, Level level) {
+        boolean typedDuct = false;
+        for (int slot = 0; slot < input.size(); slot++) {
+            ItemStack stack = input.getItem(slot);
+            if (stack.isEmpty()) continue;
+            if (typedDuct
+                    || !(stack.getItem() instanceof FluidPipeBlockItem)
+                    || FluidPipeBlock.stampedFluid(stack) == Fluids.EMPTY) return false;
+            typedDuct = true;
+        }
+        return typedDuct;
+    }
+
+    @Override
+    public boolean acceptsInputState(CraftingInput input, int slot, ItemStack output) {
+        return RecipeInputState.only(input.getItem(slot), ModDataComponents.FLUID_CONTENT.get());
+    }
+
+    @Override
+    public ItemStack assemble(CraftingInput input) {
+        return new ItemStack(input.getItem(0).getItem());
+    }
+
+    @Override
+    public RecipeSerializer<DuctUntypeRecipe> getSerializer() {
+        return SERIALIZER;
+    }
+}

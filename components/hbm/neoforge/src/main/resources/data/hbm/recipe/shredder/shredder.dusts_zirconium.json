@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/zirconium"
+    }
+  ],
+  "order": 96768,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "scguns:asgharian_tiles",
+  "result": {
+    "count": 1,
+    "id": "scguns:asgharian_bricks"
+  }
+}

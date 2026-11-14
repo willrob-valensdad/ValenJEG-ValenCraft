@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/scratches",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

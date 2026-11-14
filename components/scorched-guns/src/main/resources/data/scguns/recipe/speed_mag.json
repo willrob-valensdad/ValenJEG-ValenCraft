@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "scguns:gun_magazine",
+    "X": "minecraft:iron_ingot",
+    "M": "#minecraft:wool"
+  },
+  "pattern": [
+    "   ",
+    "X  ",
+    "QM "
+  ],
+  "result": {
+    "id": "scguns:speed_mag"
+  }
+}

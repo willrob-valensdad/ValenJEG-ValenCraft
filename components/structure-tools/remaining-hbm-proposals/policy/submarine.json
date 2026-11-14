@@ -1,0 +1,221 @@
+{
+  "markers": [
+    {
+      "pos": [
+        5,
+        11,
+        19
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_NUKE_FUEL",
+      "min": 6,
+      "max": 12,
+      "rot": 96.352783203125,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        5,
+        11,
+        31
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_SILO",
+      "min": 6,
+      "max": 12,
+      "rot": 88.2529296875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        5,
+        12,
+        19
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_MACHINE_PARTS",
+      "min": 5,
+      "max": 10,
+      "rot": 91.7025146484375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        5,
+        12,
+        33
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_steel",
+      "replace_meta": 1,
+      "source_pool": "POOL_OFFICE_TRASH",
+      "min": 6,
+      "max": 8,
+      "rot": 80.7545166015625,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        5,
+        12,
+        35
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_steel",
+      "replace_meta": 1,
+      "source_pool": "POOL_FILING_CABINET",
+      "min": 6,
+      "max": 8,
+      "rot": 91.10452270507812,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        6,
+        11,
+        10
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_SILO",
+      "min": 5,
+      "max": 9,
+      "rot": -176.646240234375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        9,
+        8,
+        33
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_SUPPLIES",
+      "min": 10,
+      "max": 20,
+      "rot": -77.1951904296875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        9,
+        11,
+        23
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:crate_steel",
+      "replace_meta": 0,
+      "source_pool": "POOL_MACHINE_PARTS",
+      "min": 5,
+      "max": 10,
+      "rot": -85.1483154296875,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    },
+    {
+      "pos": [
+        9,
+        12,
+        29
+      ],
+      "marker": "wand_loot",
+      "replace_block": "hbm:filing_cabinet_steel",
+      "replace_meta": 1,
+      "source_pool": "POOL_BLUEPRINTS",
+      "min": 2,
+      "max": 6,
+      "rot": -80.3450927734375,
+      "current_explicit_loot_policy": "jeg:chests/valen/field_supplies"
+    }
+  ],
+  "class_notes": [
+    {
+      "pos": [
+        6,
+        20,
+        24
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        6,
+        20,
+        25
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        6,
+        20,
+        26
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        7,
+        20,
+        24
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        7,
+        20,
+        26
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        8,
+        20,
+        24
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        8,
+        20,
+        25
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    },
+    {
+      "pos": [
+        8,
+        20,
+        26
+      ],
+      "block": "steel_roof",
+      "meta": 2,
+      "class_ignores_meta": true
+    }
+  ]
+}

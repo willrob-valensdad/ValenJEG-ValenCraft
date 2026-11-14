@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "valen_rail_fixture",
+  "version": "1.0.0",
+  "name": "Valen disposable rail fixture",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "com.zurrtum.create.content.trains.graph.RailFixture"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "minecraft": "26.3",
+    "fabric-api": "*",
+    "create": "*"
+  }
+}

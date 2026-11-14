@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/syringe_3d",
+  "textures": {
+    "0": "scguns:item/syringe",
+    "particle": "scguns:item/syringe"
+  }
+}

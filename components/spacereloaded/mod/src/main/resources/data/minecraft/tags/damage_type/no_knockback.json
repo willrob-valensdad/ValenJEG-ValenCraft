@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"spacereloaded:vacuum",
+		"spacereloaded:exposure",
+		"spacereloaded:reentry_heat",
+		"spacereloaded:asphyxia"
+	]
+}

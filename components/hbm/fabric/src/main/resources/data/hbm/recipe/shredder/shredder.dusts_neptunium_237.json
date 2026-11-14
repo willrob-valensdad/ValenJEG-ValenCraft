@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/neptunium_237"
+    }
+  ],
+  "order": 81664,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

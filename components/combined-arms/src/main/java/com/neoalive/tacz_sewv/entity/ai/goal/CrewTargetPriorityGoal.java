@@ -1,0 +1,271 @@
+package com.neoalive.tacz_sewv.entity.ai.goal;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+
+import com.neoalive.tacz_sewv.config.EasyMode;
+import com.neoalive.tacz_sewv.config.EasyModePlayerEvents;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.entity.ai.core.HullFacts;
+import com.neoalive.tacz_sewv.entity.ai.core.VehicleTargeting;
+import com.neoalive.tacz_sewv.entity.ai.plane.PlaneRoleFilter;
+import com.neoalive.tacz_sewv.entity.ai.sensor.CombatantIndex;
+import com.neoalive.tacz_sewv.entity.ai.sensor.ContactBoard;
+import com.neoalive.tacz_sewv.entity.ai.support.MortarSupport;
+import com.neoalive.tacz_sewv.entity.ai.support.TowSupport;
+import com.neoalive.tacz_sewv.entity.ai.support.VehicleMortarSupport;
+import com.neoalive.tacz_sewv.item.PlaneRole;
+
+/**
+ * Doctrine targeting for crew-served weapons and mounted vehicle crews: a mortar shoots
+ * troops before monsters, a TOW / tank / IFV / heli / ship prefers vehicles before soft
+ * contacts, and an AntiAir platform prefers airborne riders.
+ *
+ * <p><b>Why this has to be its own goal at priority 1.</b> SEM's target ladder looks like a
+ * preference but is not one at the bottom. For a PMC unit it is:
+ *
+ * <pre>
+ *   0  AttackSpecificTargetGoal        (the radio fire mission)
+ *   1  NoPlayerHurtByTargetGoal        (retaliation)
+ *   2  NearestAttackableTargetGoal(USunitEntity)
+ *   2  NearestAttackableTargetGoal(RUunitEntity)
+ *   2  NearestAttackableTargetGoal(Monster)     &lt;-- catch-all, SAME priority as troops
+ *   3  NearestAttackableTargetGoal(Zombie / Skeleton / AbstractIllager)
+ * </pre>
+ *
+ * Vanilla's {@code WrappedGoal.canBeReplacedBy} only lets a STRICTLY higher-priority goal
+ * take a held flag, so once that priority-2 catch-all locks a zombie, the priority-2 troop
+ * goals can never take TARGET off it — the crew stays on the zombie until it dies. RU/US
+ * ladders have the same shape. Nothing at priority 2 or 3 can fix this from the inside,
+ * which is why this sits at <b>1</b>: high enough to preempt every scan in the ladder
+ * (including {@link VehicleTargetScanGoal}'s mid-fight soft lock), low enough that a radio
+ * fire mission (priority 0) still overrules the crew's own opinion.
+ *
+ * <p>It ties with retaliation at priority 1, so whichever starts first holds — a deliberate
+ * draw. A crew already shelling troops should not drop them because a stray zombie hit it,
+ * and a crew that is being shot has fair reason to answer.
+ *
+ * <p>Mounted general crews use {@link Doctrine#ARMOR}: if the current lock is soft and an
+ * armor rider is in range, this goal starts and steals TARGET. Already on armor → stays put.
+ * With no preferred contact in reach the goal never starts, TARGET falls back through the
+ * normal ladder / vehicle cylinder scan.
+ */
+public class CrewTargetPriorityGoal extends Goal {
+
+    /** Acquired targets are held past the scan edge so an edge-walker doesn't flicker. */
+    private static final double DROP_MULT = 1.5;
+
+    private final AbstractUnit unit;
+    private LivingEntity pendingTarget;
+    private int scanCooldown;
+
+    public CrewTargetPriorityGoal(AbstractUnit unit) {
+        this.unit = unit;
+        this.setFlags(EnumSet.of(Flag.TARGET));
+    }
+
+    /** What this crew's weapon is for, or null when the unit has no priority doctrine. */
+    private Doctrine doctrine() {
+        if (TowSupport.isCrewing(this.unit)) return Doctrine.ARMOR;
+        if (MortarSupport.hasMortarClaim(this.unit)) return Doctrine.TROOPS;
+        if (VehicleMortarSupport.isCrewing(this.unit)) return Doctrine.TROOPS;
+        if (PlaneRoleFilter.roleOf(this.unit) == PlaneRole.FIGHTER) return Doctrine.AIR;
+        if (this.unit.getVehicle() instanceof VehicleEntity v && HullFacts.isAntiAirHull(v)) {
+            return Doctrine.AIR;
+        }
+        // Any other mounted SBW crew (tank, IFV, heli, ship, …): armor outranks soft mid-fight.
+        if (this.unit.getVehicle() instanceof VehicleEntity) return Doctrine.ARMOR;
+        return null;
+    }
+
+    private enum Doctrine {
+        /** TOW / general vehicle crew: prefer hull riders over soft contacts. */
+        ARMOR,
+        /** Mortar: an area weapon, and troops are what it is for. */
+        TROOPS,
+        /** AA platform: prefer crews riding HELICOPTER / AIRCRAFT hulls. */
+        AIR
+    }
+
+    @Override
+    public boolean canUse() {
+        if (this.unit.level().isClientSide()) return false;
+
+        Doctrine doctrine = doctrine();
+        if (doctrine == null) return false;
+        if (!VehicleTargeting.ordersAllowAutoTargets(this.unit)) return false;
+
+        // Already on the right kind of target — nothing to improve, so don't hold TARGET
+        // (and don't pay for a scan) just to re-pick what the crew is already shooting.
+        LivingEntity current = this.unit.getTarget();
+        if (current != null && current.isAlive() && wants(doctrine, current)) return false;
+
+        if (this.scanCooldown > 0) {
+            this.scanCooldown--;
+            return false;
+        }
+        this.scanCooldown = EasyMode.scanIntervalTicks(this.unit, SewvConfig.VEHICLE_TARGET_SCAN_INTERVAL_TICKS.get());
+
+        this.pendingTarget = scan(doctrine);
+        return this.pendingTarget != null;
+    }
+
+    @Override
+    public void start() {
+        this.unit.setTarget(this.pendingTarget);
+        this.pendingTarget = null;
+    }
+
+    @Override
+    public boolean canContinueToUse() {
+        Doctrine doctrine = doctrine();
+        if (doctrine == null) return false;
+        if (!VehicleTargeting.ordersAllowAutoTargets(this.unit)) return false;
+
+        LivingEntity target = this.unit.getTarget();
+        if (target == null || !target.isAlive()) return false;
+        // The crew moved on to something else (retaliation, an order) — let it go rather
+        // than drag it back; this goal's job is the pick, not custody.
+        if (!wants(doctrine, target)) return false;
+
+        // A board-held target of a mounted crew is not dropped for distance (it was admitted out to
+        // wideScanRadius); it leaves with its contact.
+        if (this.unit.getVehicle() != null && ContactBoard.holds(this.unit, target, minSource(doctrine))) {
+            return true;
+        }
+        double drop = scanRadius() * DROP_MULT;
+        return this.unit.distanceToSqr(target) <= drop * drop;
+    }
+
+    @Override
+    public void stop() {
+        // Vanilla TargetGoal contract: releasing TARGET clears the target, so whichever
+        // goal picks it up next (retaliation, the ladder's own scans) starts clean.
+        this.unit.setTarget(null);
+        this.pendingTarget = null;
+    }
+
+    /** Nearest valid target of the preferred class, or null if there is none in reach. */
+    private LivingEntity scan(Doctrine doctrine) {
+        double radius = scanRadius();
+        double radiusSq = radius * radius;
+
+        // From the per-level combatant index, not a world query. No snapshot yet means nothing known.
+        CombatantIndex.Snapshot snapshot = CombatantIndex.snapshot(this.unit.level());
+        if (snapshot == null) return null;
+        List<LivingEntity> candidates = new ArrayList<>();
+        for (CombatantIndex.Entry entry : snapshot.query(this.unit.getX(), this.unit.getZ(), radius,
+                this.unit.getY() - radius, this.unit.getY() + radius)) {
+            LivingEntity e = entry.living;
+            if (e != null && e.isAlive() && wants(doctrine, e) && isValidTarget(e)
+                    && this.unit.distanceToSqr(e) <= radiusSq) {
+                candidates.add(e);
+            }
+        }
+        // A mounted crew also considers what its side already knows out to wideScanRadius, the same
+        // reach VehicleTargetScanGoal gives board contacts. Same filters as a scan-found candidate.
+        if (this.unit.getVehicle() != null && EasyMode.wideScanAllowed(this.unit)) {
+            double wide = wideRadius(radius);
+            for (LivingEntity e : ContactBoard.contactsFor(this.unit, minSource(doctrine))) {
+                if (candidates.contains(e) || !wants(doctrine, e) || !isValidTarget(e)) continue;
+                if (this.unit.distanceToSqr(e) <= wide * wide) candidates.add(e);
+            }
+        }
+
+        // Easy Mode: the same player grace and soft priority VehicleTargetScanGoal applies — this
+        // goal outranks that one, so without it a player-driven tank was still the preferred pick.
+        candidates.removeIf(e -> e instanceof Player p && EasyModePlayerEvents.refusesPlayer(this.unit, p));
+        EasyModePlayerEvents.preferNonPlayers(this.unit, candidates);
+
+        LivingEntity best = null;
+        double bestDistSq = Double.MAX_VALUE;
+        for (LivingEntity candidate : candidates) {
+            double distSq = this.unit.distanceToSqr(candidate);
+            if (distSq >= bestDistSq) continue;
+            // LOS last and only on the running best: the raycast is the expensive part and
+            // most candidates never become the best.
+            if (EasyMode.vehicleTargetRequireLos()
+                    && !(EasyMode.wideScanAllowed(this.unit)
+                            && ContactBoard.waivesLos(this.unit, candidate, minSource(doctrine)))
+                    && !this.unit.getSensing().hasLineOfSight(candidate)) {
+                continue;
+            }
+            best = candidate;
+            bestDistSq = distSq;
+        }
+        return best;
+    }
+
+    /** How far board contacts are admitted: the wide radius when wide scan is on, else the scan radius. */
+    private static double wideRadius(double scanRadius) {
+        try {
+            return SewvConfig.WIDE_SCAN_ENABLED.get()
+                    ? Math.max(scanRadius, SewvConfig.WIDE_SCAN_RADIUS.get()) : scanRadius;
+        } catch (Throwable unbaked) {
+            return scanRadius;
+        }
+    }
+
+    /**
+     * Indirect fire (mortars) may act on any board contact, hearsay included: its shot needs no line
+     * of sight. A direct-fire crew wants at least a heard-and-placed contact, then still waits for its
+     * own line of sight at the fire-time gate.
+     */
+    private static ContactBoard.Source minSource(Doctrine doctrine) {
+        return doctrine == Doctrine.TROOPS ? ContactBoard.Source.RELAYED : ContactBoard.Source.PROXIMITY;
+    }
+
+    /** Preferred by doctrine and allowed by the hull's Airplane Mode. */
+    private boolean wants(Doctrine doctrine, LivingEntity target) {
+        return preferred(doctrine, target) && !PlaneRoleFilter.rejects(this.unit, target);
+    }
+
+    /** Is this the kind of target the crew's weapon is for? */
+    private static boolean preferred(Doctrine doctrine, LivingEntity target) {
+        return switch (doctrine) {
+            // A VehicleEntity is not a LivingEntity and can never be the target itself —
+            // the AI targets the crew riding it, so "is armor" means "is riding a hull".
+            case ARMOR -> target.getVehicle() instanceof VehicleEntity
+                    || com.neoalive.tacz_sewv.compat.lv.LvCompat.isArmouredHull(target.getVehicle())
+                    || com.neoalive.tacz_sewv.compat.TripodCompat.isTripod(target);
+            case TROOPS -> target instanceof AbstractUnit;
+            case AIR -> isAirborneRider(target);
+        };
+    }
+
+    /** True when the living target is riding a HELICOPTER or AIRCRAFT engine hull. */
+    private static boolean isAirborneRider(LivingEntity target) {
+        if (!(target.getVehicle() instanceof VehicleEntity v)) return false;
+        return HullFacts.isPlaneHull(v) || HullFacts.isHelicopterHull(v);
+    }
+
+    /**
+     * Mirrors {@link VehicleTargetScanGoal}'s faction doctrine, which is SEM's own: PMC
+     * crews fight RU/US and hostile mobs but never players or other PMC; RU/US fight
+     * players, the opposing faction and hostile mobs. Kept in step with that goal
+     * deliberately — a crew must not prefer a target its own scan would refuse.
+     */
+    private boolean isValidTarget(LivingEntity e) {
+        return VehicleTargeting.isValidHostileTarget(this.unit, e);
+    }
+
+    /**
+     * A mounted TOW crew scans the vehicle cylinder's radius; an unmounted mortar crew is
+     * bounded by SEM's own follow range, which is the reach it would have had anyway (and
+     * why the radio exists at all — see {@link FireMissionSupport}).
+     */
+    private double scanRadius() {
+        return EasyMode.scanRadius(this.unit, this.unit.getVehicle() != null
+                ? SewvConfig.VEHICLE_TARGET_SCAN_RADIUS.get()
+                : this.unit.getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+
+}

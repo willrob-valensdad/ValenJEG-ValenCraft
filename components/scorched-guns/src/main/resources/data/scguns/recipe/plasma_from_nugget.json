@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "scguns:plasma_nugget",
+    "scguns:plasma_nugget",
+    "scguns:plasma_nugget",
+    "scguns:plasma_nugget",
+    "scguns:plasma_nugget"
+  ],
+  "result": {
+    "count": 1,
+    "id": "scguns:plasma"
+  }
+}

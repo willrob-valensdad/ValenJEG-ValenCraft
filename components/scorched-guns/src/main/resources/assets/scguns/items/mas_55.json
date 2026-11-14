@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/mas_55",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

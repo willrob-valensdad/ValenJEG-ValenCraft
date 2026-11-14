@@ -1,0 +1,10 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    "hbm:ingot_am_mix"
+  ],
+  "result": {
+    "count": 9,
+    "id": "hbm:nugget_am_mix"
+  }
+}

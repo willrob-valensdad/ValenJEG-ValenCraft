@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/prima_materia",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

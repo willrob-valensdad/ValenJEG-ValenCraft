@@ -1,0 +1,13 @@
+{
+  "type": "hbm:solidification",
+  "input_fluids": [
+    {
+      "type": "hbm:lead",
+      "amount": 100
+    }
+  ],
+  "order": 2304,
+  "output_items": [
+    "hbm:ingot_lead"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "minecraft:iron_nugget",
+    "Q": "minecraft:iron_ingot",
+    "X": "minecraft:glistering_melon_slice"
+  },
+  "pattern": [
+    " # ",
+    " X ",
+    " Q "
+  ],
+  "result": {
+    "id": "scguns:syringe",
+    "count": 3
+  }
+}

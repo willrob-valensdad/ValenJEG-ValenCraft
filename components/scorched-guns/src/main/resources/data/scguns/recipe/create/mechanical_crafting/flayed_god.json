@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "L": "scguns:energy_core",
+    "R": "scguns:heavy_gun_parts",
+    "S": "scguns:heavy_gun_barrel",
+    "B": "scguns:gun_barrel",
+    "X": "scguns:scorched_blueprint",
+    "K": "scguns:scorched_ingot",
+    "P": "scguns:scorched_gun_frame",
+    "J": "scguns:nether_star_fragment"
+  },
+  "pattern": [
+    "QPJX",
+    "LRSB",
+    "K K "
+  ],
+  "result": {
+    "id": "scguns:flayed_god"
+  }
+}

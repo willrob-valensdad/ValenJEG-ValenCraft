@@ -1,0 +1,16 @@
+{
+  "type": "immersiveengineering:crusher",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "immersiveengineering"
+    }
+  ],
+  "energy": 6000,
+  "input": "scguns:sulfur_chunk",
+  "result": {
+    "base_ingredient": "immersiveengineering:dust_sulfur",
+    "count": 2
+  },
+  "secondaries": []
+}

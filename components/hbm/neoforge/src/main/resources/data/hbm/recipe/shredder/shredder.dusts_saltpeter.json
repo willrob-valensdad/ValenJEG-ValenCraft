@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/saltpeter"
+    }
+  ],
+  "order": 109568,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

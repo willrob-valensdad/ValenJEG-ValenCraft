@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/auvtomag",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

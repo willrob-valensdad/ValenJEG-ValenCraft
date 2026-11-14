@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 6
+  },
+  "gives": {
+    "id": "scguns:small_casing_mold"
+  },
+  "max_uses": 3,
+  "xp": 10,
+  "reputation_discount": 0.05
+}

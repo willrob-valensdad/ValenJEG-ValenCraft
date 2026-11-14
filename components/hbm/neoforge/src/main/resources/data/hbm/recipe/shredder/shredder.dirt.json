@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "minecraft:dirt"
+    }
+  ],
+  "order": 18944,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/repeating_musket",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

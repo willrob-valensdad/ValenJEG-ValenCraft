@@ -1,0 +1,13 @@
+{
+  "type": "hbm:solidification",
+  "input_fluids": [
+    {
+      "type": "hbm:kerosene_reform",
+      "amount": 280
+    }
+  ],
+  "order": 9216,
+  "output_items": [
+    "hbm:solid_fuel"
+  ]
+}

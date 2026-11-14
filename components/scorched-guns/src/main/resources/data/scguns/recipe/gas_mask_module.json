@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "minecraft:leather",
+    "S": "scguns:anthralite_ingot",
+    "R": "scguns:composite_filter"
+  },
+  "pattern": [
+    "S S",
+    "XRX"
+  ],
+  "result": {
+    "id": "scguns:gas_mask_module"
+  }
+}

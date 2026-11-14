@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "scguns:gun_barrel",
+    "Q": "scguns:anthralite_ingot"
+  },
+  "pattern": [
+    " # ",
+    "Q  "
+  ],
+  "result": {
+    "id": "scguns:extended_barrel"
+  }
+}

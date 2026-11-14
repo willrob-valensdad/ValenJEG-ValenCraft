@@ -1,0 +1,20 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "C": {
+      "preserve": "remainder"
+    }
+  },
+  "key": {
+    "C": "hbm:singularity",
+    "S": "hbm:crystal_xen"
+  },
+  "pattern": [
+    "SSS",
+    "SCS",
+    "SSS"
+  ],
+  "result": {
+    "id": "hbm:black_hole"
+  }
+}

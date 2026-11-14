@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/lone_wonder",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

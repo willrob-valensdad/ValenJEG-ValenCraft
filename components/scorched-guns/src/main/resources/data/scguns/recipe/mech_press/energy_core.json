@@ -1,0 +1,13 @@
+{
+  "type": "scguns:mechanical_pressing",
+  "processingTime": 300,
+  "ingredients": [
+    "scguns:empty_core",
+    "minecraft:redstone_block",
+    "scguns:charged_amethyst_shard"
+  ],
+  "result": {
+    "id": "scguns:energy_core",
+    "count": 1
+  }
+}

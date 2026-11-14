@@ -1,0 +1,17 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:exo_suit_chestplate",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:exo_suit_blueprint",
+    "gun_internal_1": "scguns:anthralite_ingot",
+    "gun_top_internal_1": "scguns:anthralite_ingot",
+    "gun_barrel_1": "scguns:anthralite_ingot",
+    "gun_top_barrel_1": "scguns:anthralite_ingot",
+    "gun_internal_2": "scguns:anthralite_ingot",
+    "gun_grip": "scguns:anthralite_ingot",
+    "gun_magazine": "scguns:anthralite_ingot"
+  }
+}

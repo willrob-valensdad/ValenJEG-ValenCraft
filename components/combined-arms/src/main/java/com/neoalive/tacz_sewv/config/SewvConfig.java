@@ -1,0 +1,1960 @@
+package com.neoalive.tacz_sewv.config;
+
+import java.util.Arrays;
+import java.util.List;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.ForgeConfigSpec;
+
+import com.neoalive.tacz_sewv.entity.ai.utility.Doctrine;
+
+public final class SewvConfig {
+
+    // Minecraft keeps your existing config file. Delete it (or individual keys) to pick up new defaults.
+    public static final ForgeConfigSpec SPEC;
+
+    public static final ForgeConfigSpec.BooleanValue GROUND_IN_EVENTS;
+    public static final ForgeConfigSpec.DoubleValue GROUND_SPAWN_CHANCE_RU;
+    public static final ForgeConfigSpec.DoubleValue GROUND_SPAWN_CHANCE_US;
+    public static final ForgeConfigSpec.BooleanValue ROTOR_IN_EVENTS;
+    public static final ForgeConfigSpec.DoubleValue ROTOR_SPAWN_CHANCE_RU;
+    public static final ForgeConfigSpec.DoubleValue ROTOR_SPAWN_CHANCE_US;
+    /** When on, SEM event spawn min/max distance is multiplied by 2.5. Formerly gamerule sewvFarEventSpawns. */
+    public static final ForgeConfigSpec.BooleanValue FAR_EVENT_SPAWNS;
+    public static final ForgeConfigSpec.BooleanValue PLANES_IN_EVENTS;
+    public static final ForgeConfigSpec.DoubleValue PLANE_SPAWN_CHANCE_RU;
+    public static final ForgeConfigSpec.DoubleValue PLANE_SPAWN_CHANCE_US;
+    public static final ForgeConfigSpec.BooleanValue CONVOY_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue CONVOY_BASE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue CONVOY_FAILURE_MULTIPLIER;
+    public static final ForgeConfigSpec.BooleanValue LARGE_COMBAT_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue LARGE_COMBAT_BASE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue LARGE_COMBAT_FAILURE_MULTIPLIER;
+    public static final ForgeConfigSpec.IntValue LARGE_COMBAT_GROUND_VEHICLES;
+    public static final ForgeConfigSpec.IntValue LARGE_COMBAT_ROTOR_VEHICLES;
+    public static final ForgeConfigSpec.DoubleValue LARGE_COMBAT_EMPLACEMENT_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue LARGE_COMBAT_PLANE_CHANCE;
+    public static final ForgeConfigSpec.BooleanValue NAVAL_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue NAVAL_BASE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue NAVAL_FAILURE_MULTIPLIER;
+    public static final ForgeConfigSpec.IntValue NAVAL_SURFACE_PER_SIDE;
+    public static final ForgeConfigSpec.IntValue GRACE_PERIOD_DAYS;
+    public static final ForgeConfigSpec.BooleanValue INVASION_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue INVASION_BASE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue INVASION_FAILURE_MULTIPLIER;
+    public static final ForgeConfigSpec.IntValue INVASION_DEFENDER_INFANTRY;
+    public static final ForgeConfigSpec.IntValue INVASION_DEFENDER_TOWS;
+    public static final ForgeConfigSpec.IntValue INVASION_DEFENDER_MORTARS;
+    public static final ForgeConfigSpec.BooleanValue SHELLING_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue SHELLING_BASE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue SHELLING_FAILURE_MULTIPLIER;
+    public static final ForgeConfigSpec.IntValue SHELLING_BASE_RADIUS;
+    public static final ForgeConfigSpec.IntValue SHELLING_MORTARS;
+    public static final ForgeConfigSpec.IntValue SHELLING_GUARDS;
+    public static final ForgeConfigSpec.IntValue SHELLING_DURATION_MIN_TICKS;
+    public static final ForgeConfigSpec.IntValue SHELLING_DURATION_MAX_TICKS;
+    public static final ForgeConfigSpec.ConfigValue<String> HIGH_CHANCE_MORTAR_SHELL;
+    public static final ForgeConfigSpec.ConfigValue<String> LOW_CHANCE_MORTAR_SHELL;
+    public static final ForgeConfigSpec.ConfigValue<String> HIGH_CHANCE_TYPE63_ROCKET;
+    public static final ForgeConfigSpec.ConfigValue<String> LOW_CHANCE_TYPE63_ROCKET;
+    public static final ForgeConfigSpec.BooleanValue DERELICT_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue DERELICT_BASE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue DERELICT_FAILURE_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue DERELICT_HEALTH_FRACTION;
+    public static final ForgeConfigSpec.IntValue DERELICT_GUARDS;
+    public static final ForgeConfigSpec.IntValue DERELICT_AMMO_COUNT;
+    public static final ForgeConfigSpec.BooleanValue OVERFLIGHT_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue OVERFLIGHT_BASE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue OVERFLIGHT_FAILURE_MULTIPLIER;
+    public static final ForgeConfigSpec.IntValue OVERFLIGHT_PLANES;
+    public static final ForgeConfigSpec.BooleanValue GARRISON_VEHICLES_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue GARRISON_VEHICLE_CHANCE;
+
+    public static final ForgeConfigSpec.BooleanValue CREATIVE_AMMO_FALLBACK;
+    public static final ForgeConfigSpec.BooleanValue FACTION_INFINITE_ENERGY;
+    public static final ForgeConfigSpec.BooleanValue FACTION_INFINITE_AMMO;
+    public static final ForgeConfigSpec.ConfigValue<String> VEHICLE_DEATH_DROPS;
+    public static final ForgeConfigSpec.BooleanValue VEHICLE_AMMO_LOOT;
+    public static final ForgeConfigSpec.BooleanValue UNIT_CORPSE_COMPAT;
+    public static final ForgeConfigSpec.BooleanValue UNIT_CORPSE_RU;
+    public static final ForgeConfigSpec.BooleanValue UNIT_CORPSE_US;
+    public static final ForgeConfigSpec.BooleanValue UNIT_CORPSE_PMC;
+    public static final ForgeConfigSpec.IntValue UNIT_CORPSE_DESPAWN_MINUTES;
+    public static final ForgeConfigSpec.IntValue UNIT_CORPSE_MAX_PER_DIMENSION;
+
+    public static final ForgeConfigSpec.BooleanValue NPC_ARMOR_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue STRUCTURES_GENERATE;
+    public static final ForgeConfigSpec.BooleanValue NATIVE_STRUCTURES_ENABLED;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> RU_ARMOR;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> US_ARMOR;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> PMC_ARMOR;
+
+    public static final ForgeConfigSpec.BooleanValue NAME_ASSIGNMENT_ENABLED;
+    public static final ForgeConfigSpec.ConfigValue<String> DEFAULT_NAME_CATEGORY;
+
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> NVG_ELIGIBLE_ITEMS;
+    public static final ForgeConfigSpec.DoubleValue NVG_SPAWN_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue DARK_ACCURACY_FRACTION;
+    public static final ForgeConfigSpec.DoubleValue NVG_ACCURACY_FRACTION;
+    public static final ForgeConfigSpec.DoubleValue DARK_SPREAD_SCALE_MAX;
+    public static final ForgeConfigSpec.IntValue DARK_BLOCK_LIGHT_MAX;
+
+    public static final ForgeConfigSpec.BooleanValue STRUCTURE_VEHICLES_ENABLED;
+    public static final ForgeConfigSpec.IntValue STRUCTURE_VEHICLE_MAX_COUNT;
+    public static final ForgeConfigSpec.IntValue STRUCTURE_VEHICLE_RAMP_DAYS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> RU_VEHICLE_STRUCTURES;
+    // Limitless Vehicles (ywzj_vehicle, optional) — read only when that mod is loaded.
+    public static final ForgeConfigSpec.BooleanValue LV_AI_ENABLED;
+    /** When true, {@code /sewv diplomacy} needs permission level 2. Default false: any player. */
+    public static final ForgeConfigSpec.BooleanValue DIPLOMACY_REQUIRES_OP;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> US_VEHICLE_STRUCTURES;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> PMC_VEHICLE_STRUCTURES;
+
+    public static final ForgeConfigSpec.IntValue AI_FIRE_COOLDOWN_TICKS;
+    public static final ForgeConfigSpec.IntValue AI_FIRE_HESITATION_TICKS;
+    public static final ForgeConfigSpec.DoubleValue AI_FIRE_HESITATION_JITTER;
+    public static final ForgeConfigSpec.IntValue AI_LOS_CACHE_TICKS;
+    public static final ForgeConfigSpec.DoubleValue AI_FIRE_ASSIST_CONE_DEG;
+    public static final ForgeConfigSpec.DoubleValue SMOKE_BLOCK_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue FRIENDLY_FIRE_VEHICLE_RADIUS;
+    public static final ForgeConfigSpec.ConfigValue<String> AI_AIM_ACCURACY;
+    public static final ForgeConfigSpec.DoubleValue AI_AIM_SPREAD_DEG;
+    public static final ForgeConfigSpec.ConfigValue<String> GRENADE_THROW_CADENCE;
+    public static final ForgeConfigSpec.IntValue GRENADE_MAX_HAND;
+    public static final ForgeConfigSpec.IntValue GRENADE_MAX_RGO;
+    public static final ForgeConfigSpec.IntValue GRENADE_MAX_SMOKE;
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_SKIN_MOUNT_CHANCE;
+    public static final ForgeConfigSpec.BooleanValue CAMO_BIOME_SELECTION;
+    public static final ForgeConfigSpec.BooleanValue IFV_DISMOUNTS_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue SEM_CREW_DISABLE_INERTIA_ROTATE;
+    public static final ForgeConfigSpec.BooleanValue TANK_RIDER_DISMOUNT_ENABLED;
+    /** Player-driver crew-rappel keybind: all units vs weaponless seats only. */
+    public static final ForgeConfigSpec.BooleanValue PLAYER_CREW_RAPPEL_ALL_SEATS;
+    /** Player self-rappel also drops eligible units (same seat filter as crew rappel). */
+    public static final ForgeConfigSpec.BooleanValue PLAYER_SELF_RAPPEL_WITH_UNITS;
+    public static final ForgeConfigSpec.ConfigValue<String> AT_WEAPON_RU;
+    public static final ForgeConfigSpec.ConfigValue<String> AT_WEAPON_US;
+    public static final ForgeConfigSpec.ConfigValue<String> AT_AIR_WEAPON_RU;
+    public static final ForgeConfigSpec.DoubleValue AT_AIR_GUNNER_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue AT_SECOND_GUNNER_CHANCE;
+    public static final ForgeConfigSpec.IntValue AT_BACKUP_AMMO;
+    public static final ForgeConfigSpec.DoubleValue AT_ENGAGE_RANGE;
+    public static final ForgeConfigSpec.DoubleValue SBW_SMALL_ARMS_RANGE;
+    public static final ForgeConfigSpec.DoubleValue SBW_SNIPER_RANGE;
+    public static final ForgeConfigSpec.DoubleValue SBW_AA_RANGE;
+    public static final ForgeConfigSpec.DoubleValue SBW_AI_SPREAD;
+    public static final ForgeConfigSpec.BooleanValue MEDIC_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue MEDIC_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue MEDIC_HEAL_PER_TREAT;
+    public static final ForgeConfigSpec.BooleanValue PMC_REVIVE_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue PMC_REVIVE_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.IntValue PMC_REVIVE_CHANNEL_TICKS;
+    public static final ForgeConfigSpec.BooleanValue PMC_REVIVE_FORCE_SINGLEPLAYER;
+    public static final ForgeConfigSpec.BooleanValue PMC_DOWNED_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue PMC_DOWNED_HEALTH;
+    public static final ForgeConfigSpec.IntValue PMC_DOWNED_BLEED_TICKS;
+    public static final ForgeConfigSpec.DoubleValue PMC_DOWNED_REVIVE_HEALTH;
+    public static final ForgeConfigSpec.DoubleValue MEDIC_FLEE_DETECTION_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue MEDIC_FLEE_MIN_DISTANCE;
+    public static final ForgeConfigSpec.DoubleValue MEDIC_FLEE_MAX_DISTANCE;
+    public static final ForgeConfigSpec.BooleanValue HEALTH_MOBILITY_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue HEALTH_MOBILITY_FLOOR;
+    public static final ForgeConfigSpec.DoubleValue MEDIC_SPAWN_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue ENGINEER_SPAWN_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue SUPPORT_DEDUPE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue ENGINEER_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue ENGINEER_REPAIR_PER_TREAT;
+    public static final ForgeConfigSpec.IntValue ENGINEER_REPAIR_COOLDOWN;
+    public static final ForgeConfigSpec.DoubleValue ENGINEER_REPAIR_SPEED_BOOST;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> ENGINEER_SIDEARM_POOL;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> COMMANDER_SIDEARM_POOL;
+    public static final ForgeConfigSpec.BooleanValue ENGINEER_DRONES_ENABLED;
+    public static final ForgeConfigSpec.IntValue DRONE_MAX_PER_ENGINEER;
+    public static final ForgeConfigSpec.IntValue DRONE_DEPLOY_CHECK_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.DoubleValue DRONE_DEPLOY_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue DRONE_SCAN_ALTITUDE;
+    public static final ForgeConfigSpec.DoubleValue DRONE_BROADCAST_RADIUS;
+    public static final ForgeConfigSpec.IntValue DRONE_SCAN_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.DoubleValue DRONE_LEASH_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue DRONE_TARGET_RADIUS;
+    public static final ForgeConfigSpec.BooleanValue AUTO_BOARD_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue AUTO_BOARD_SCAN_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue AUTO_BOARD_MIN_HEALTH_FRACTION;
+    public static final ForgeConfigSpec.BooleanValue AUTO_BOARD_STEALS_PLAYER_VEHICLES;
+    public static final ForgeConfigSpec.BooleanValue TOW_AUTO_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue TOW_AUTO_SCAN_RADIUS;
+    public static final ForgeConfigSpec.IntValue TOW_SUBMERGED_REQUEST_TICKS;
+    public static final ForgeConfigSpec.IntValue TOW_STUCK_REQUEST_CYCLES;
+    public static final ForgeConfigSpec.DoubleValue TOW_PLAYER_ORDER_MAX_DISTANCE;
+    public static final ForgeConfigSpec.BooleanValue AUTO_MAN_MORTAR_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue AUTO_MAN_MORTAR_SCAN_RADIUS;
+    public static final ForgeConfigSpec.BooleanValue COMBAT_ENGINEER_DIG_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue AUTO_ENTRENCH_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue AUTO_ENTRENCH_SCAN_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_TARGET_SCAN_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_TARGET_SCAN_HEIGHT;
+    /** Ground observers only: upward reach for AA / SPAA. Airborne hulls keep SCAN_HEIGHT. */
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_TARGET_SCAN_AIR_HEIGHT;
+    public static final ForgeConfigSpec.IntValue VEHICLE_TARGET_SCAN_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.BooleanValue VEHICLE_TARGET_REQUIRE_LOS;
+    public static final ForgeConfigSpec.BooleanValue CONTACT_BOARD_ENABLED;
+    public static final ForgeConfigSpec.IntValue CONTACT_BOARD_TTL_TICKS;
+    public static final ForgeConfigSpec.DoubleValue CONTACT_BOARD_CLOSE_BAND;
+    public static final ForgeConfigSpec.DoubleValue CONTACT_BOARD_MOVE_THRESHOLD;
+    public static final ForgeConfigSpec.BooleanValue WIDE_SCAN_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue WIDE_SCAN_RADIUS;
+    public static final ForgeConfigSpec.IntValue WIDE_SCAN_CADENCE_TICKS;
+    public static final ForgeConfigSpec.IntValue COMBATANT_INDEX_INTERVAL_TICKS;
+    // Performance heuristics (controlled regressions). Neutral value = the behaviour before they existed.
+    public static final ForgeConfigSpec.IntValue PATH_SEARCHES_PER_TICK;
+    public static final ForgeConfigSpec.IntValue PATH_MAX_WAIT_TICKS;
+    public static final ForgeConfigSpec.IntValue PATH_MAX_VISITED_NODES;
+    public static final ForgeConfigSpec.IntValue PATH_SEARCH_RANGE;
+    public static final ForgeConfigSpec.DoubleValue PATHWAY_ENTRY_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue PATHWAY_COAX_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue PATHWAY_DETOUR_TOLERANCE;
+    public static final ForgeConfigSpec.IntValue PATH_DEST_QUANTUM;
+    public static final ForgeConfigSpec.IntValue SENSOR_COLUMN_TTL_TICKS;
+    public static final ForgeConfigSpec.IntValue TREE_SCAN_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.IntValue COVER_BAKE_NANOS_PER_TICK;
+    public static final ForgeConfigSpec.IntValue COVER_MAX_RANGE;
+    public static final ForgeConfigSpec.DoubleValue GROUND_FAR_LOD_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_ALLY_ASSIST_RANGE;
+    public static final ForgeConfigSpec.BooleanValue STALEMATE_BREAKER_ENABLED;
+    public static final ForgeConfigSpec.IntValue STALEMATE_SILENCE_TICKS;
+    public static final ForgeConfigSpec.BooleanValue VEHICLE_TERRAIN_AVOIDANCE;
+    public static final ForgeConfigSpec.IntValue PATH_RECALC_COOLDOWN_TICKS;
+    public static final ForgeConfigSpec.IntValue PATH_FAIL_COOLDOWN_TICKS;
+    public static final ForgeConfigSpec.IntValue PATH_MAX_AGE_TICKS;
+    public static final ForgeConfigSpec.DoubleValue PATH_TARGET_DRIFT_BLOCKS;
+    // groundPathingDebug/shipPathingDebug/sewvDiagDebug → ClientConfig (Config UI Client → Debug).
+    public static final ForgeConfigSpec.BooleanValue KOMODO_RENDER_FIX_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue TRIPOD_STANDOFF_DISTANCE;
+    public static final ForgeConfigSpec.IntValue PATROL_ROTATE_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.BooleanValue IDLE_WANDER_ENABLED;
+    public static final ForgeConfigSpec.IntValue IDLE_WANDER_RADIUS;
+    public static final ForgeConfigSpec.BooleanValue IDLE_HYBRID_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue IDLE_GROUP_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue IDLE_FORMATION_BASE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue IDLE_FORMATION_RADIUS_MIN;
+    public static final ForgeConfigSpec.DoubleValue IDLE_FORMATION_RADIUS_MAX;
+    public static final ForgeConfigSpec.DoubleValue IDLE_SCRAMBLE_RADIUS;
+    public static final ForgeConfigSpec.IntValue IDLE_HOLD_MIN_TICKS;
+    public static final ForgeConfigSpec.IntValue IDLE_HOLD_MAX_TICKS;
+    public static final ForgeConfigSpec.DoubleValue IDLE_TRAVEL_LEAD_DISTANCE;
+    public static final ForgeConfigSpec.DoubleValue IDLE_TRAVEL_SPACING_MIN;
+    public static final ForgeConfigSpec.DoubleValue IDLE_TRAVEL_SPACING_MAX;
+    public static final ForgeConfigSpec.DoubleValue IDLE_TRAVEL_DETECT_RADIUS;
+    public static final ForgeConfigSpec.IntValue IDLE_TRAVEL_STUCK_TICKS;
+    public static final ForgeConfigSpec.DoubleValue MARCH_PACE;
+    public static final ForgeConfigSpec.DoubleValue MARCH_STRAGGLE_DISTANCE;
+    public static final ForgeConfigSpec.IntValue UTILITY_REFRESH_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.BooleanValue FACTION_ORGANIC_COMMS;
+    public static final ForgeConfigSpec.BooleanValue NOTIFICATIONS_REQUIRE_RADIO;
+    public static final ForgeConfigSpec.BooleanValue RADIO_VOICE_ENABLED;
+    public static final ForgeConfigSpec.IntValue SUPPORT_CALL_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.BooleanValue AWARENESS_CUES_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue SUPPRESSION_BUS_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue INFANTRY_ARMOR_AWARENESS;
+    public static final ForgeConfigSpec.BooleanValue ACQUISITION_DELAY_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue SUPPRESSIVE_FIRE_ENABLED;
+
+    public static final ForgeConfigSpec.BooleanValue COVER_CACHE_ENABLED;
+    public static final ForgeConfigSpec.IntValue COVER_CACHE_BAKE_CELLS_PER_TICK;
+    public static final ForgeConfigSpec.BooleanValue INDIVIDUAL_TACTICS_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue BATTLE_POSITIONS_ENABLED;
+    public static final ForgeConfigSpec.IntValue BATTLE_POSITION_LEASE_TICKS;
+
+    public static final ForgeConfigSpec.BooleanValue COMMAND_SYSTEM_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue COMMAND_GROUP_JOIN_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue COMMAND_GROUP_LEAVE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue COMMAND_GROUP_MAX_DIAMETER;
+    public static final ForgeConfigSpec.IntValue COMMAND_GROUP_MIN_SIZE;
+    public static final ForgeConfigSpec.IntValue COMMAND_MAX_UNITS;
+    public static final ForgeConfigSpec.DoubleValue COMMAND_ENGAGEMENT_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue COMMAND_MARGIN;
+    public static final ForgeConfigSpec.BooleanValue PLATOON_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue PLATOON_COHESION_RADIUS;
+    public static final ForgeConfigSpec.IntValue PLATOON_MAX_SIZE;
+    public static final ForgeConfigSpec.IntValue PLATOON_MIN_SIZE;
+    public static final ForgeConfigSpec.DoubleValue INFLUENCE_CELL_SIZE;
+    public static final ForgeConfigSpec.IntValue INFLUENCE_MAX_CELLS;
+    public static final ForgeConfigSpec.IntValue MIN_PLAY_TICKS;
+    public static final ForgeConfigSpec.DoubleValue PLAY_SWITCH_MARGIN;
+    public static final ForgeConfigSpec.DoubleValue TACTICAL_SCALE;
+
+    public static final ForgeConfigSpec.DoubleValue HELI_ENGAGE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue HELI_MIN_STANDOFF;
+    // heliCombatDebug/heliFlightDebug → ClientConfig (Config UI Client → Debug).
+    public static final ForgeConfigSpec.BooleanValue HELI_CHUNK_LOADING;
+    public static final ForgeConfigSpec.BooleanValue PLANE_CHUNK_LOADING;
+    public static final ForgeConfigSpec.BooleanValue WING_FLIGHT_MODEL;
+    public static final ForgeConfigSpec.DoubleValue PLANE_FAR_LOD_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue HELI_FAR_LOD_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue PLANE_COMMAND_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue PLANE_MAX_RANGE;
+    public static final ForgeConfigSpec.DoubleValue PLANE_GUN_CONE_DEG;
+    public static final ForgeConfigSpec.DoubleValue PLANE_MISSILE_CONE_DEG;
+    public static final ForgeConfigSpec.IntValue PLANE_MISSILE_LOCK_TICKS;
+    public static final ForgeConfigSpec.DoubleValue PLANE_MIN_CONE_DEG;
+    public static final ForgeConfigSpec.DoubleValue PLANE_AUTO_ROCKET_RANGE;
+    public static final ForgeConfigSpec.DoubleValue PLANE_AUTO_HEAVY_RANGE;
+    public static final ForgeConfigSpec.IntValue PLANE_BOMB_STICK;
+    public static final ForgeConfigSpec.IntValue PLANE_BOMB_STICK_INTERVAL;
+    public static final ForgeConfigSpec.DoubleValue PLANE_BOMB_SIGHT_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue PLANE_ENGAGE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue PLANE_ATTACK_RUN_LENGTH;
+    public static final ForgeConfigSpec.DoubleValue PLANE_MAX_ALTITUDE;
+    public static final ForgeConfigSpec.BooleanValue PLANE_DIVE_SNAP;
+    public static final ForgeConfigSpec.DoubleValue PLANE_LAND_TRANSIT_AGL;
+    public static final ForgeConfigSpec.DoubleValue PLANE_LAND_FLARE_AGL;
+    public static final ForgeConfigSpec.DoubleValue PLANE_LAND_FLARE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue PLANE_LAND_SETTLE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_MIN_ASPECT_RATIO;
+    public static final ForgeConfigSpec.IntValue AIRPORT_MIN_LENGTH_BLOCKS;
+    public static final ForgeConfigSpec.IntValue AIRPORT_MAX_AREA_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_LANDING_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_ALIGNMENT_DISTANCE;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_ALIGNMENT_SNAP_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue DUBINS_ALIGN_TOLERANCE_DEG;
+    public static final ForgeConfigSpec.DoubleValue DUBINS_FALLBACK_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue DUBINS_DEVIATION_THRESHOLD;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_SLOT_SIZE_FACTOR;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_SLOT_BUFFER_FACTOR;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_EXTRA_TAKEOFF_FACTOR;
+    public static final ForgeConfigSpec.DoubleValue AIRPORT_TAXI_SPEED;
+    public static final ForgeConfigSpec.BooleanValue DEBUG_AUTO_PLANE_DEPLOY;
+    // planeCombatDebug → ClientConfig (Config UI Client → Debug).
+
+    public static final ForgeConfigSpec.DoubleValue MORTAR_USE_DISTANCE;
+    public static final ForgeConfigSpec.IntValue MORTAR_FIRE_COOLDOWN_TICKS;
+    public static final ForgeConfigSpec.IntValue TYPE63_FIRE_COOLDOWN_TICKS;
+    public static final ForgeConfigSpec.IntValue MORTAR_DISPERSION_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue FRIENDLY_FIRE_MORTAR_RADIUS;
+    public static final ForgeConfigSpec.BooleanValue MORTAR_REQUIRES_AMMO;
+    public static final ForgeConfigSpec.BooleanValue MORTAR_CHUNK_LOADING;
+    public static final ForgeConfigSpec.BooleanValue ARTILLERY_CHUNK_LOADING;
+
+    // chunk_tickets — how the entity-owned chunk tickets above are held (util/ChunkTicket)
+    public static final ForgeConfigSpec.BooleanValue TICKET_SKIP_WHEN_PLAYER_TICKING;
+    public static final ForgeConfigSpec.IntValue TICKET_RELEASE_MARGIN_CHUNKS;
+    public static final ForgeConfigSpec.IntValue TICKET_ACQUIRE_MARGIN_CHUNKS;
+    public static final ForgeConfigSpec.IntValue TICKET_LINGER_TICKS;
+    public static final ForgeConfigSpec.IntValue TICKET_MAX_LINGERING;
+
+    // unit_lod — distance-based AI throttling for SEM units (entity/ai/support/UnitLod)
+    public static final ForgeConfigSpec.BooleanValue UNIT_LOD_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue UNIT_LOD_NEAR_BLOCKS;
+    public static final ForgeConfigSpec.DoubleValue UNIT_LOD_FAR_BLOCKS;
+    public static final ForgeConfigSpec.IntValue UNIT_LOD_MID_STRIDE;
+    public static final ForgeConfigSpec.IntValue UNIT_LOD_FAR_STRIDE;
+    public static final ForgeConfigSpec.IntValue UNIT_LOD_WAKE_TICKS;
+    public static final ForgeConfigSpec.DoubleValue ARTILLERY_AIM_TOLERANCE_DEG;
+    public static final ForgeConfigSpec.BooleanValue ARTILLERY_REDUCED_CHARGE;
+    public static final ForgeConfigSpec.DoubleValue ARTILLERY_ARC_ELEVATION_DEG;
+    public static final ForgeConfigSpec.DoubleValue MORTAR_RADIO_RANGE;
+
+    public static final ForgeConfigSpec.BooleanValue VEHICLE_VOICELINES_ENABLED;
+    public static final ForgeConfigSpec.IntValue IDLE_VOICELINE_DELAY_TICKS;
+    public static final ForgeConfigSpec.IntValue IDLE_VOICELINE_INITIAL_JITTER_TICKS;
+    public static final ForgeConfigSpec.IntValue IDLE_VOICELINE_REPEAT_BASE_TICKS;
+    public static final ForgeConfigSpec.IntValue IDLE_VOICELINE_REPEAT_JITTER_TICKS;
+    public static final ForgeConfigSpec.DoubleValue IDLE_VOICELINE_HEALTH_FRACTION;
+
+
+    public static final ForgeConfigSpec.DoubleValue BOARD_SCAN_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue QUICK_EVAC_HELI_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue QUICK_EVAC_BOARD_RADIUS;
+    public static final ForgeConfigSpec.IntValue QUICK_EVAC_BOARD_TIMEOUT_TICKS;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_TIMEOUT_TICKS;
+    public static final ForgeConfigSpec.DoubleValue SCAVENGE_RADIUS;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_AMMO_STACKS;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_EMPLACEMENT_CAP;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_MINE_CAP;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_GRENADE_CAP;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_MEDKIT_CAP;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_SHOVEL_CAP;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_REPAIR_TOOL_CAP;
+    public static final ForgeConfigSpec.IntValue SCAVENGE_RADIO_CAP;
+    public static final ForgeConfigSpec.BooleanValue SCAVENGE_ARMOR;
+    public static final ForgeConfigSpec.DoubleValue QUICK_LAND_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue QUICK_GEAR_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.IntValue QUICK_GEAR_SEARCH_TIMEOUT_TICKS;
+    public static final ForgeConfigSpec.IntValue MINEFIELD_MAX_MINES;
+    public static final ForgeConfigSpec.DoubleValue MINEFIELD_MAX_RANGE;
+    public static final ForgeConfigSpec.DoubleValue MINEFIELD_STANDOFF;
+    public static final ForgeConfigSpec.DoubleValue MINEFIELD_THREAT_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue MINEFIELD_MOVE_SPEED;
+    public static final ForgeConfigSpec.IntValue MINEFIELD_PLANT_TICKS;
+    public static final ForgeConfigSpec.IntValue MINEFIELD_TIMEOUT_TICKS;
+    /**
+     * Max ids the server sends in admin-editor add-catalogs (guns / attachments / armor /
+     * vehicles / target types). Overflow is truncated, never a disconnect.
+     */
+    public static final ForgeConfigSpec.IntValue EDITOR_CATALOG_MAX;
+    public static final ForgeConfigSpec.BooleanValue MAP_INFANTRY_ENABLED;
+    public static final ForgeConfigSpec.IntValue MAP_SYNC_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.DoubleValue MAP_SPOT_RADIUS;
+    public static final ForgeConfigSpec.BooleanValue MAP_FOG_OF_WAR_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue MAP_IDENTITY_RADIUS;
+    public static final ForgeConfigSpec.IntValue MAP_IDENTITY_TTL_TICKS;
+    public static final ForgeConfigSpec.IntValue ADVANCE_PLAN_MAX_CHUNKS;
+
+    public static final ForgeConfigSpec.BooleanValue ZONES_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue ONLY_SPAWN_IN_PRIORITIZATION;
+    public static final ForgeConfigSpec.DoubleValue PRIORITIZATION_REROLL_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue ZONE_BEACON_FE_PER_CHUNK;
+    public static final ForgeConfigSpec.IntValue ZONE_BEACON_BUFFER_FE;
+    public static final ForgeConfigSpec.IntValue ZONE_BEACON_MAX_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue ZONE_BEACON_MTI_UPKEEP_MULT;
+    public static final ForgeConfigSpec.BooleanValue SIGNAL_INFANTRY_ENGAGES_VEHICLES;
+    public static final ForgeConfigSpec.DoubleValue SIGNAL_ALLY_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue SIGNAL_INFANTRY_RANGE;
+    public static final ForgeConfigSpec.IntValue SIGNAL_MOVE_SECONDS;
+
+    /** Invasion HUD colours (hex RGB). Team A/B match the left/right bases on the layout. */
+    public static final ForgeConfigSpec.BooleanValue UNLIMITED_TEAM_BASES;
+    public static final ForgeConfigSpec.ConfigValue<String> INVASION_HUD_TEAM_A_COLOR;
+    public static final ForgeConfigSpec.ConfigValue<String> INVASION_HUD_TEAM_B_COLOR;
+    public static final ForgeConfigSpec.ConfigValue<String> INVASION_HUD_NEUTRAL_COLOR;
+
+    public static final ForgeConfigSpec.IntValue[][] DOCTRINE;
+
+    public static final ForgeConfigSpec.BooleanValue TACZ_BALLISTIC_TRANSLATION_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue TACZ_BALLISTIC_GLOBAL_SCALE;
+
+    // Optional Enhanced Falling Trees support: ground vehicles fell trees on contact.
+    public static final ForgeConfigSpec.BooleanValue VEHICLE_TREE_FELLING_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_TREE_FELL_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_TREE_PATH_MALUS;
+    public static final ForgeConfigSpec.DoubleValue VEHICLE_TREE_SENSOR_DANGER;
+    public static final ForgeConfigSpec.BooleanValue VEHICLE_TREE_FELLING_EXEMPT_GIANT_TRUNKS;
+    public static final ForgeConfigSpec.IntValue VEHICLE_TREE_CONTACT_TICKS;
+
+    public static final ForgeConfigSpec.IntValue FOB_MASTER_SIZE;
+    public static final ForgeConfigSpec.IntValue FOB_STOCKPILE_SIZE;
+    public static final ForgeConfigSpec.IntValue FOB_PARKING_SIZE;
+    public static final ForgeConfigSpec.DoubleValue FOB_BUFFER_FACTOR;
+    public static final ForgeConfigSpec.IntValue FOB_THREAT_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue FOB_THREAT_EVAL_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.IntValue FOB_PERIODIC_REFILL_TICKS;
+
+    public static final ForgeConfigSpec.BooleanValue MINECOLONIES_COMPAT_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue MINECOLONIES_PROTECT_PMC;
+    public static final ForgeConfigSpec.BooleanValue MINECOLONIES_SPAWN_EXCLUSION;
+    public static final ForgeConfigSpec.BooleanValue MINECOLONIES_VEHICLE_RETALIATION;
+    public static final ForgeConfigSpec.DoubleValue MINECOLONIES_RAID_CHANCE;
+    public static final ForgeConfigSpec.IntValue MINECOLONIES_RAID_MAX_VEHICLES;
+
+    // Balancing / Easy Mode (overlays — do not change the knobs above; see EasyMode)
+    public static final ForgeConfigSpec.BooleanValue EASY_MODE;
+    public static final ForgeConfigSpec.BooleanValue EASY_DISABLE_SHELLING;
+    public static final ForgeConfigSpec.BooleanValue EASY_DISABLE_LARGE_COMBAT;
+    public static final ForgeConfigSpec.BooleanValue EASY_NO_FAR_COMBAT_VEHICLES;
+    public static final ForgeConfigSpec.BooleanValue EASY_NO_WORLD_ARMOR;
+    public static final ForgeConfigSpec.BooleanValue EASY_LOWER_EVENT_ESCALATION;
+    public static final ForgeConfigSpec.BooleanValue EASY_SOFT_AI_AIM;
+    public static final ForgeConfigSpec.BooleanValue EASY_SOFT_AI_ROF;
+    public static final ForgeConfigSpec.BooleanValue EASY_FINITE_ENEMY_LOGISTICS;
+    public static final ForgeConfigSpec.BooleanValue EASY_SOFT_AT_DISMOUNTS;
+    public static final ForgeConfigSpec.BooleanValue EASY_NO_RECON_DRONES;
+    public static final ForgeConfigSpec.BooleanValue EASY_SOFT_SUPPORT_CALLS;
+    public static final ForgeConfigSpec.BooleanValue EASY_TIGHTER_ENGAGE_RINGS;
+    public static final ForgeConfigSpec.BooleanValue EASY_KEEP_LOS_GATES;
+    public static final ForgeConfigSpec.BooleanValue EASY_PLAYER_DAMAGE_SCALE_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue EASY_PLAYER_DAMAGE_SCALE;
+    public static final ForgeConfigSpec.BooleanValue EASY_PLAYER_PRIORITY_SOFT;
+    public static final ForgeConfigSpec.BooleanValue EASY_SLOW_AI;
+    public static final ForgeConfigSpec.BooleanValue EASY_TIMID_AI;
+    public static final ForgeConfigSpec.BooleanValue EASY_SOFT_INFANTRY;
+    public static final ForgeConfigSpec.BooleanValue EASY_PLAYER_SUSTAIN;
+    public static final ForgeConfigSpec.BooleanValue EASY_PROTECT_VEHICLES;
+    public static final ForgeConfigSpec.BooleanValue EASY_SOFT_TRIPOD_HEAT_RAY;
+    public static final ForgeConfigSpec.BooleanValue EASY_BUFF_PMC;
+    public static final ForgeConfigSpec.BooleanValue EASY_FEWER_EVENTS;
+    public static final ForgeConfigSpec.BooleanValue EASY_HIGHLIGHT_THREATS;
+
+    private static final String[] FACTION_KEYS = {"ru", "us", "pmc"};
+    private static final int[][] DOCTRINE_DEFAULTS = {
+            {2, -1, 2, -1, 1, 0, -2, 2},
+            {0, 2, 1, 2, 3, 1, 2, -1},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+    };
+
+    static {
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+
+        builder.push("events");
+        GRACE_PERIOD_DAYS = builder.comment("In-game days of peace a new world starts with: no ambient events, spawn probes",
+                        "and Berezka RU/US garrisons are removed. 0 = off. Also /sewv graceperiod.")
+                .defineInRange("gracePeriodDays", 5, 0, 365);
+        GROUND_IN_EVENTS = builder.comment(
+                        "Allow ground vehicles (ground pool) in events: distant fights, large battles, convoys,",
+                        "invasions and village garrisons.")
+                .define("groundInEvents", true);
+        GROUND_SPAWN_CHANCE_RU = builder.comment("Chance an RU ground vehicle appears when Simple Enemy Mod rolls a distant fight.")
+                .defineInRange("groundSpawnChanceRu", 0.12, 0.0, 1.0);
+        GROUND_SPAWN_CHANCE_US = builder.comment("Chance a US ground vehicle appears when Simple Enemy Mod rolls a distant fight.")
+                .defineInRange("groundSpawnChanceUs", 0.12, 0.0, 1.0);
+        ROTOR_IN_EVENTS = builder.comment("Allow helicopters (rotor pool) in events: distant fights and large battles.")
+                .define("rotorInEvents", true);
+        ROTOR_SPAWN_CHANCE_RU = builder.comment("Chance an RU helicopter appears when Simple Enemy Mod rolls a distant fight.",
+                        "Rolled separately from the ground vehicle, so a fight can bring both.")
+                .defineInRange("rotorSpawnChanceRu", 0.06, 0.0, 1.0);
+        ROTOR_SPAWN_CHANCE_US = builder.comment("Chance a US helicopter appears when Simple Enemy Mod rolls a distant fight.",
+                        "Rolled separately from the ground vehicle, so a fight can bring both.")
+                .defineInRange("rotorSpawnChanceUs", 0.06, 0.0, 1.0);
+        FAR_EVENT_SPAWNS = builder.comment(
+                        "Multiply SEM event spawn distance by 2.5 for wider, more spread-out fights.",
+                        "(This mod's events and SEM's own.) Off restores packed base ranges.")
+                .define("farEventSpawns", true);
+        PLANES_IN_EVENTS = builder.comment("Allow rare RU/US planes to appear in combat events.").define("planesInEvents", true);
+        PLANE_SPAWN_CHANCE_RU = builder.comment("Chance an RU plane appears when Simple Enemy Mod rolls a distant fight.")
+                .defineInRange("planeSpawnChanceRu", 0.02, 0.0, 1.0);
+        PLANE_SPAWN_CHANCE_US = builder.comment("Chance a US plane appears when Simple Enemy Mod rolls a distant fight.")
+                .defineInRange("planeSpawnChanceUs", 0.02, 0.0, 1.0);
+        CONVOY_EVENTS_ENABLED = builder.comment("Allow convoy events (vehicles on the move).").define("convoyEventsEnabled", true);
+        CONVOY_BASE_CHANCE = builder.comment("Starting chance each time Simple Enemy Mod checks for a convoy.")
+                .defineInRange("convoyBaseChance", 0.06, 0.0, 1.0);
+        CONVOY_FAILURE_MULTIPLIER = builder.comment("How much the convoy chance grows after each miss (until it fires).")
+                .defineInRange("convoyFailureMultiplier", 0.06, 0.0, 1.0);
+        LARGE_COMBAT_EVENTS_ENABLED = builder.comment("Allow large multi-vehicle battles.").define("largeCombatEventsEnabled", true);
+        LARGE_COMBAT_BASE_CHANCE = builder.comment("Starting chance each time Simple Enemy Mod checks for a large battle.")
+                .defineInRange("largeCombatBaseChance", 0.02, 0.0, 1.0);
+        LARGE_COMBAT_FAILURE_MULTIPLIER = builder.comment("How much the large-battle chance grows after each miss.")
+                .defineInRange("largeCombatFailureMultiplier", 0.02, 0.0, 1.0);
+        LARGE_COMBAT_GROUND_VEHICLES = builder.comment("How many ground vehicles each side gets in a large battle.")
+                .defineInRange("largeCombatGroundVehicles", 2, 0, 8);
+        LARGE_COMBAT_ROTOR_VEHICLES = builder.comment("How many helicopters each side gets in a large battle.")
+                .defineInRange("largeCombatRotorVehicles", 1, 0, 8);
+        LARGE_COMBAT_EMPLACEMENT_CHANCE = builder.comment("Per side: chance to also spawn a mortar or TOW launcher.")
+                .defineInRange("largeCombatEmplacementChance", 0.04, 0.0, 1.0);
+        LARGE_COMBAT_PLANE_CHANCE = builder.comment("Per side: chance to also spawn a plane.")
+                .defineInRange("largeCombatPlaneChance", 0.03, 0.0, 1.0);
+        NAVAL_EVENTS_ENABLED = builder.comment("Allow ship battles on open water.").define("navalEventsEnabled", true);
+        NAVAL_BASE_CHANCE = builder.comment("Starting chance each time Simple Enemy Mod checks for a naval battle.")
+                .defineInRange("navalBaseChance", 0.05, 0.0, 1.0);
+        NAVAL_FAILURE_MULTIPLIER = builder.comment("How much the naval-battle chance grows after each miss.")
+                .defineInRange("navalFailureMultiplier", 0.05, 0.0, 1.0);
+        NAVAL_SURFACE_PER_SIDE = builder.comment("How many boats (surface pool) each side gets in a naval battle.")
+                .defineInRange("navalSurfacePerSide", 4, 0, 12);
+        INVASION_EVENTS_ENABLED = builder.comment("Allow invasion events (attackers vs a defended position).").define("invasionEventsEnabled", true);
+        INVASION_BASE_CHANCE = builder.comment("Starting chance each time Simple Enemy Mod checks for an invasion.")
+                .defineInRange("invasionBaseChance", 0.03, 0.0, 1.0);
+        INVASION_FAILURE_MULTIPLIER = builder.comment("How much the invasion chance grows after each miss.")
+                .defineInRange("invasionFailureMultiplier", 0.03, 0.0, 1.0);
+        INVASION_DEFENDER_INFANTRY = builder.comment("How many defending foot soldiers spawn in an invasion.")
+                .defineInRange("invasionDefenderInfantry", 6, 0, 32);
+        INVASION_DEFENDER_TOWS = builder.comment("How many defending anti-tank launchers (TOWs) spawn.")
+                .defineInRange("invasionDefenderTows", 2, 0, 8);
+        INVASION_DEFENDER_MORTARS = builder.comment("How many defending mortars spawn.")
+                .defineInRange("invasionDefenderMortars", 2, 0, 8);
+        SHELLING_EVENTS_ENABLED = builder.comment("Allow mortar batteries to shell a player's base.").define("shellingEventsEnabled", true);
+        SHELLING_BASE_CHANCE = builder.comment("Starting chance each time Simple Enemy Mod checks for shelling.")
+                .defineInRange("shellingBaseChance", 0.05, 0.0, 1.0);
+        SHELLING_FAILURE_MULTIPLIER = builder.comment("How much the shelling chance grows after each miss.")
+                .defineInRange("shellingFailureMultiplier", 0.04, 0.0, 1.0);
+        SHELLING_BASE_RADIUS = builder.comment("Player must be this close to their bed/respawn point for shelling to target it.")
+                .defineInRange("shellingBaseRadius", 48, 8, 256);
+        SHELLING_MORTARS = builder.comment("How many mortars in a shelling battery.")
+                .defineInRange("shellingMortars", 2, 0, 6);
+        SHELLING_GUARDS = builder.comment("How many soldiers guard the shelling battery.")
+                .defineInRange("shellingGuards", 4, 0, 12);
+        SHELLING_DURATION_MIN_TICKS = builder.comment("Shortest shelling lasts, in game ticks (20 ticks = 1 second).")
+                .defineInRange("shellingDurationMinTicks", 600, 20, 24000);
+        SHELLING_DURATION_MAX_TICKS = builder.comment("Longest shelling lasts, in game ticks (20 ticks = 1 second).")
+                .defineInRange("shellingDurationMaxTicks", 1200, 20, 24000);
+        HIGH_CHANCE_MORTAR_SHELL = builder.comment("Usual mortar shell type for spawned crews (item id).")
+                .define("highChanceMortarShell", "superbwarfare:mortar_shell", SewvConfig::isValidResourceId);
+        LOW_CHANCE_MORTAR_SHELL = builder.comment("Less common mortar shell type for spawned crews (item id).")
+                .define("lowChanceMortarShell", "superbwarfare:mortar_shell_wp", SewvConfig::isValidResourceId);
+        HIGH_CHANCE_TYPE63_ROCKET = builder.comment(
+                        "Usual rocket for MLRS emplacements in the mortar pool (e.g. Type-63; item id).")
+                .define("highChanceType63Rocket", "superbwarfare:medium_rocket_he", SewvConfig::isValidResourceId);
+        LOW_CHANCE_TYPE63_ROCKET = builder.comment(
+                        "Less common rocket for MLRS emplacements in the mortar pool (item id).")
+                .define("lowChanceType63Rocket", "superbwarfare:medium_rocket_ap", SewvConfig::isValidResourceId);
+        DERELICT_EVENTS_ENABLED = builder.comment("Allow wrecked vehicles with a few survivors nearby.").define("derelictEventsEnabled", true);
+        DERELICT_BASE_CHANCE = builder.comment("Starting chance each time Simple Enemy Mod checks for a derelict.")
+                .defineInRange("derelictBaseChance", 0.05, 0.0, 1.0);
+        DERELICT_FAILURE_MULTIPLIER = builder.comment("How much the derelict chance grows after each miss.")
+                .defineInRange("derelictFailureMultiplier", 0.05, 0.0, 1.0);
+        DERELICT_HEALTH_FRACTION = builder.comment("How healthy a derelict hull is (0.15 = 15%). Keep this below autoBoardMinHealthFraction",
+                        "so nearby enemy infantry do not climb in and drive it away.")
+                .defineInRange("derelictHealthFraction", 0.15, 0.01, 1.0);
+        DERELICT_GUARDS = builder.comment("Max survivors standing near a derelict hull.")
+                .defineInRange("derelictGuards", 4, 0, 12);
+        DERELICT_AMMO_COUNT = builder.comment("How much ammo is left inside a derelict hull.")
+                .defineInRange("derelictAmmoCount", 2, 0, 64);
+        OVERFLIGHT_EVENTS_ENABLED = builder.comment("Allow flyovers by RU/US planes from the plane spawn lists.")
+                .define("overflightEventsEnabled", true);
+        OVERFLIGHT_BASE_CHANCE = builder.comment("Starting chance each time Simple Enemy Mod checks for an overflight.")
+                .defineInRange("overflightBaseChance", 0.04, 0.0, 1.0);
+        OVERFLIGHT_FAILURE_MULTIPLIER = builder.comment("How much the overflight chance grows after each miss.")
+                .defineInRange("overflightFailureMultiplier", 0.04, 0.0, 1.0);
+        OVERFLIGHT_PLANES = builder.comment("Max planes in one overflight.")
+                .defineInRange("overflightPlanes", 1, 1, 3);
+        GARRISON_VEHICLES_ENABLED = builder.comment("Let village garrisons sometimes get one crewed tank.")
+                .define("garrisonVehiclesEnabled", true);
+        GARRISON_VEHICLE_CHANCE = builder.comment("Chance a village garrison gets that tank.")
+                .defineInRange("garrisonVehicleChance", 0.5, 0.0, 1.0);
+        builder.pop();
+
+        builder.push("resources");
+        CREATIVE_AMMO_FALLBACK = builder.comment("If a vehicle's normal ammo type cannot be figured out, fall back to a creative ammo box.")
+                .define("creativeAmmoFallback", true);
+        FACTION_INFINITE_ENERGY = builder.comment("Vehicles crewed by RU or US never run out of energy/fuel.")
+                .define("factionInfiniteEnergy", true);
+        FACTION_INFINITE_AMMO = builder.comment("Vehicles crewed by RU or US never run out of ammo.")
+                .define("factionInfiniteAmmo", true);
+        // Existing worlds keep the old value until you change or delete this key.
+        VEHICLE_DEATH_DROPS = builder.comment(
+                        "What drops when a vehicle is destroyed (and for special spawned crews).",
+                        "disable = nothing; reduced = about 1/4 of each stack (default); everything = full stacks.",
+                        "Creative ammo boxes never drop.")
+                .defineInList("vehicleDeathDrops", "reduced",
+                        Arrays.asList("disable", "reduced", "everything"));
+        VEHICLE_AMMO_LOOT = builder.comment(
+                        "When you clear the last enemy crew from an RU/US vehicle, add a fair ammo package",
+                        "into its inventory (on top of normal vehicle loot). If it only had a creative ammo",
+                        "box and creativeAmmoFallback is on, that box is replaced with real ammo stacks.",
+                        "Ammo already being used in a fight is left alone.")
+                .define("vehicleAmmoLoot", true);
+        UNIT_CORPSE_COMPAT = builder.comment(
+                        "When Corpse (mod id corpse) is installed, spawn a lootable corpse for SEM unit deaths",
+                        "instead of ground item drops. No effect when Corpse is absent.",
+                        "RU/US fill uses datapack tables data/tacz_sewv/loot_tables/units/corpses/<faction>.json",
+                        "and vehicleDeathDrops for stack intensity (disable / reduced / everything).",
+                        "PMC corpses transfer the unit's real inventory.")
+                .define("unitCorpseCompat", true);
+        UNIT_CORPSE_RU = builder.comment("Spawn CorpseMod corpses for RU unit deaths when unitCorpseCompat is on.")
+                .define("unitCorpseRu", true);
+        UNIT_CORPSE_US = builder.comment("Spawn CorpseMod corpses for US unit deaths when unitCorpseCompat is on.")
+                .define("unitCorpseUs", true);
+        UNIT_CORPSE_PMC = builder.comment("Spawn CorpseMod corpses for PMC unit deaths when unitCorpseCompat is on.")
+                .define("unitCorpsePmc", true);
+        UNIT_CORPSE_DESPAWN_MINUTES = builder.comment(
+                        "Remove an SEM unit corpse this many minutes after it spawns, loot included (nothing drops).",
+                        "Player corpses are untouched. 0 = never (CorpseMod's own rules only).")
+                .defineInRange("unitCorpseDespawnMinutes", 20, 0, 1440);
+        UNIT_CORPSE_MAX_PER_DIMENSION = builder.comment(
+                        "Keep at most this many SEM unit corpses per dimension; the oldest is removed, loot included.",
+                        "Counts corpses spawned since the server started. Player corpses are untouched. 0 = no cap.")
+                .defineInRange("unitCorpseMaxPerDimension", 64, 0, 4096);
+        builder.pop();
+
+        builder.push("npc_armor");
+        NPC_ARMOR_ENABLED = builder.comment("Give armor to spawned Simple Enemy Mod soldiers.")
+                .define("npcArmorEnabled", true);
+        RU_ARMOR = builder.comment("Armor pieces for RU units (item ids). Pieces for the same slot are alternatives: each unit gets one at random.")
+                .defineList("ruArmor", List.of("superbwarfare:ru_helmet_6b47", "superbwarfare:ru_chest_6b43"), SewvConfig::isValidResourceId);
+        US_ARMOR = builder.comment("Armor pieces for US units (item ids). Pieces for the same slot are alternatives: each unit gets one at random.")
+                .defineList("usArmor", List.of("superbwarfare:us_helmet_pasgt", "superbwarfare:us_chest_iotv"), SewvConfig::isValidResourceId);
+        PMC_ARMOR = builder.comment("Armor pieces for PMC units (item ids). Pieces for the same slot are alternatives: each unit gets one at random.")
+                .defineList("pmcArmor", List.of("tacz_sewv:pmc_helmet_mich", "superbwarfare:us_chest_iotv"), SewvConfig::isValidResourceId);
+        builder.pop();
+
+        builder.push("structures");
+        STRUCTURES_GENERATE = builder.comment(
+                        "Generate this mod's own structures (outposts, comms, helipads, watchtowers, sniper",
+                        "nests, PMC airdrops) in newly generated chunks. Off stops new ones; ones already",
+                        "in the world stay. Other mods' structures are unaffected.")
+                .define("structuresGenerate", true);
+        NATIVE_STRUCTURES_ENABLED = builder.comment(
+                        "Turn spawn probes in freshly generated structures (this mod's and any other's) into",
+                        "spawns and delete them. Off leaves the probes in place, inert. This does not stop",
+                        "structures generating; see structuresGenerate for this mod's own.")
+                .define("nativeStructuresEnabled", true);
+        builder.pop();
+
+        builder.push("identity");
+        NAME_ASSIGNMENT_ENABLED = builder.comment(
+                        "Roll a Name+Surname for every spawned PMC unit, cached on the unit once assigned.",
+                        "Name pool categories are datapack-configurable at data/<namespace>/sewv/names/*.json.")
+                .define("nameAssignmentEnabled", true);
+        DEFAULT_NAME_CATEGORY = builder.comment(
+                        "Server-wide fallback name pool category (see the names datapack for the category list),",
+                        "used whenever no per-player preference applies - an ownerless spawn, an offline owner, or",
+                        "a player who never set one via the TDT's Identity/\"Full Names\" control. \"RANDOM\" draws",
+                        "the name and surname independently from every category's pooled union.")
+                .define("defaultNameCategory", "RANDOM");
+        builder.pop();
+
+        builder.push("nvg");
+        NVG_ELIGIBLE_ITEMS = builder.comment(
+                        "Items that count as night-vision gear (item ids).",
+                        "Used for night accuracy and for who spawns wearing NVG. Can be armor or Curios slots.")
+                .defineList("nvgEligibleItems",
+                        List.of("superbwarfare:thermal_imaging_goggles"), SewvConfig::isValidResourceId);
+        NVG_SPAWN_CHANCE = builder.comment("Chance a soldier spawning at night wears night-vision gear.")
+                .defineInRange("nvgSpawnChance", 0.20, 0.0, 1.0);
+        DARK_ACCURACY_FRACTION = builder.comment(
+                        "How accurate AI vehicle guns are in the dark with no night vision on board (0.55 ≈ 45% worse).",
+                        "Also limited by darkSpreadScaleMax so spread cannot get worse than that cap.")
+                .defineInRange("darkAccuracyFraction", 0.55, 0.05, 1.0);
+        NVG_ACCURACY_FRACTION = builder.comment(
+                        "How accurate AI vehicle guns are in the dark when someone visible in a seat has night vision",
+                        "(0.85 ≈ 15% worse than daylight).")
+                .defineInRange("nvgAccuracyFraction", 0.85, 0.05, 1.0);
+        DARK_SPREAD_SCALE_MAX = builder.comment(
+                        "Worst allowed shot spread in darkness vs daytime. 2.0 means at most twice as wide.")
+                .defineInRange("darkSpreadScaleMax", 2.0, 1.0, 10.0);
+        DARK_BLOCK_LIGHT_MAX = builder.comment(
+                        "During the day, places this dark or darker count as dark for accuracy (0-15 light scale).",
+                        "Night always counts as dark. Open daylight is bright from the sky, so outdoors stays accurate.")
+                .defineInRange("darkBlockLightMax", 4, 0, 15);
+        builder.pop();
+
+        builder.push("structure_vehicles");
+        STRUCTURE_VEHICLES_ENABLED = builder.comment("Spawn vehicles at matching Berezka army/PMC bases.")
+                .define("structureVehiclesEnabled", true);
+        STRUCTURE_VEHICLE_MAX_COUNT = builder.comment("Max vehicles one of those bases can have.")
+                .defineInRange("structureVehicleMaxCount", 5, 1, 16);
+        STRUCTURE_VEHICLE_RAMP_DAYS = builder.comment("In-game days until bases go from 1 vehicle up to the max.")
+                .defineInRange("structureVehicleRampDays", 24, 0, 1000);
+        RU_VEHICLE_STRUCTURES = builder.comment("Which structures get RU vehicles (structure ids).")
+                .defineList("ruVehicleStructures", List.of("russian_army_structures:tank"), SewvConfig::isValidResourceId);
+        US_VEHICLE_STRUCTURES = builder.comment("Which structures get US vehicles (structure ids).")
+                .defineList("usVehicleStructures", List.of("us_army_structures:convoy"), SewvConfig::isValidResourceId);
+        PMC_VEHICLE_STRUCTURES = builder.comment("Which structures get PMC vehicles (structure ids).")
+                .defineList("pmcVehicleStructures", List.of("pmc_structures:buggy"), SewvConfig::isValidResourceId);
+        builder.pop();
+
+        builder.push("crew_ai");
+        AI_FIRE_COOLDOWN_TICKS = builder.comment("Minimum wait between AI vehicle shots, in game ticks (20 = 1 second).")
+                .defineInRange("aiFireCooldownTicks", 5, 1, 200);
+        AI_FIRE_HESITATION_TICKS = builder.comment(
+                        "Pause before an AI ground/ship/emplacement crew fires on a newly acquired target, in game ticks.",
+                        "Helicopters, planes and artillery are exempt. 0 disables.")
+                .defineInRange("aiFireHesitationTicks", 12, 0, 200);
+        AI_FIRE_HESITATION_JITTER = builder.comment(
+                        "Per-crew spread on top of aiFireHesitationTicks (0.5 = each crew waits up to 50% longer),",
+                        "fixed per crew so a group does not fire in unison.")
+                .defineInRange("aiFireHesitationJitter", 0.5, 0.0, 1.0);
+        AI_LOS_CACHE_TICKS = builder.comment(
+                        "How long (game ticks) an AI crew reuses its last line-of-fire verdict.",
+                        "Higher = fewer raycasts on automatic weapons; a target that breaks LOS mid-burst",
+                        "may draw a few extra ticks of fire.")
+                .defineInRange("aiLosCacheTicks", 8, 1, 40);
+        AI_FIRE_ASSIST_CONE_DEG = builder.comment(
+                        "How many degrees off-target an AI crew may still pull the trigger.",
+                        "Wider = more missed shots but less sitting silent. Existing configs keep their old value until you edit them.")
+                .defineInRange("aiFireAssistConeDeg", 35.0, 4.0, 90.0);
+        SMOKE_BLOCK_RADIUS = builder.comment("AI will not shoot if smoke is this close (blocks).")
+                .defineInRange("smokeBlockRadius", 6.0, 1.0, 16.0);
+        FRIENDLY_FIRE_VEHICLE_RADIUS = builder.comment(
+                        "AI vehicle weapons (including TOWs) hold fire when the target is this close (blocks)",
+                        "to the owning player or a friendly PMC. 0 disables.")
+                .defineInRange("friendlyFireVehicleRadius", 6.0, 0.0, 32.0);
+        AI_AIM_ACCURACY = builder.comment("AI aim style: realistic (misses), scaled, or accurate (rare misses).")
+                .defineInList("aiAimAccuracy", "realistic", Arrays.asList("realistic", "scaled", "accurate"));
+        // Existing configs keep the old value until edited or deleted.
+        AI_AIM_SPREAD_DEG = builder.comment("Extra aim wobble in degrees for realistic/scaled modes.")
+                .defineInRange("aiAimSpreadDegrees", 4.0, 0.0, 30.0);
+        GRENADE_THROW_CADENCE = builder.comment(
+                        "How often on-foot units throw grenades.",
+                        "HE uses a closer band; M18 smoke may be thrown farther (no min range) to screen LOS.",
+                        "default: HE 8-24 / smoke 0-40, ~5s; rare: HE 0-16 / smoke 0-32, ~12s;",
+                        "aggressive: HE 0-30 / smoke 0-48, ~2.5s; none: units never throw grenades.")
+                .defineInList("grenadeThrowCadence", "default",
+                        Arrays.asList("default", "rare", "aggressive", "none"));
+        GRENADE_MAX_HAND = builder.comment(
+                        "Lifetime NBT cap: how many hand grenades (M67) one unit may throw in its life. 0 disables.")
+                .defineInRange("grenadeMaxHand", 3, 0, 64);
+        GRENADE_MAX_RGO = builder.comment(
+                        "Lifetime NBT cap: how many RGO grenades one unit may throw in its life. 0 disables.")
+                .defineInRange("grenadeMaxRgo", 2, 0, 64);
+        GRENADE_MAX_SMOKE = builder.comment(
+                        "Lifetime NBT cap: how many M18 smoke grenades one unit may throw in its life. 0 disables.")
+                .defineInRange("grenadeMaxSmoke", 1, 0, 64);
+        VEHICLE_SKIN_MOUNT_CHANCE = builder.comment(
+                        "Chance a soldier climbing into an empty captured vehicle paints it in their faction colours.",
+                        "Vehicles spawned already crewed always get the faction look; this is only for field captures.")
+                .defineInRange("vehicleSkinMountChance", 0.60, 0.0, 1.0);
+        CAMO_BIOME_SELECTION = builder.comment(
+                        "Pick each unit's and vehicle's camo from the biome it spawned in, so helmet, vest,",
+                        "uniform and hull all match the terrain. Off = the old random pick per unit/hull.")
+                .define("camoBiomeSelection", true);
+        IFV_DISMOUNTS_ENABLED = builder.comment("IFVs (troop carriers) drop their squad when fighting enemy armor.")
+                .define("ifvDismountsEnabled", true);
+        SEM_CREW_DISABLE_INERTIA_ROTATE = builder.comment("Stop the vehicle body from tilting/banking while AI drives.")
+                .define("semCrewDisableInertiaRotate", true);
+        TANK_RIDER_DISMOUNT_ENABLED = builder.comment("Soldiers hanging on outside seats jump off when combat starts.")
+                .define("tankRiderDismountEnabled", true);
+        PLAYER_CREW_RAPPEL_ALL_SEATS = builder.comment(
+                        "When the player-driver crew-rappel keybind fires: true = every non-player unit drops;",
+                        "false = only weaponless cargo seats (same filter as AI/TDT rappel).")
+                .define("playerCrewRappelAllSeats", false);
+        PLAYER_SELF_RAPPEL_WITH_UNITS = builder.comment(
+                        "When the player self-rappel keybind fires: also drop eligible units after the hover settle.",
+                        "Seat filter still follows playerCrewRappelAllSeats. Default off = player only.")
+                .define("playerSelfRappelWithUnits", false);
+        AT_WEAPON_RU = builder.comment("Rocket/missile launcher given to RU soldiers who leave the vehicle to fight tanks.")
+                .define("atWeaponRu", "superbwarfare:rpg");
+        AT_WEAPON_US = builder.comment("Rocket/missile launcher given to US soldiers who leave the vehicle to fight tanks.")
+                .define("atWeaponUs", "superbwarfare:javelin");
+        AT_AIR_WEAPON_RU = builder.comment("Anti-air launcher some RU AT gunners carry instead of the anti-tank one. Blank = none.")
+                .define("atAirWeaponRu", "superbwarfare:igla");
+        AT_AIR_GUNNER_CHANCE = builder.comment("Chance an RU AT gunner is issued the anti-air launcher (atAirWeaponRu) instead of atWeaponRu.")
+                .defineInRange("atAirGunnerChance", 0.3, 0.0, 1.0);
+        AT_SECOND_GUNNER_CHANCE = builder.comment("Chance a dismounted squad gets a second anti-tank gunner.")
+                .defineInRange("atSecondGunnerChance", 0.5, 0.0, 1.0);
+        AT_BACKUP_AMMO = builder.comment("Extra rockets or missiles each anti-tank gunner is given.")
+                .defineInRange("atBackupAmmo", 8, 1, 64);
+        AT_ENGAGE_RANGE = builder.comment("Max distance (blocks) at which anti-tank gunners will fire.")
+                .defineInRange("atEngageRange", 48.0, 8.0, 200.0);
+        SBW_SMALL_ARMS_RANGE = builder.comment("Max distance (blocks) at which units fire SuperbWarfare rifles, SMGs, shotguns and MGs.",
+                        "Keep at or above 90: SEM stops walking a unit toward its target at 90 blocks, so a unit's target",
+                        "between this range and 90 is never approached and never fired at.")
+                .defineInRange("sbwSmallArmsRange", 96.0, 8.0, 200.0);
+        SBW_SNIPER_RANGE = builder.comment("Max distance (blocks) at which units fire SuperbWarfare sniper and heavy rifles.")
+                .defineInRange("sbwSniperRange", 128.0, 8.0, 300.0);
+        SBW_AA_RANGE = builder.comment("Max distance (blocks) at which units fire SuperbWarfare anti-air launchers (Igla).")
+                .defineInRange("sbwAaRange", 160.0, 16.0, 400.0);
+        SBW_AI_SPREAD = builder.comment("Extra spread on SuperbWarfare rifles/MGs/snipers fired by units. 0 = perfect aim. Launchers never get it.")
+                .defineInRange("sbwAiSpread", 1.5, 0.0, 10.0);
+        MEDIC_ENABLED = builder.comment("PMC soldiers carrying a medical kit can heal allies when not in a fight.")
+                .define("medicEnabled", true);
+        MEDIC_SEARCH_RADIUS = builder.comment("How far (blocks) medics look for wounded allies.")
+                .defineInRange("medicSearchRadius", 24.0, 2.0, 48.0);
+        MEDIC_HEAL_PER_TREAT = builder.comment("Health restored each time a medic treats someone.")
+                .defineInRange("medicHealPerTreat", 2.0, 0.5, 20.0);
+        PMC_REVIVE_ENABLED = builder.comment("PMC soldiers automatically revive a downed player (requires PlayerReviveMod).")
+                .define("pmcReviveEnabled", true);
+        PMC_REVIVE_SEARCH_RADIUS = builder.comment("How far (blocks) a PMC looks for a downed player to revive.")
+                .defineInRange("pmcReviveSearchRadius", 32.0, 2.0, 64.0);
+        PMC_REVIVE_CHANNEL_TICKS = builder.comment("Ticks a PMC must stand next to a downed player before reviving them.")
+                .defineInRange("pmcReviveChannelTicks", 100, 20, 400);
+        PMC_REVIVE_FORCE_SINGLEPLAYER = builder.comment(
+                "Forces PlayerReviveMod's bleed-out state to work in singleplayer, not just LAN/dedicated "
+                        + "servers (equivalent to setting PlayerReviveMod's own bleedInSingleplayer option). "
+                        + "Without this, a singleplayer death never bleeds out and PMC auto-revive has nothing to do.")
+                .define("pmcReviveForceSingleplayer", true);
+        PMC_DOWNED_ENABLED = builder.comment(
+                "PMC units go down instead of dying and can be revived (by a player interacting with "
+                        + "them, or by a medic PMC) instead of dying outright. RU/US always just die. "
+                        + "Requires PlayerReviveMod (bundled with the downed-player feature, even though "
+                        + "it never uses that mod's own API).")
+                .define("pmcDownedEnabled", true);
+        PMC_DOWNED_HEALTH = builder.comment("Health a PMC is left with the moment it goes down.")
+                .defineInRange("pmcDownedHealth", 4.0, 1.0, 20.0);
+        PMC_DOWNED_BLEED_TICKS = builder.comment("Ticks a downed PMC has before it dies for real if not revived.")
+                .defineInRange("pmcDownedBleedTicks", 1200, 100, 6000);
+        PMC_DOWNED_REVIVE_HEALTH = builder.comment("Health a PMC is restored to when successfully revived.")
+                .defineInRange("pmcDownedReviveHealth", 6.0, 1.0, 40.0);
+        MEDIC_FLEE_DETECTION_RADIUS = builder.comment("How far (blocks) medics look for a nearby hostile before fleeing.")
+                .defineInRange("medicFleeDetectionRadius", 16.0, 4.0, 64.0);
+        MEDIC_FLEE_MIN_DISTANCE = builder.comment("Minimum distance (blocks) a fleeing medic tries to reach from the threat.")
+                .defineInRange("medicFleeMinDistance", 8.0, 2.0, 32.0);
+        MEDIC_FLEE_MAX_DISTANCE = builder.comment("Maximum distance (blocks) sampled for a fleeing medic's escape point.")
+                .defineInRange("medicFleeMaxDistance", 16.0, 4.0, 64.0);
+        HEALTH_MOBILITY_ENABLED = builder.comment("Damaged AI vehicles move more slowly.")
+                .define("healthMobilityEnabled", true);
+        HEALTH_MOBILITY_FLOOR = builder.comment("Slowest a wrecked hull still moves (0.4 = 40% of normal speed).")
+                .defineInRange("healthMobilityFloor", 0.4, 0.05, 1.0);
+        MEDIC_SPAWN_CHANCE = builder.comment("Chance an RU/US group includes a medic.")
+                .defineInRange("medicSpawnChance", 0.06, 0.0, 1.0);
+        ENGINEER_SPAWN_CHANCE = builder.comment("Chance an RU/US group includes an engineer.")
+                .defineInRange("engineerSpawnChance", 0.05, 0.0, 1.0);
+        SUPPORT_DEDUPE_RADIUS = builder.comment("Do not spawn another medic/engineer if one is already this close (blocks).")
+                .defineInRange("supportDedupeRadius", 32.0, 4.0, 128.0);
+        ENGINEER_SEARCH_RADIUS = builder.comment("How far (blocks) engineers look for damaged vehicles to repair.")
+                .defineInRange("engineerSearchRadius", 24.0, 4.0, 96.0);
+        ENGINEER_REPAIR_PER_TREAT = builder.comment("Vehicle health restored each time an engineer repairs.")
+                .defineInRange("engineerRepairPerTreat", 4.0, 0.5, 100.0);
+        ENGINEER_REPAIR_COOLDOWN = builder.comment("Wait between repair actions, in AI ticks (about every other game tick).")
+                .defineInRange("engineerRepairCooldown", 10, 1, 200);
+        ENGINEER_REPAIR_SPEED_BOOST = builder.comment(
+                        "Movement speed multiplier for an engineer while tasked with reaching a repair",
+                        "target (1.0 = no boost). Without it a foot unit can be permanently outrun by the",
+                        "tank it was sent to fix.")
+                .defineInRange("engineerRepairSpeedBoost", 1.6, 1.0, 3.0);
+        ENGINEER_SIDEARM_POOL = builder.comment("Pistols engineers may carry (TACZ gun ids).")
+                .defineList("engineerSidearmPool", List.of("tacz:m9a1", "tacz:m1911", "tacz:glock_17"), SewvConfig::isValidResourceId);
+        COMMANDER_SIDEARM_POOL = builder.comment("Pistols PMC Commanders may carry (TACZ gun ids).")
+                .defineList("commanderSidearmPool", List.of("tacz:m9a1", "tacz:m1911", "tacz:glock_17"), SewvConfig::isValidResourceId);
+        ENGINEER_DRONES_ENABLED = builder.comment(
+                        "RU/US engineers may deploy and fly attack drones. Off parks any drone they already have out.")
+                .define("engineerDronesEnabled", true);
+        DRONE_MAX_PER_ENGINEER = builder.comment("Max attack drones each RU/US engineer may have out at once.")
+                .defineInRange("droneMaxPerEngineer", 1, 0, 8);
+        DRONE_DEPLOY_CHECK_INTERVAL_TICKS = builder.comment("How often (game ticks) an engineer considers launching another drone.")
+                .defineInRange("droneDeployCheckIntervalTicks", 200, 20, 12000);
+        DRONE_DEPLOY_CHANCE = builder.comment("Chance each check actually launches a drone.")
+                .defineInRange("droneDeployChance", 0.2, 0.0, 1.0);
+        DRONE_SCAN_ALTITUDE = builder.comment("How high (blocks) drones cruise above the ground while searching.")
+                .defineInRange("droneScanAltitude", 20.0, 5.0, 60.0);
+        DRONE_BROADCAST_RADIUS = builder.comment("How far (blocks) drone-related map/crew lookups reach.")
+                .defineInRange("droneBroadcastRadius", 160.0, 16.0, 384.0);
+        DRONE_SCAN_INTERVAL_TICKS = builder.comment("How often (game ticks) a diving drone looks for a new target.")
+                .defineInRange("droneScanIntervalTicks", 20, 5, 200);
+        DRONE_LEASH_RADIUS = builder.comment("Max distance (blocks) a wandering drone may stray from its engineer.")
+                .defineInRange("droneLeashRadius", 200.0, 16.0, 512.0);
+        DRONE_TARGET_RADIUS = builder.comment(
+                        "How far (blocks) an AI drone looks for RU/US/PMC dive targets. AbstractUnit-only scan.")
+                .defineInRange("droneTargetRadius", 160.0, 32.0, 384.0);
+        AUTO_BOARD_ENABLED = builder.comment("Idle RU/US soldiers may climb into empty abandoned vehicles.")
+                .define("autoBoardEnabled", true);
+        AUTO_BOARD_SCAN_RADIUS = builder.comment("How far (blocks) they look for empty vehicles.")
+                .defineInRange("autoBoardScanRadius", 32.0, 4.0, 128.0);
+        AUTO_BOARD_MIN_HEALTH_FRACTION = builder.comment("Ignore wrecks below this health (0.25 = 25%). Derelicts should stay below this.")
+                .defineInRange("autoBoardMinHealthFraction", 0.25, 0.0, 1.0);
+        AUTO_BOARD_STEALS_PLAYER_VEHICLES = builder.comment("If on, RU/US may take vehicles you have driven before. Off by default.")
+                .define("autoBoardStealsPlayerVehicles", false);
+        TOW_AUTO_ENABLED = builder.comment("Idle RU/US drivers may tow friendly hulls flagged as needing recovery.")
+                .define("towAutoEnabled", true);
+        TOW_AUTO_SCAN_RADIUS = builder.comment(
+                        "How far (blocks) a tower looks for stuck/submerged allies. Values above 64 are expensive.")
+                .defineInRange("towAutoScanRadius", 64.0, 8.0, 128.0);
+        TOW_SUBMERGED_REQUEST_TICKS = builder.comment(
+                        "Ticks the hull hitbox stays fully submerged before broadcasting needs_tow.")
+                .defineInRange("towSubmergedRequestTicks", 60, 20, 600);
+        TOW_STUCK_REQUEST_CYCLES = builder.comment(
+                        "Ground stuck unstick cycles before a hull broadcasts needs_tow.")
+                .defineInRange("towStuckRequestCycles", 2, 1, 10);
+        TOW_PLAYER_ORDER_MAX_DISTANCE = builder.comment(
+                        "Max blocks between hulls for an immediate SBW towline link at order time; farther"
+                                + " pairs still get the tow order and link on approach.")
+                .defineInRange("towPlayerOrderMaxDistance", 16.0, 4.0, 128.0);
+        AUTO_MAN_MORTAR_ENABLED = builder.comment("Idle RU/US soldiers may crew an empty, unclaimed mortar (same feature as autoBoardEnabled, for mortars).")
+                .define("autoManMortarEnabled", true);
+        AUTO_MAN_MORTAR_SCAN_RADIUS = builder.comment("How far (blocks) they look for empty mortars.")
+                .defineInRange("autoManMortarScanRadius", 32.0, 4.0, 128.0);
+        COMBAT_ENGINEER_DIG_ENABLED = builder.comment(
+                        "RU/US combat engineers may dig one foxhole trench on their own.")
+                .define("combatEngineerDigEnabled", true);
+        AUTO_ENTRENCH_ENABLED = builder.comment(
+                        "Idle RU/US soldiers may claim nearby trench networks, emplacements, or free sandbags.")
+                .define("autoEntrenchEnabled", true);
+        AUTO_ENTRENCH_SCAN_RADIUS = builder.comment(
+                        "How far (blocks) they look for trench cells, emplacements, or sandbags.")
+                .defineInRange("autoEntrenchScanRadius", 48.0, 8.0, 128.0);
+        VEHICLE_TARGET_SCAN_RADIUS = builder.comment("How far sideways (blocks) crewed vehicles look for enemies.")
+                .defineInRange("vehicleTargetScanRadius", 96.0, 8.0, 128.0);
+        VEHICLE_TARGET_SCAN_HEIGHT = builder.comment(
+                        "How far up/down (blocks) crewed vehicles look for enemies.",
+                        "For ground hulls this is the downward half and the legacy upward half; upward for",
+                        "ground AA is vehicleTargetScanAirHeight. Helicopters and planes keep this band",
+                        "(plus their downward altitude slack) and do not use the air height.")
+                .defineInRange("vehicleTargetScanHeight", 128.0, 4.0, 128.0);
+        VEHICLE_TARGET_SCAN_AIR_HEIGHT = builder.comment(
+                        "How far UP (blocks) ground crews look for aircraft. Does not change helicopters or",
+                        "planes. Must be >= half of vehicleTargetScanHeight or the old band is kept.")
+                .defineInRange("vehicleTargetScanAirHeight", 192.0, 64.0, 384.0);
+        VEHICLE_TARGET_SCAN_INTERVAL_TICKS = builder.comment("How often (game ticks) crewed vehicles refresh their target list.")
+                .defineInRange("vehicleTargetScanIntervalTicks", 30, 1, 200);
+        VEHICLE_TARGET_REQUIRE_LOS = builder.comment("Crewed vehicles only lock enemies they can see (no wall hacks).")
+                .define("vehicleTargetRequireLineOfSight", true);
+        CONTACT_BOARD_ENABLED = builder.comment(
+                        "Faction contact board: what one unit has spotted, the rest of its side may act on.",
+                        "Beyond contactBoardCloseBand a crew locks a board contact without its own line of sight",
+                        "(it still cannot FIRE without one). Off = every crew relies on its own eyes.")
+                .define("contactBoardEnabled", true);
+        CONTACT_BOARD_TTL_TICKS = builder.comment(
+                        "How long (game ticks) a directly-sighted contact stays on the board without being",
+                        "re-seen. Heard/relayed contacts are held for a fraction of this.")
+                .defineInRange("contactBoardTtlTicks", 200, 40, 1200);
+        CONTACT_BOARD_CLOSE_BAND = builder.comment(
+                        "Inside this distance (blocks) a board contact must also pass the crew's own line of",
+                        "sight: 'aware of a soldier through the wall next to me' is noise, not intelligence.")
+                .defineInRange("contactBoardCloseBand", 24.0, 0.0, 96.0);
+        CONTACT_BOARD_MOVE_THRESHOLD = builder.comment(
+                        "A known contact is only re-published after moving this far (blocks); keeps the board",
+                        "at one write per observer event instead of one per tick.")
+                .defineInRange("contactBoardMoveThreshold", 6.0, 1.0, 32.0);
+        WIDE_SCAN_ENABLED = builder.comment(
+                        "Wide detection: crewed vehicles detect each other out to wideScanRadius with no raycast.",
+                        "Off = only the close scan and setTarget locks feed the contact board.")
+                .define("wideScanEnabled", true);
+        WIDE_SCAN_RADIUS = builder.comment(
+                        "How far (blocks) crewed vehicles detect each other. HARD SERVER DEPENDENCY: both entities must be",
+                        "loaded (view-distance) and ticking (simulation-distance). 256 needs both >= 16 chunks; on a",
+                        "stock 10/10 server the effective range is about 160. A warning is logged at startup.")
+                .defineInRange("wideScanRadius", 256.0, 96.0, 512.0);
+        WIDE_SCAN_CADENCE_TICKS = builder.comment(
+                        "How often (game ticks) contacts beyond vehicleTargetScanRadius are re-published.",
+                        "Clamped to half the PROXIMITY contact life (a warning is logged if it is).")
+                .defineInRange("wideScanCadenceTicks", 40, 10, 100);
+        COMBATANT_INDEX_INTERVAL_TICKS = builder.comment(
+                        "How often (game ticks) the per-level combatant index is rebuilt. Hull scans read this snapshot,",
+                        "so it bounds how stale their candidate lists can be.")
+                .defineInRange("combatantIndexIntervalTicks", 20, 5, 100);
+        PATH_SEARCHES_PER_TICK = builder.comment(
+                        "PERF. Max ground-vehicle path searches per level per game tick (0 = unlimited, the old behaviour).",
+                        "A search costs ~5 ms; a deferred hull keeps following its current route until it gets a slot.")
+                .defineInRange("pathSearchesPerTick", 0, 0, 16);
+        PATH_MAX_WAIT_TICKS = builder.comment(
+                "PERF. A hull deferred by pathSearchesPerTick this long (game ticks) searches anyway, so none starves.")
+                .defineInRange("pathMaxWaitTicks", 10, 1, 100);
+        PATH_MAX_VISITED_NODES = builder.comment(
+                        "PERF. Node cap for one ground-vehicle path search (512 = old behaviour). Lower is cheaper but",
+                        "turns long detours into partial paths.")
+                .defineInRange("pathMaxVisitedNodes", 512, 128, 1024);
+        PATH_SEARCH_RANGE = builder.comment(
+                        "PERF. Horizontal reach (blocks) of one ground-vehicle path search (32 = old behaviour). Lower is",
+                        "cheaper; far destinations are reached in more partial legs.")
+                .defineInRange("pathSearchRange", 32, 16, 48);
+        PATHWAY_ENTRY_RADIUS = builder.comment(
+                        "Preferred pathways: a unit must be within this distance (blocks) of either END node to take the",
+                        "path from that end. Hulls add their own width. Nobody joins mid-path.")
+                .defineInRange("pathwayEntryRadius", 16.0, 4.0, 64.0);
+        PATHWAY_COAX_RADIUS = builder.comment(
+                        "Preferred pathways: a MOVE destination counts as along the path when it lies within this distance",
+                        "(blocks) of the path, or of its axis extended past the exit (a 30 degree cone from the exit also",
+                        "counts). Otherwise the path is ignored, or dropped mid-walk.")
+                .defineInRange("pathwayCoaxRadius", 24.0, 4.0, 128.0);
+        PATHWAY_DETOUR_TOLERANCE = builder.comment(
+                        "Preferred pathways: a unit under MOVE anywhere takes a path when walking to it, along it and on",
+                        "to the destination is at most this many times the straight line (1.5 = up to 50% longer). This is",
+                        "what sends a unit standing beside a bridge over it instead of across the river. 1.0 = off: only",
+                        "units at a path's end take it.")
+                .defineInRange("pathwayDetourTolerance", 1.5, 1.0, 4.0);
+        PATH_DEST_QUANTUM = builder.comment(
+                        "PERF. Snap ground-vehicle destinations to this block grid before pathing (0 = off). Stops",
+                        "standoff/retreat points that move every tick from forcing repaths.")
+                .defineInRange("pathDestQuantum", 4, 0, 8);
+        SENSOR_COLUMN_TTL_TICKS = builder.comment(
+                        "PERF. How long (game ticks) a crew's terrain sensor reuses a probed column (1 = old behaviour).",
+                        "A block changed in front of a hull is seen up to this many ticks late.")
+                .defineInRange("sensorColumnTtlTicks", 5, 1, 20);
+        TREE_SCAN_INTERVAL_TICKS = builder.comment(
+                        "PERF. How often (game ticks) a moving hull scans for trees it is pushing (1 = old behaviour).",
+                        "Trees still fall after the same contact time, up to this many ticks later.")
+                .defineInRange("treeScanIntervalTicks", 3, 1, 10);
+        COVER_BAKE_NANOS_PER_TICK = builder.comment(
+                        "PERF. Time budget (nanoseconds) for cover-table baking per tick, on top of the cell budget",
+                        "(0 = cell budget only, the old behaviour). Unbaked cover reads as exposed.")
+                .defineInRange("coverBakeNanosPerTick", 0, 0, 5_000_000);
+        COVER_MAX_RANGE = builder.comment(
+                        "PERF. How far (blocks) the cover table looks for an occluder (48 = old behaviour). Occluders",
+                        "further than this count as open ground.")
+                .defineInRange("coverMaxRange", 48, 16, 48);
+        GROUND_FAR_LOD_BLOCKS = builder.comment(
+                        "PERF. An idle ground hull (no target, no order) with no player within this many blocks runs",
+                        "cheaper: lowest path priority and doubled sensor/tree intervals (0 = off).")
+                .defineInRange("groundFarLodBlocks", 0.0, 0.0, 512.0);
+        VEHICLE_ALLY_ASSIST_RANGE = builder.comment("How far (blocks) to count nearby allies when deciding to hold or fall back.")
+                .defineInRange("vehicleAllyAssistRange", 128.0, 0.0, 256.0);
+        STALEMATE_BREAKER_ENABLED = builder.comment("If a crew cannot hit its target for a while, move to a better angle.")
+                .define("stalemateBreakerEnabled", true);
+        STALEMATE_SILENCE_TICKS = builder.comment("How long (game ticks) without a hit before they reposition.")
+                .defineInRange("stalemateSilenceTicks", 300, 40, 2400);
+        VEHICLE_TERRAIN_AVOIDANCE = builder.comment("AI drivers try to avoid water, walls, and other hazards.")
+                .define("vehicleTerrainAvoidance", true);
+        PATH_RECALC_COOLDOWN_TICKS = builder.comment(
+                        "Minimum game ticks between ground-vehicle A* searches when the previous search succeeded.",
+                        "Raising this cuts pathfinding cost while chasing a moving target.")
+                .defineInRange("pathRecalcCooldownTicks", 40, 5, 200);
+        PATH_FAIL_COOLDOWN_TICKS = builder.comment(
+                        "Back-off (game ticks) after a failed A* search before trying again.")
+                .defineInRange("pathFailCooldownTicks", 60, 10, 400);
+        PATH_MAX_AGE_TICKS = builder.comment(
+                        "Force a fresh A* search even if the destination has not drifted, after this many game ticks.")
+                .defineInRange("pathMaxAgeTicks", 100, 20, 600);
+        PATH_TARGET_DRIFT_BLOCKS = builder.comment(
+                        "Recompute the ground path when the destination moves more than this many blocks.",
+                        "Combat chases a live target, so a small value repaths nearly every second.")
+                .defineInRange("pathTargetDriftBlocks", 6.0, 1.0, 32.0);
+        KOMODO_RENDER_FIX_ENABLED = builder.comment(
+                        "Client-only. Komodo's retained-rendering fallback (used for the first frame or two of a",
+                        "newly seen vehicle model+texture, before its GPU-instanced path is baked) can call into",
+                        "vanilla's DynamicTexture off the render thread, which crashes the client with an NPE on",
+                        "replay. This makes that fallback no-op for that one frame instead of crashing when it is",
+                        "not safely on the render thread. No known downside; turn off only to isolate a Komodo bug report.")
+                .define("komodoRenderFixEnabled", true);
+        TRIPOD_STANDOFF_DISTANCE = builder.comment(
+                        "Tripod Invasion only. RU/US units (on foot, ground hulls, boats) back off when a tripod",
+                        "is closer than this many blocks (horizontal), and fight it from beyond it. Fixed weapons",
+                        "inside it are abandoned. The tripod's heat ray reaches 96 blocks by default.")
+                .defineInRange("tripodStandoffDistance", 70.0, 16.0, 256.0);
+        PATROL_ROTATE_INTERVAL_TICKS = builder.comment("How long (game ticks) a patrol holds one spot before moving on.")
+                .defineInRange("patrolRotateIntervalTicks", 3600, 200, 24000);
+        IDLE_WANDER_ENABLED = builder.comment(
+                        "Ship crews with nothing to do may wander nearby on water.",
+                        "Ground hulls use hybrid idle (IDLE_HOLD / IDLE_TRAVEL) when idleHybridEnabled.")
+                .define("idleWanderEnabled", true);
+        IDLE_WANDER_RADIUS = builder.comment("Max wander distance (blocks) from where they started waiting.")
+                .defineInRange("idleWanderRadius", 16, 4, 64);
+        IDLE_HYBRID_ENABLED = builder.comment(
+                        "Ground crews use polygon formation hold + constant-bearing travel when idle",
+                        "instead of random wander. Ships still use idleWanderEnabled.")
+                .define("idleHybridEnabled", true);
+        IDLE_GROUP_RADIUS = builder.comment("Friendly idle ground vehicles within this range form an idle group.")
+                .defineInRange("idleGroupRadius", 50.0, 8.0, 128.0);
+        IDLE_FORMATION_BASE_RADIUS = builder.comment("Base polygon radius (blocks) for IDLE_HOLD; scales with group size.")
+                .defineInRange("idleFormationBaseRadius", 15.0, 5.0, 40.0);
+        IDLE_FORMATION_RADIUS_MIN = builder.comment("Minimum IDLE_HOLD formation radius (blocks).")
+                .defineInRange("idleFormationRadiusMin", 15.0, 5.0, 40.0);
+        IDLE_FORMATION_RADIUS_MAX = builder.comment("Maximum IDLE_HOLD formation radius (blocks).")
+                .defineInRange("idleFormationRadiusMax", 40.0, 15.0, 80.0);
+        IDLE_SCRAMBLE_RADIUS = builder.comment("Persistent random XZ offset (±blocks) per formation slot.")
+                .defineInRange("idleScrambleRadius", 5.0, 0.0, 16.0);
+        IDLE_HOLD_MIN_TICKS = builder.comment("Minimum IDLE_HOLD duration (game ticks) before travel may begin (100 = 5 s).")
+                .defineInRange("idleHoldMinTicks", 100, 20, 24000);
+        IDLE_HOLD_MAX_TICKS = builder.comment("Maximum IDLE_HOLD duration (game ticks) before travel begins (200 = 10 s).")
+                .defineInRange("idleHoldMaxTicks", 200, 20, 48000);
+        IDLE_TRAVEL_LEAD_DISTANCE = builder.comment("How far (blocks) an idle march travels before it stops and holds again.")
+                .defineInRange("idleTravelLeadDistance", 500.0, 64.0, 2000.0);
+        IDLE_TRAVEL_SPACING_MIN = builder.comment(
+                        "Idle march column: the clear gap between hulls is the mean of this and idleTravelSpacingMax,",
+                        "added to the widest hull's size.")
+                .defineInRange("idleTravelSpacingMin", 5.0, 2.0, 32.0);
+        IDLE_TRAVEL_SPACING_MAX = builder.comment("See idleTravelSpacingMin.")
+                .defineInRange("idleTravelSpacingMax", 8.0, 2.0, 32.0);
+        IDLE_TRAVEL_DETECT_RADIUS = builder.comment(
+                        "End an idle march when a hostile player or hostile-crewed hull comes within this range of its head.")
+                .defineInRange("idleTravelDetectRadius", 20.0, 4.0, 64.0);
+        IDLE_TRAVEL_STUCK_TICKS = builder.comment(
+                        "End a march that has waited this many game ticks for a member to catch up.")
+                .defineInRange("idleTravelStuckTicks", 600, 100, 6000);
+        MARCH_PACE = builder.comment(
+                        "Speed (blocks per game tick) of a march: idle travel and the CohesiveLine advance.",
+                        "Hulls are held to it so infantry keep up. 0.14 = 2.8 blocks/s.")
+                .defineInRange("marchPace", 0.14, 0.04, 0.6);
+        MARCH_STRAGGLE_DISTANCE = builder.comment(
+                        "A march waits while any member is further than this (blocks) behind its place",
+                        "(hulls: at least 1.5 column spacings).")
+                .defineInRange("marchStraggleDistance", 12.0, 4.0, 64.0);
+        UTILITY_REFRESH_INTERVAL_TICKS = builder.comment("How often (game ticks) a ground crew rethinks attack / hold / fall back.")
+                .defineInRange("utilityRefreshIntervalTicks", 30, 5, 200);
+        FACTION_ORGANIC_COMMS = builder.comment("RU/US crews can call mortars/TOWs/air support without holding a radio item.")
+                .define("factionOrganicComms", true);
+        NOTIFICATIONS_REQUIRE_RADIO = builder.comment(
+                        "HUD notifications reach a player only while they carry a handheld radio. Off = everyone gets them.")
+                .define("notificationsRequireRadio", true);
+        RADIO_VOICE_ENABLED = builder.comment(
+                        "With Simple Voice Chat installed, talking with a handheld radio in hand reaches allied radios on the same net.")
+                .define("radioVoiceEnabled", true);
+        SUPPORT_CALL_INTERVAL_TICKS = builder.comment("Minimum wait (game ticks) between support call attempts.")
+                .defineInRange("supportCallIntervalTicks", 200, 20, 2400);
+        AWARENESS_CUES_ENABLED = builder.comment(
+                        "Let idle crews investigate gunfire and cannon fire they hear, and contacts seen only through leaves.")
+                .define("awarenessCuesEnabled", true);
+        SUPPRESSION_BUS_ENABLED = builder.comment(
+                        "Let vehicle fire, SBW bullet impacts, explosions and players' near misses suppress SEM infantry",
+                        "(SEM itself only counts TaCZ impacts and its own rifles). Amounts: data/tacz_sewv/sewv/suppression.")
+                .define("suppressionBusEnabled", true);
+        INFANTRY_ARMOR_AWARENESS = builder.comment(
+                        "Teach SEM infantry that a target riding a vehicle is armour: riflemen take cover from it,",
+                        "anti-armour gunners close in on it. (SEM rates a target only by the item in its hand.)")
+                .define("infantryArmorAwareness", true);
+        ACQUISITION_DELAY_ENABLED = builder.comment(
+                        "SEM infantry and AI crews take time to notice a new target: longer at range, in the dark,",
+                        "against a still or sneaking target; near-instant against a hull or someone who just fired.")
+                .define("acquisitionDelayEnabled", true);
+        SUPPRESSIVE_FIRE_ENABLED = builder.comment(
+                        "For a few seconds after losing sight of an enemy, a crew machine gun may rake the spot it",
+                        "vanished from (one gun per lost enemy). Also gates the player's Suppress Area order.")
+                .define("suppressiveFireEnabled", true);
+        COVER_CACHE_ENABLED = builder.comment(
+                        "Shared Killzone-style cover visibility table (2x2 columns, 8 compass dirs at turret height).",
+                        "Used by individual tactics for exposure / keyhole / scoot without per-tick raycasts.")
+                .define("coverCacheEnabled", true);
+        COVER_CACHE_BAKE_CELLS_PER_TICK = builder.comment(
+                        "Max 2x2 cover cells rebaked per server tick across all dimensions (budget). 64 cells = one chunk.")
+                .defineInRange("coverCacheBakeCellsPerTick", 64, 8, 256);
+        INDIVIDUAL_TACTICS_ENABLED = builder.comment(
+                        "Per-crew tactical posture (shoot-and-scoot, covering advance, keyhole, ambush, infantry cover).",
+                        "Only a soft bias under player or command orders. It never stops a push.")
+                .define("individualTacticsEnabled", true);
+        BATTLE_POSITIONS_ENABLED = builder.comment(
+                        "Ground crews in contact pick a battle position on their engagement band (hull-down where the",
+                        "terrain allows), hold it while they are firing from it, and move to a pre-picked alternate when",
+                        "they come under fire or cannot shoot. Needs individualTacticsEnabled.")
+                .define("battlePositionsEnabled", true);
+        BATTLE_POSITION_LEASE_TICKS = builder.comment(
+                        "Game ticks a battle position is held without a shot fired from it before the crew gives it up.",
+                        "Every shot from the position renews it.")
+                .defineInRange("battlePositionLeaseTicks", 600, 100, 6000);
+        builder.pop();
+
+        builder.push("command");
+        COMMAND_SYSTEM_ENABLED = builder.comment(
+                        "Battle groups, influence maps, and doctrine plays for vehicle crews.",
+                        "When false, local drive/gun AI still runs; only coordinated plays stop.")
+                .define("commandSystemEnabled", true);
+        COMMAND_GROUP_JOIN_RADIUS = builder.comment("How close (blocks) a vehicle must be to a battle group's centre to join it.")
+                .defineInRange("commandGroupJoinRadius", 48.0, 8.0, 256.0);
+        COMMAND_GROUP_LEAVE_RADIUS = builder.comment("How far (blocks) before a member leaves the group. Must be larger than join radius.")
+                .defineInRange("commandGroupLeaveRadius", 64.0, 8.0, 256.0);
+        COMMAND_GROUP_MAX_DIAMETER = builder.comment("Largest allowed size of a battle group (blocks across). Should be at least twice the leave radius.")
+                .defineInRange("commandGroupMaxDiameter", 128.0, 16.0, 512.0);
+        COMMAND_GROUP_MIN_SIZE = builder.comment("Minimum crewed vehicles to form a battle group. Loners keep fighting on their own.")
+                .defineInRange("commandGroupMinSize", 2, 2, 32);
+        COMMAND_MAX_UNITS = builder.comment("Max drivers the commander AI looks at in one pass (performance limit).")
+                .defineInRange("commandMaxUnits", 64, 4, 256);
+        COMMAND_ENGAGEMENT_RADIUS = builder.comment("Enemy forces must be this close (blocks) before battle groups form.")
+                .defineInRange("commandEngagementRadius", 96.0, 16.0, 256.0);
+        COMMAND_MARGIN = builder.comment("How much better a new commander must score to replace the current one.")
+                .defineInRange("commandMargin", 0.15, 0.0, 2.0);
+        INFLUENCE_CELL_SIZE = builder.comment("Grid cell size (blocks) for the rough who-controls-this-area map. Bigger cells = cheaper, coarser.")
+                .defineInRange("influenceCellSize", 12.0, 8.0, 16.0);
+        INFLUENCE_MAX_CELLS = builder.comment("Max cells that map may use. Huge battles automatically use bigger cells instead of more of them.")
+                .defineInRange("influenceMaxCells", 256, 64, 1024);
+        MIN_PLAY_TICKS = builder.comment("Minimum time (game ticks) a battle plan runs before another plan can replace it.",
+                        "Broken plans can still cancel early.")
+                .defineInRange("minPlayTicks", 200, 20, 2400);
+        PLAY_SWITCH_MARGIN = builder.comment("How much better a new battle plan must score to replace the current one.")
+                .defineInRange("playSwitchMargin", 10.0, 0.0, 100.0);
+        TACTICAL_SCALE = builder.comment(
+                        "Multiplies every battle-group distance (join/leave/size/engagement radii, influence cells, flank,",
+                        "support and withdraw points) and ground crews' engagement rings (armour 40, infantry 15).",
+                        "1.0 = the original geometry; 2.0 suits the 256-block wide detection.")
+                .defineInRange("tacticalScale", 2.0, 0.5, 4.0);
+        builder.pop();
+
+        builder.push("platoon");
+        PLATOON_ENABLED = builder.comment(
+                        "PMC platoon formation around commanders (auto-scan + manual join).",
+                        "When false, whole-level platoon scans stop; join packets refuse cleanly.")
+                .define("platoonEnabled", true);
+        PLATOON_COHESION_RADIUS = builder.comment("Platoons try to stay within this many blocks of each other, unless tasked into a doctrine play.")
+                .defineInRange("platoonCohesionRadius", 30.0, 8.0, 128.0);
+        PLATOON_MAX_SIZE = builder.comment("Max members in one platoon. A platoon is either PMC infantry or ground-vehicle crews, never both.")
+                .defineInRange("platoonMaxSize", 4, 2, 12);
+        PLATOON_MIN_SIZE = builder.comment("A platoon disbands once membership drops below this.")
+                .defineInRange("platoonMinSize", 2, 2, 8);
+        builder.pop();
+
+        builder.push("flight_ai");
+        HELI_ENGAGE_RADIUS = builder.comment(
+                        "Closest range (blocks) at which a helicopter firing run opens its fire window.",
+                        "The window is sized to stay open ~3 s, so it usually opens further out than this.")
+                .defineInRange("heliEngageRadius", 32.0, 12.0, 64.0);
+        HELI_MIN_STANDOFF = builder.comment(
+                        "Floor (blocks) under the helicopter hover-attack and orbit standoff; the airframe's",
+                        "yaw authority and the target's height can push it further out, never closer.")
+                .defineInRange("heliMinStandoff", 28.0, 16.0, 96.0);
+        HELI_CHUNK_LOADING = builder.comment(
+                        "Keep AI helicopters active even when no player is nearby (uses chunk tickets).",
+                        "Default true (matches mortarChunkLoading). Existing installs keep whatever",
+                        "value is already in serverconfig/tacz_sewv-server.toml until that file is deleted.")
+                .define("heliChunkLoading", true);
+        PLANE_CHUNK_LOADING = builder.comment(
+                        "Keep AI planes active even when no player is nearby (uses chunk tickets).",
+                        "Default true (matches mortarChunkLoading). Existing installs keep whatever",
+                        "value is already in serverconfig/tacz_sewv-server.toml until that file is deleted.")
+                .define("planeChunkLoading", true);
+        WING_FLIGHT_MODEL = builder.comment(
+                        "Fly AI-crewed planes with this mod's own fixed-wing flight model (aerodynamics,",
+                        "TECS/attitude controller, procedures) instead of SBW's engine, from liftoff to",
+                        "touchdown; SBW keeps the ground roll and taxi. Experimental while it is built out:",
+                        "default false. Player-flown planes are never affected.")
+                .define("wingFlightModel", false);
+        PLANE_FAR_LOD_BLOCKS = builder.comment(
+                        "Past this distance (blocks) from every player, a ticketed plane in cruise/hold/",
+                        "RTB/ingress uses cheaper terrain and ally scans. Combat, takeoff and landing",
+                        "always stay full fidelity. Delete serverconfig/tacz_sewv-server.toml to pick up a new default.")
+                .defineInRange("planeFarLodBlocks", 256.0, 64.0, 1024.0);
+        HELI_FAR_LOD_BLOCKS = builder.comment(
+                        "Same FAR band for AI helicopters (ground-cache TTL only; heli terrain is already",
+                        "shorter than planes). Delete serverconfig/tacz_sewv-server.toml to pick up a new default.")
+                .defineInRange("heliFarLodBlocks", 128.0, 64.0, 1024.0);
+        PLANE_COMMAND_RADIUS = builder.comment("Max distance (blocks) for player orders to aircraft.",
+                        "Doubles as the soft leash: past this a plane finishes its pass and returns to you.",
+                        "Combat is abandoned outright at 1.5x this distance.",
+                        "Must stay comfortably larger than planeEngageRadius: a plane repositions by flying",
+                        "outbound until it is clear of its own engage bubble before turning back in, so a",
+                        "leash near the bubble size recalls it in the middle of every run-in.")
+                .defineInRange("planeCommandRadius", 512.0, 32.0, 4096.0);
+        PLANE_MAX_RANGE = builder.comment(
+                        "Hard limit (blocks) on how far ANY AI plane may get from the nearest player. Past it",
+                        "the plane turns back toward that player, whatever it was doing, and is released again",
+                        "inside 80% of it. Bounds force-loaded chunks and stops planes wandering off forever.",
+                        "Keep it well above planeEngageRadius, or bombing run-ins are cut short.",
+                        "No player in the dimension: no limit (nothing to measure from).")
+                .defineInRange("planeMaxRange", 384.0, 192.0, 2048.0);
+        PLANE_GUN_CONE_DEG = builder.comment(
+                        "Widest angle (degrees) off the gun line at which a plane will fire guns, rockets",
+                        "and bombs. This is a ceiling, not the gate itself: the plane works out the angle",
+                        "at which the shot would still land inside the weapon's own blast radius at the",
+                        "current range and uses that, so it holds fire far out and lets go up close.",
+                        "It only binds in very close: an A-10 cannon (4-block blast) reaches 12 degrees",
+                        "at 19 blocks, so past that the derived angle is what decides.")
+                .defineInRange("planeGunConeDeg", 12.0, 1.0, 45.0);
+        PLANE_MISSILE_CONE_DEG = builder.comment(
+                        "Same ceiling for guided missiles, which steer out the rest after launch.",
+                        "Doubles as the seeker cone the lock dwell below is measured against.")
+                .defineInRange("planeMissileConeDeg", 15.0, 1.0, 45.0);
+        PLANE_MISSILE_LOCK_TICKS = builder.comment(
+                        "Game ticks a guided missile's seeker must be held on the target, unbroken, before",
+                        "it will launch (20 = 1 second). Leaving the firing cone resets it to zero.",
+                        "This is why a missile pass is flown as a shallow dive rather than a level overfly:",
+                        "the nose has to stay pointed at the target for the whole count. 0 disables the",
+                        "dwell and launches on the first tick the cone is satisfied, which is the old",
+                        "behaviour and reliably threw missiles off during a slew.")
+                .defineInRange("planeMissileLockTicks", 20, 0, 200);
+        PLANE_MIN_CONE_DEG = builder.comment(
+                        "Floor under the derived firing angle above. It is a numerical backstop and",
+                        "nothing else, and it is set so that it does not bind anywhere inside the engage",
+                        "bubble - geometry governs every shot you will ever see.",
+                        "Do NOT raise this to make reluctant planes shoot. The miss distance of a shot",
+                        "fired X degrees off at range R is R*tan(X), so a wide floor buys shots precisely",
+                        "where they cannot land: at 2 degrees an A-10 may fire from 384 blocks and miss by",
+                        "13, against a 4-block blast. The derived angle is instead a range gate in",
+                        "disguise - it stays shut until the plane is close enough that the accuracy it can",
+                        "actually hold puts the round inside the blast (7.6 degrees at 30 blocks, 5.1 at",
+                        "45, 2.4 at 96). A plane that finishes passes without firing is a plane that is not",
+                        "getting close or not lining up; look at planeEngageRadius and the run-in.",
+                        "Note this must be re-checked against planeEngageRadius if that is raised: the",
+                        "floor stops being harmless the moment the bubble reaches out past where it binds.")
+                .defineInRange("planeMinConeDeg", 0.5, 0.5, 20.0);
+        PLANE_AUTO_ROCKET_RANGE = builder.comment(
+                        "AUTO ordnance: closer than this (blocks) to the target, a plane uses guns only.",
+                        "Heavier stores need room to fall or to guide, so the closer the target the fewer",
+                        "of them are eligible.")
+                .defineInRange("planeAutoRocketRange", 40.0, 0.0, 320.0);
+        PLANE_AUTO_HEAVY_RANGE = builder.comment(
+                        "AUTO ordnance: bombs and guided missiles are only used from at least this far out.",
+                        "Between this and planeAutoRocketRange the plane uses rockets.",
+                        "This tracks the release geometry, not the engage bubble: a bomb let go from the",
+                        "80-block run altitude falls for about 52 ticks and travels roughly 125 blocks",
+                        "downrange at cruise, so anything nearer than that cannot be bombed at all.")
+                .defineInRange("planeAutoHeavyRange", 128.0, 0.0, 1024.0);
+        PLANE_BOMB_STICK = builder.comment(
+                        "How many bombs a plane releases in one carpet run, spaced along its track.",
+                        "1 is a single aimed drop.")
+                .defineInRange("planeBombStick", 3, 1, 12);
+        PLANE_BOMB_STICK_INTERVAL = builder.comment(
+                        "Game ticks between bombs in a carpet stick. Wider spacing covers more ground and",
+                        "concentrates less on the aim point. There is a hard floor of 10 ticks in code:",
+                        "closer than that the impacts overlap into one blast instead of walking across the",
+                        "target, so a smaller number here does nothing.")
+                .defineInRange("planeBombStickIntervalTicks", 10, 1, 40);
+        PLANE_BOMB_SIGHT_RADIUS = builder.comment(
+                        "Smallest release window (blocks) a plane will ever bomb through - a FLOOR under the",
+                        "window, not the window itself. The window is normally the bomb's own blast radius,",
+                        "on the reasoning that a release is worth taking when the target will be inside the",
+                        "explosion rather than only when the bomb will land on it; that is what absorbs the",
+                        "few blocks of track error an AI pass cannot help and the distance a target drives",
+                        "during the fall. A Mk 82's 22-block blast therefore gives a window far wider than",
+                        "this, and this only binds for a store whose datapack declares no blast at all.",
+                        "Raising it does not make planes bomb more accurately, it makes them release",
+                        "earlier; if planes overfly without dropping, the run-in is what to look at, and",
+                        "planeCombatDebug prints the sight error that says which part of it.")
+                .defineInRange("planeBombSightRadius", 8.0, 1.0, 32.0);
+        PLANE_ENGAGE_RADIUS = builder.comment(
+                        "How far out (blocks) a plane rolls in on a target instead of just closing on it.",
+                        "This is the single number that sets the scale a plane operates at: it is the length",
+                        "of the straight run-in, and the run-in is where the aircraft has to get its nose",
+                        "onto the target. A plane is pointed by hauling the whole hull round at a fraction of",
+                        "a degree per tick, so a short bubble is a short line, and a short line is a pass",
+                        "flown with the gun still swinging through the aim point.",
+                        "Lowering this makes planes commit sooner and hit less.")
+                .defineInRange("planeEngageRadius", 192.0, 32.0, 1024.0);
+        PLANE_ATTACK_RUN_LENGTH = builder.comment(
+                        "Length (blocks) of one straight attack run before the plane breaks off and turns back.",
+                        "A floor, not a cap: the run is never cut shorter than the engage bubble it started",
+                        "from, or it would end before the weapon's own release point.")
+                .defineInRange("planeAttackRunLength", 200.0, 40.0, 1024.0);
+        PLANE_MAX_ALTITUDE = builder.comment(
+                        "Absolute world Y a plane will never fly above. This is a ceiling, not a cruise",
+                        "height: the cruise band is measured above the ground under the aircraft, so over",
+                        "high terrain it would otherwise stack on top of a mountain and put the aircraft in",
+                        "the stratosphere - out of sight, out of the fight, and above the build limit in a",
+                        "dimension with a low one. Every climb this AI commands stops here, and the",
+                        "dimension's own build height (less a little headroom) binds it further.")
+                .defineInRange("planeMaxAltitude", 300.0, 64.0, 1024.0);
+        PLANE_DIVE_SNAP = builder.comment(
+                        "Place a plane exactly on its attack line at the moment it rolls in on a diving",
+                        "pass (guns and rockets; bombs and guided missiles are released from level flight",
+                        "and are unaffected). The same trick the airport approach uses, and for the same",
+                        "reason: a fixed wing is pointed a fraction of a degree per tick, so anything not",
+                        "corrected before the run is still being corrected during it, and the burst goes",
+                        "wide. Turn off if you would rather planes never be repositioned.")
+                .define("planeDiveSnap", true);
+        PLANE_LAND_TRANSIT_AGL = builder.comment(
+                        "Height (blocks) above the highest ground on the way in that a landing plane flies",
+                        "the approach pattern at, before it lines up with the strip.")
+                .defineInRange("planeLandTransitAgl", 48.0, 16.0, 160.0);
+        PLANE_LAND_FLARE_AGL = builder.comment("Height (blocks) above ground at which a landing plane flares.")
+                .defineInRange("planeLandFlareAgl", 8.0, 2.0, 32.0);
+        PLANE_LAND_FLARE_RADIUS = builder.comment(
+                        "How close (blocks) to the pad the plane must also be before it flares.",
+                        "Height alone used to make it flare over whatever it happened to be crossing.")
+                .defineInRange("planeLandFlareRadius", 24.0, 8.0, 96.0);
+        PLANE_LAND_SETTLE_RADIUS = builder.comment(
+                        "How close (blocks) to the pad a touchdown counts as landed. Touching down further",
+                        "out is treated as a missed approach and the plane goes around.")
+                .defineInRange("planeLandSettleRadius", 8.0, 4.0, 64.0);
+        AIRPORT_MIN_ASPECT_RATIO = builder.comment(
+                        "Minimum long:short ratio for a player-defined PMC runway. Below this the strip",
+                        "is rejected as not runway-shaped.")
+                .defineInRange("airportMinAspectRatio", 3.0, 1.5, 20.0);
+        AIRPORT_MIN_LENGTH_BLOCKS = builder.comment(
+                        "Minimum long-side length (blocks) for a PMC runway. Matches the clear distance",
+                        "DrivePlaneGoal already demands for takeoff.")
+                .defineInRange("airportMinLengthBlocks", 64, 32, 512);
+        AIRPORT_MAX_AREA_BLOCKS = builder.comment(
+                        "Hard ceiling on runway footprint area (blocks). Rejects typo'd coordinates",
+                        "before they scan millions of columns on the server thread.")
+                .defineInRange("airportMaxAreaBlocks", 65536, 1024, 1048576);
+        AIRPORT_LANDING_SEARCH_RADIUS = builder.comment(
+                        "How far (blocks) from the AIRCRAFT to look for a cleared PMC airport when it is",
+                        "ordered to land. The ordered point is only a fallback, so raise this rather than",
+                        "clicking near the strip. 0 disables airport landings and keeps approach inference.")
+                .defineInRange("airportLandingSearchRadius", 1024.0, 0.0, 16384.0);
+        AIRPORT_ALIGNMENT_DISTANCE = builder.comment(
+                        "Length (blocks) of the alignment line an aircraft is placed on before an airport",
+                        "landing: the straight-in leg whose far end is this far back from the touchdown.")
+                .defineInRange("airportAlignmentDistance", 170.0, 60.0, 512.0);
+        AIRPORT_ALIGNMENT_SNAP_RADIUS = builder.comment(
+                        "How close (blocks) an aircraft must get to the start of that alignment line before",
+                        "it is placed onto it, pointed at the strip, and committed to the approach.")
+                .defineInRange("airportAlignmentSnapRadius", 48.0, 8.0, 256.0);
+        DUBINS_ALIGN_TOLERANCE_DEG = builder.comment(
+                        "Heading error (degrees) off the alignment line's own axis within which an aircraft",
+                        "is treated as already lined up and just flies straight in. Past this it flies a",
+                        "turn (a Dubins arc, sized off the hull's own measured turn radius) onto the line",
+                        "instead of arriving on the wrong heading and being placed straight.")
+                .defineInRange("dubinsAlignToleranceDeg", 15.0, 5.0, 45.0);
+        DUBINS_FALLBACK_MULTIPLIER = builder.comment(
+                        "If the computed turn-in arc would be longer than this many times the straight-line",
+                        "distance to the alignment line, the geometry is treated as degenerate (radius too",
+                        "wide for how close the aircraft already is) and the turn is skipped in favour of the",
+                        "ordinary straight run-in.")
+                .defineInRange("dubinsFallbackMultiplier", 2.5, 1.5, 4.0);
+        DUBINS_DEVIATION_THRESHOLD = builder.comment(
+                        "How far (blocks) an aircraft may drift off its turn-in arc, for example from a nearby",
+                        "explosion, before the arc is recomputed from where it actually is.")
+                .defineInRange("dubinsDeviationThreshold", 16.0, 4.0, 64.0);
+        // The three below are STARTING VALUES for a newly placed runway block, not live settings.
+        // Segmentation belongs to a runway — a forward strip packing in light aircraft wants
+        // nothing like a bomber base's spacing — so each one keeps its own, edited by the sliders
+        // in its GUI. Changing these does not touch a runway that already exists.
+        AIRPORT_SLOT_SIZE_FACTOR = builder.comment(
+                        "Default parking slot length as a FRACTION of the runway's long side. Proportional",
+                        "rather than a block count so one setting suits a 64-block strip and a 400-block",
+                        "airbase; a floor of 8 blocks applies either way. Higher means fewer slots.")
+                .defineInRange("airportSlotSizeFactor", 0.10, 0.02, 0.5);
+        AIRPORT_SLOT_BUFFER_FACTOR = builder.comment(
+                        "Default separation between adjacent parking slots, again as a fraction of runway",
+                        "length (floor 2 blocks). The last slot needs no buffer behind it.")
+                .defineInRange("airportSlotBufferFactor", 0.03, 0.0, 0.2);
+        AIRPORT_EXTRA_TAKEOFF_FACTOR = builder.comment(
+                        "Default extra takeoff room beyond the automatic baseline, as a fraction of runway",
+                        "length. The baseline is interpolated from the runway's size and always applies;",
+                        "this can only ADD to it, at the cost of parking slots.")
+                .defineInRange("airportExtraTakeoffFactor", 0.0, 0.0, 0.5);
+        AIRPORT_TAXI_SPEED = builder.comment(
+                        "Blocks per tick an aircraft backs up the runway toward its parking slot after",
+                        "touchdown.")
+                .defineInRange("airportTaxiSpeed", 0.18, 0.02, 1.0);
+        DEBUG_AUTO_PLANE_DEPLOY = builder.comment(
+                        "Testing shortcut: Deploy Plane spawns a fresh aircraft, fuelled, armed and with a",
+                        "full PMC crew already aboard, ignoring whatever the container was holding. Off, the",
+                        "container is unpacked as it was packed: the aircraft it stored, in the state it",
+                        "stored it, with nobody in it. You crew it yourself.")
+                .define("sewvDebugAutoPlaneDeploy", false);
+        builder.pop();
+
+        builder.push("mortar_ai");
+        MORTAR_USE_DISTANCE = builder.comment("How close (blocks) a soldier must stand to crew a mortar.")
+                .defineInRange("mortarUseDistance", 2.0, 1.0, 6.0);
+        MORTAR_FIRE_COOLDOWN_TICKS = builder.comment("Minimum wait between mortar shots, in game ticks (20 = 1 second).")
+                .defineInRange("mortarFireCooldownTicks", 60, 1, 1200);
+        TYPE63_FIRE_COOLDOWN_TICKS = builder.comment(
+                        "Minimum wait between MLRS rocket shots (mortar-pool Type-63), in game ticks (SBW uses 10).")
+                .defineInRange("type63FireCooldownTicks", 10, 1, 1200);
+        MORTAR_DISPERSION_RADIUS = builder.comment("How far (blocks) mortar shots may land off the aim point.")
+                .defineInRange("mortarDispersionRadius", 3, 0, 16);
+        FRIENDLY_FIRE_MORTAR_RADIUS = builder.comment(
+                        "Mortars hold fire when the aimpoint is this close (blocks) to the owning player",
+                        "or a friendly PMC. Should be at least mortarDispersionRadius. 0 disables.")
+                .defineInRange("friendlyFireMortarRadius", 12.0, 0.0, 48.0);
+        MORTAR_REQUIRES_AMMO = builder.comment("Mortars need shells in inventory and use one per shot.")
+                .define("mortarRequiresAmmo", true);
+        MORTAR_CHUNK_LOADING = builder.comment(
+                        "Keep crewed mortars loaded during long-range fire missions so they keep firing",
+                        "even when you are far away.")
+                .define("mortarChunkLoading", true);
+        ARTILLERY_CHUNK_LOADING = builder.comment(
+                        "Keep crewed artillery vehicles loaded during long-range fire missions.")
+                .define("artilleryChunkLoading", true);
+        ARTILLERY_AIM_TOLERANCE_DEG = builder.comment(
+                        "How close (degrees) an AI artillery barrel must be to the firing solution before it fires.")
+                .defineInRange("artilleryAimToleranceDeg", 3.0, 0.5, 15.0);
+        ARTILLERY_REDUCED_CHARGE = builder.comment(
+                        "AI artillery fires a reduced charge so the shell lobs at artilleryArcElevationDeg",
+                        "instead of flying flat at full charge. Player gunners always use the full charge.")
+                .define("artilleryReducedCharge", true);
+        ARTILLERY_ARC_ELEVATION_DEG = builder.comment(
+                        "Preferred barrel elevation (degrees) for AI reduced-charge fire, clamped to each gun's limits.")
+                .defineInRange("artilleryArcElevationDeg", 45.0, 10.0, 85.0);
+        MORTAR_RADIO_RANGE = builder.comment(
+                        "How far (blocks) radios can designate targets and find support crews.",
+                        "Needs to be long enough for mortar range (raise toward ~2000 for the longest guns).")
+                .defineInRange("mortarRadioRange", 768.0, 16.0, 2048.0);
+        builder.pop();
+
+        builder.push("chunk_tickets");
+        TICKET_SKIP_WHEN_PLAYER_TICKING = builder.comment(
+                        "Drop a helicopter/plane/mortar/artillery chunk ticket while a player is already",
+                        "close enough to keep that chunk ticking, and take it back before they leave.",
+                        "Saves ticket churn near players; never lets the owner stop ticking.")
+                .define("ticketSkipWhenPlayerTicking", true);
+        TICKET_RELEASE_MARGIN_CHUNKS = builder.comment(
+                        "Drop the ticket once the owner is this many chunks inside a player's",
+                        "entity-ticking range (simulation distance - 2).")
+                .defineInRange("ticketReleaseMarginChunks", 4, 2, 8);
+        TICKET_ACQUIRE_MARGIN_CHUNKS = builder.comment(
+                        "Take the ticket back once the owner is within this many chunks of the edge of",
+                        "that range. Always kept below ticketReleaseMarginChunks.")
+                .defineInRange("ticketAcquireMarginChunks", 2, 1, 6);
+        TICKET_LINGER_TICKS = builder.comment(
+                        "Keep a chunk the owner just left loaded this long (game ticks), so circling",
+                        "aircraft do not reload and re-save the same chunks every pass. 0 disables.")
+                .defineInRange("ticketLingerTicks", 100, 0, 1200);
+        TICKET_MAX_LINGERING = builder.comment(
+                        "At most this many recently left chunks kept per ticket owner.")
+                .defineInRange("ticketMaxLingering", 2, 0, 4);
+        builder.pop();
+
+        builder.push("unit_lod");
+        UNIT_LOD_ENABLED = builder.comment(
+                        "Soldiers far from every player decide what to do less often. They keep walking,",
+                        "shooting and taking damage, but fights far away play out slower, for both sides.",
+                        "Mounted crews, PMC, mortar crews and units boarding or escorting are never throttled.")
+                .define("unitLodEnabled", true);
+        UNIT_LOD_NEAR_BLOCKS = builder.comment(
+                        "Full-rate AI within this many blocks of a player.")
+                .defineInRange("unitLodNearBlocks", 128.0, 32.0, 512.0);
+        UNIT_LOD_FAR_BLOCKS = builder.comment(
+                        "Beyond this many blocks from every player, the far rate applies (never below unitLodNearBlocks).")
+                .defineInRange("unitLodFarBlocks", 256.0, 64.0, 1024.0);
+        UNIT_LOD_MID_STRIDE = builder.comment(
+                        "Between the two distances, decide every this many ticks (vanilla is 2; odd values round up).")
+                .defineInRange("unitLodMidStride", 4, 2, 16);
+        UNIT_LOD_FAR_STRIDE = builder.comment(
+                        "Beyond unitLodFarBlocks, decide every this many ticks (never finer than the mid rate).")
+                .defineInRange("unitLodFarStride", 8, 2, 16);
+        UNIT_LOD_WAKE_TICKS = builder.comment(
+                        "A throttled soldier that is hurt or spots a new enemy runs at full rate this long (game ticks).",
+                        "0 disables the wake-up.")
+                .defineInRange("unitLodWakeTicks", 40, 0, 200);
+        builder.pop();
+
+        builder.push("voicelines");
+        VEHICLE_VOICELINES_ENABLED = builder.comment(
+                        "Play radio chatter from SEM crews inside vehicles.",
+                        "Off: on-foot SEM voicelines stay as SEM ships them; mounted crews are silent.")
+                .define("vehicleVoicelinesEnabled", true);
+        IDLE_VOICELINE_DELAY_TICKS = builder.comment(
+                        "Quiet time (game ticks) before the first idle crew chatter attempt.")
+                .defineInRange("idleVoicelineDelayTicks", 200, 20, 12000);
+        IDLE_VOICELINE_INITIAL_JITTER_TICKS = builder.comment(
+                        "Random extra ticks (0..N) added to the first idle chatter deadline",
+                        "so a formation does not all speak at once.")
+                .defineInRange("idleVoicelineInitialJitterTicks", 400, 0, 12000);
+        IDLE_VOICELINE_REPEAT_BASE_TICKS = builder.comment(
+                        "Base gap (game ticks) between successive idle lines on one hull.")
+                .defineInRange("idleVoicelineRepeatBaseTicks", 750, 40, 12000);
+        IDLE_VOICELINE_REPEAT_JITTER_TICKS = builder.comment(
+                        "Random extra ticks (0..N) added to each idle repeat gap.")
+                .defineInRange("idleVoicelineRepeatJitterTicks", 600, 0, 12000);
+        IDLE_VOICELINE_HEALTH_FRACTION = builder.comment("No idle chatter when the vehicle is below this health (0.3 = 30%).")
+                .defineInRange("idleVoicelineHealthFraction", 0.3, 0.0, 1.0);
+        builder.pop();
+
+        builder.push("interaction");
+        BOARD_SCAN_RADIUS = builder.comment("How far (blocks) nearby units can be selected for boarding and similar orders.")
+                .defineInRange("boardScanRadius", 64.0, 8.0, 128.0);
+        QUICK_EVAC_HELI_SEARCH_RADIUS = builder.comment(
+                        "How far (blocks) Quick Evac looks for owned PMC helicopters with a free seat.")
+                .defineInRange("quickEvacHeliSearchRadius", 256.0, 16.0, 512.0);
+        QUICK_EVAC_BOARD_RADIUS = builder.comment(
+                        "How far (blocks) from the player Quick Evac pulls owned on-foot PMCs",
+                        "(default unit pick; ignored when the client ribbon-only toggle is on).")
+                .defineInRange("quickEvacBoardRadius", 48.0, 8.0, 128.0);
+        QUICK_EVAC_BOARD_TIMEOUT_TICKS = builder.comment(
+                        "Absolute game-time budget (ticks) for Quick Evac: each heli takes off when",
+                        "its reserved seats are filled or when this timeout elapses, whichever comes first.")
+                .defineInRange("quickEvacBoardTimeoutTicks", 350, 40, 2400);
+        SCAVENGE_TIMEOUT_TICKS = builder.comment(
+                        "Absolute game-time budget (ticks) for a whole Scavenge order before every walk is",
+                        "dropped back to FREE_FIRE and the summary is sent.")
+                .defineInRange("scavengeTimeoutTicks", 1200, 40, 6000);
+        SCAVENGE_RADIUS = builder.comment(
+                        "How far (blocks) from each unit Scavenge looks for containers, items on the ground,",
+                        "corpses and unmanned emplacements.")
+                .defineInRange("scavengeRadius", 48.0, 4.0, 128.0);
+        SCAVENGE_AMMO_STACKS = builder.comment(
+                        "Full stacks of each ammo its own guns use that a unit scavenges up to.")
+                .defineInRange("scavengeAmmoStacks", 3, 1, 12);
+        SCAVENGE_EMPLACEMENT_CAP = builder.comment(
+                        "Most packed emplacements (TOW, mortar and similar) one unit carries after Scavenge.")
+                .defineInRange("scavengeEmplacementCap", 2, 0, 9);
+        SCAVENGE_MINE_CAP = builder.comment("Most mines one unit carries after Scavenge.")
+                .defineInRange("scavengeMineCap", 6, 0, 32);
+        SCAVENGE_GRENADE_CAP = builder.comment("Most grenades one unit carries after Scavenge.")
+                .defineInRange("scavengeGrenadeCap", 4, 0, 16);
+        SCAVENGE_MEDKIT_CAP = builder.comment("Most medical kits one unit carries after Scavenge.")
+                .defineInRange("scavengeMedkitCap", 2, 0, 16);
+        SCAVENGE_SHOVEL_CAP = builder.comment("Most military shovels one unit carries after Scavenge.")
+                .defineInRange("scavengeShovelCap", 1, 0, 4);
+        SCAVENGE_REPAIR_TOOL_CAP = builder.comment("Most repair tools one unit carries after Scavenge.")
+                .defineInRange("scavengeRepairToolCap", 1, 0, 4);
+        SCAVENGE_RADIO_CAP = builder.comment("Most handheld radios one unit carries after Scavenge.")
+                .defineInRange("scavengeRadioCap", 1, 0, 4);
+        SCAVENGE_ARMOR = builder.comment(
+                        "Scavenge also swaps worn armor for a found piece that is no worse in protection or",
+                        "durability left and better in one. The old piece is left where the new one was.")
+                .define("scavengeArmor", false);
+        QUICK_LAND_RADIUS = builder.comment(
+                        "How far (blocks) Quick Board / Entrench / Scavenge / General / Formation look",
+                        "for owned PMCs, friendly vehicles and trenches.")
+                .defineInRange("quickLandRadius", 64.0, 8.0, 256.0);
+        QUICK_GEAR_SEARCH_RADIUS = builder.comment(
+                        "How far (blocks) from each unit Search equipment looks for a medical kit, repair",
+                        "tool or shovel, on the ground or in a container.")
+                .defineInRange("quickGearSearchRadius", 32.0, 4.0, 128.0);
+        QUICK_GEAR_SEARCH_TIMEOUT_TICKS = builder.comment(
+                        "Absolute game-time budget (ticks) for Search equipment walks before the MOVE is",
+                        "dropped back to FREE_FIRE.")
+                .defineInRange("quickGearSearchTimeoutTicks", 600, 40, 2400);
+        MINEFIELD_MAX_MINES = builder.comment(
+                        "Most mines one Deploy Minefield order lays, across every engineer it reaches.")
+                .defineInRange("minefieldMaxMines", 16, 1, 48);
+        MINEFIELD_MAX_RANGE = builder.comment(
+                        "How far (blocks) from the player the aimed block may be for Deploy Minefield to",
+                        "lay around it; further away, the field goes around the engineers instead.")
+                .defineInRange("minefieldMaxRange", 48.0, 8.0, 128.0);
+        MINEFIELD_STANDOFF = builder.comment(
+                        "How far (blocks) a minefield is pushed out toward the nearest known enemy",
+                        "(never more than half the way there).")
+                .defineInRange("minefieldStandoff", 8.0, 0.0, 32.0);
+        MINEFIELD_THREAT_RADIUS = builder.comment(
+                        "How far (blocks) Deploy Minefield and Deploy Equipment look for the enemy they",
+                        "should face. Read off the combatant index, nobody is targeted.")
+                .defineInRange("minefieldThreatRadius", 128.0, 16.0, 256.0);
+        MINEFIELD_MOVE_SPEED = builder.comment(
+                        "Navigation speed multiplier for engineers moving between mine slots.")
+                .defineInRange("minefieldMoveSpeed", 1.4, 1.0, 2.0);
+        MINEFIELD_PLANT_TICKS = builder.comment(
+                        "Game ticks an engineer kneels at a slot before the mine is down.")
+                .defineInRange("minefieldPlantTicks", 20, 5, 100);
+        MINEFIELD_TIMEOUT_TICKS = builder.comment(
+                        "Absolute game-time budget (ticks) for a whole Deploy Minefield order; mines not",
+                        "laid by then stay in the engineers' pockets.")
+                .defineInRange("minefieldTimeoutTicks", 1800, 200, 6000);
+        EDITOR_CATALOG_MAX = builder.comment(
+                        "Max registry ids sent in /sewv pool (and similar) add-catalogs.",
+                        "If a pack has more guns/armor/vehicles than this, the rest are omitted from",
+                        "autofill, but the editor still opens. Raise it on huge packs if ids are missing.")
+                .defineInRange("editorCatalogMax", 16384, 64, 32768);
+        builder.pop();
+
+        builder.push("map");
+        MAP_INFANTRY_ENABLED = builder.comment("Also show soldiers on foot on the world map (not only vehicles).")
+                .define("mapInfantryEnabled", true);
+        MAP_SYNC_INTERVAL_TICKS = builder.comment("How often (game ticks) the server refreshes map markers.")
+                .defineInRange("mapSyncIntervalTicks", 20, 5, 200);
+        MAP_SPOT_RADIUS = builder.comment("How far (blocks) your side can spot enemy markers (via you or your crews).")
+                .defineInRange("mapSpotRadius", 128.0, 0.0, 512.0);
+        MAP_FOG_OF_WAR_ENABLED = builder.comment(
+                        "Fog of war on map markers: non-owned contacts show as unknown until you",
+                        "(or an OpenPAC ally) identify them by being close enough or by a friendly lock.")
+                .define("mapFogOfWarEnabled", true);
+        MAP_IDENTITY_RADIUS = builder.comment(
+                        "How close (blocks) YOU must be to auto-identify a contact's class on the map.",
+                        "Presence still uses mapSpotRadius (crews can radio a contact farther out as unknown).",
+                        "Must stay well below mapSpotRadius or fog never shows. 0 disables player-sight ID",
+                        "(combat locks only).")
+                .defineInRange("mapIdentityRadius", 32.0, 0.0, 512.0);
+        MAP_IDENTITY_TTL_TICKS = builder.comment(
+                        "How long (server ticks) a combat identification sticks on the map after a",
+                        "friendly unit locks that contact. 400 = 20 seconds. Player-local sight needs no TTL.")
+                .defineInRange("mapIdentityTtlTicks", 400, 40, 6000);
+        builder.pop();
+
+        builder.push("territory");
+        ADVANCE_PLAN_MAX_CHUNKS = builder.comment(
+                        "Largest region (in chunks) an Advance Plan may cover. Validated when the plan is baked;",
+                        "existing plans are not re-validated against a changed cap.")
+                .defineInRange("advancePlanMaxChunks", 25, 1, 1024);
+        builder.pop();
+
+        builder.push("spawn_zones");
+        ZONES_ENABLED = builder.comment(
+                        "Master switch for chunk spawn zones. Off, every chunk is neutral and",
+                        "no-zones and prioritization zones are ignored (they stay saved).")
+                .define("zonesEnabled", true);
+        ONLY_SPAWN_IN_PRIORITIZATION = builder.comment(
+                        "When true, units may only spawn inside prioritization chunks. An event that",
+                        "finds no prioritization chunk in its range is skipped without resetting its chance.")
+                .define("onlySpawnInPrioritization", false);
+        PRIORITIZATION_REROLL_CHANCE = builder.comment(
+                        "Chance an event spot outside a prioritization chunk is moved to a random",
+                        "prioritization chunk within the event's own distance band from the player.")
+                .defineInRange("prioritizationRerollChance", 0.6, 0.0, 1.0);
+        ZONE_BEACON_FE_PER_CHUNK = builder.comment(
+                        "FPAS upkeep in FE per tick per covered chunk, rounded up. Radius r covers (2r+1)^2 chunks.",
+                        "At 0.15 the largest radius costs about half of one SBW charging station's output.")
+                .defineInRange("zoneBeaconUpkeepPerChunk", 0.15, 0.0, 10000.0);
+        ZONE_BEACON_BUFFER_FE = builder.comment("FPAS internal energy buffer (FE).")
+                .defineInRange("zoneBeaconBufferCapacity", 1000000, 1000, 100000000);
+        ZONE_BEACON_MAX_RADIUS = builder.comment("Largest radius (chunks) a zone beacon may be set to. Minimum is 2.")
+                .defineInRange("zoneBeaconMaxRadius", 10, 2, 10);
+        ZONE_BEACON_MTI_UPKEEP_MULT = builder.comment(
+                        "FPAS upkeep multiplier while in MTI (radar) mode. MTI keeps no spawn zone.")
+                .defineInRange("zoneBeaconMtiUpkeepMultiplier", 2.0, 0.0, 100.0);
+        SIGNAL_INFANTRY_ENGAGES_VEHICLES = builder.comment(
+                        "When true, FPAS Signal orders also send on-foot units without an anti-armour launcher",
+                        "against vehicles. Off: riflemen only take infantry.")
+                .define("signalInfantryEngagesVehicles", false);
+        SIGNAL_ALLY_RADIUS = builder.comment(
+                        "FPAS Signal orders take every owned unit within this many blocks of a contact.")
+                .defineInRange("signalAllyRadius", 150.0, 16.0, 512.0);
+        SIGNAL_INFANTRY_RANGE = builder.comment(
+                        "Blocks short of its contact an on-foot unit stops on a Signal order. Launchers use 1.5x.")
+                .defineInRange("signalInfantryRange", 40.0, 8.0, 96.0);
+        SIGNAL_MOVE_SECONDS = builder.comment(
+                        "Seconds a unit may take to reach its Signal point before it gives up and goes free fire.")
+                .defineInRange("signalMoveSeconds", 90, 15, 600);
+        builder.pop();
+
+        builder.push("invasion");
+        UNLIMITED_TEAM_BASES = builder.comment(
+                        "Allow placing more than two team bases per dimension (for map building).",
+                        "Starting an invasion match still needs exactly two.")
+                .define("unlimitedTeamBases", false);
+        INVASION_HUD_TEAM_A_COLOR = builder.comment(
+                        "Invasion HUD colour for team A (left base). Six hex digits, e.g. 5555FF.")
+                .define("hudTeamAColor", "5555FF");
+        INVASION_HUD_TEAM_B_COLOR = builder.comment(
+                        "Invasion HUD colour for team B (right base). Six hex digits, e.g. FF5555.")
+                .define("hudTeamBColor", "FF5555");
+        INVASION_HUD_NEUTRAL_COLOR = builder.comment(
+                        "Invasion HUD colour for unowned capture points. Six hex digits, e.g. AAAAAA.")
+                .define("hudNeutralColor", "AAAAAA");
+        builder.pop();
+
+        builder.push("doctrine");
+        builder.comment("Default fighting style sliders for RU, US, and PMC commanders (-3 to +3 on each axis).");
+        DOCTRINE = new ForgeConfigSpec.IntValue[FACTION_KEYS.length][Doctrine.Axis.VALUES.length];
+        for (int f = 0; f < FACTION_KEYS.length; f++) {
+            builder.push(FACTION_KEYS[f]);
+            for (Doctrine.Axis axis : Doctrine.Axis.VALUES) {
+                DOCTRINE[f][axis.ordinal()] = builder
+                        .comment(axis.description)
+                        .defineInRange(axis.key, DOCTRINE_DEFAULTS[f][axis.ordinal()], -Doctrine.AXIS_LIMIT, Doctrine.AXIS_LIMIT);
+            }
+            builder.pop();
+        }
+        builder.pop();
+
+        builder.push("tacz_ballistics");
+        TACZ_BALLISTIC_TRANSLATION_ENABLED = builder.comment(
+                        "TaCZ bullet damage against SuperbWarfare vehicles is rescaled to match an",
+                        "equivalent SBW handheld weapon's Damage value, then replayed as SBW gunfire/",
+                        "gunfire_absolute (or projectile_hit/custom_explosion for blast rounds) so the",
+                        "hull's own DamageModifiers apply. Off restores TaCZ's native damage types",
+                        "(tacz:bullet already sits in #superbwarfare:projectile, and heavy tanks often",
+                        "zero that tag entirely).")
+                .define("tacZBallisticTranslationEnabled", true);
+        TACZ_BALLISTIC_GLOBAL_SCALE = builder.comment(
+                        "Extra multiplier applied on top of the per-category translation factor.",
+                        "1.0 = translation table numbers as shipped/configured.")
+                .defineInRange("tacZBallisticGlobalScale", 1.0, 0.0, 10.0);
+        builder.pop();
+
+        builder.push("tree_felling");
+        VEHICLE_TREE_FELLING_ENABLED = builder.comment(
+                        "If the Enhanced Falling Trees mod is installed: ground (wheel/track) vehicles fell whole",
+                        "trees they drive into instead of treating every trunk as a wall. Does nothing if",
+                        "Enhanced Falling Trees is not installed.")
+                .define("vehicleTreeFellingEnabled", true);
+        VEHICLE_TREE_FELL_DAMAGE = builder.comment(
+                        "Self-damage a vehicle takes per tree felled (not per block, not per tick).")
+                .defineInRange("vehicleTreeFellDamage", 1.5, 0.0, 20.0);
+        VEHICLE_TREE_PATH_MALUS = builder.comment(
+                        "Extra A* path cost for routing through a fellable tree, so a clear route is preferred",
+                        "when one exists nearby but a forest is never impassable. Comparable scale to the",
+                        "existing ford/slope path costs (a few points), never infinite.")
+                .defineInRange("vehicleTreePathMalus", 5.0, 0.0, 50.0);
+        VEHICLE_TREE_SENSOR_DANGER = builder.comment(
+                        "Steering danger (0-1) a fellable tree registers as in the moment-to-moment avoidance fan.",
+                        "Must stay below 1.0 (hard-blocked) or trees become impassable walls again regardless of",
+                        "vehicleTreeFellingEnabled.")
+                .defineInRange("vehicleTreeSensorDanger", 0.6, 0.0, 0.99);
+        VEHICLE_TREE_FELLING_EXEMPT_GIANT_TRUNKS = builder.comment(
+                        "Multi-block trunks (2x2 or larger: every vanilla dark oak tree, and jungle mega-trees)",
+                        "are never felled and stay hard obstacles, since a vehicle should not be able to flatten",
+                        "an entire dark oak forest by driving through it. Turn off to fell those too.")
+                .define("vehicleTreeFellingExemptGiantTrunks", true);
+        VEHICLE_TREE_CONTACT_TICKS = builder.comment(
+                        "A hull must keep touching the same tree for this many CONSECUTIVE game ticks (20 = 1s)",
+                        "before it falls, so a hull that only clips a tree in passing does not fell it. Losing",
+                        "contact for even one tick resets that tree's timer to zero.")
+                .defineInRange("vehicleTreeContactTicks", 35, 0, 200);
+        builder.pop();
+
+        builder.push("fob");
+        FOB_MASTER_SIZE = builder.comment("Horizontal span of the FOB master area (blocks, centered on quarters_bench).")
+                .defineInRange("fobMasterSize", 50, 1, 256);
+        FOB_STOCKPILE_SIZE = builder.comment("Horizontal span of the stockpile sub-area (blocks, centered on block).")
+                .defineInRange("fobStockpileSize", 10, 1, 64);
+        FOB_PARKING_SIZE = builder.comment("Horizontal span of the parking sub-area (blocks, centered on block).")
+                .defineInRange("fobParkingSize", 15, 1, 64);
+        FOB_BUFFER_FACTOR = builder.comment(
+                        "Threat-detection span as a multiple of fobMasterSize. The master area is the base"
+                                + " itself; the buffer is how far out the garrison watches, so it wants to be"
+                                + " wider than the ground it defends.")
+                .defineInRange("fobBufferFactor", 2.0, 1.0, 8.0);
+        FOB_THREAT_THRESHOLD = builder.comment("Threat score at or above this triggers scramble.")
+                .defineInRange("fobThreatThreshold", 100, 1, 10000);
+        FOB_THREAT_EVAL_INTERVAL_TICKS = builder.comment("Ticks between threat scans per FOB.")
+                .defineInRange("fobThreatEvalIntervalTicks", 20, 1, 200);
+        FOB_PERIODIC_REFILL_TICKS = builder.comment(
+                        "Default Periodic Refill interval for a new FOB (ticks, 20 = 1 second; 0 = off).",
+                        "Every interval the FOB sends its assigned on-foot PMCs that are low on ammo to the",
+                        "stockpile, if it holds ammo they can use. Editable per FOB at the quarters bench.")
+                .defineInRange("fobPeriodicRefillTicks", 1200, 0, 999999);
+        builder.pop();
+
+        builder.push("minecolonies");
+        MINECOLONIES_COMPAT_ENABLED = builder.comment(
+                        "Master switch for the MineColonies compat. Does nothing when MineColonies is absent.",
+                        "Turning this off leaves MineColonies' own untouched behaviour, which means colony guards",
+                        "shoot your PMC squad and nothing attacks US units. See the individual keys.")
+                .define("minecoloniesCompatEnabled", true);
+        MINECOLONIES_PROTECT_PMC = builder.comment(
+                        "Colony guards do not open fire on a PMC unit owned by someone the colony recognises.",
+                        "MineColonies decides who is hostile from the entity's MobCategory, and SEM registers",
+                        "pmcunit as MONSTER, so without this a colony shoots the escort you walked in with.")
+                .define("minecoloniesProtectOwnedPmc", true);
+        MINECOLONIES_SPAWN_EXCLUSION = builder.comment(
+                        "Keep procedural war events (convoys, shelling, battles) from placing units and vehicles",
+                        "inside claimed colony chunks. Mortar shelling in particular aims at your respawn point,",
+                        "which for a colony player is usually a bed inside their own walls.")
+                .define("minecoloniesSpawnExclusion", true);
+        MINECOLONIES_VEHICLE_RETALIATION = builder.comment(
+                        "Let citizens and guards react to being shot by a crewed vehicle. MineColonies only",
+                        "registers threat from a LivingEntity attacker, and a vehicle hull is not one, so without",
+                        "this a tank can kill a whole colony without anybody raising the alarm. Blames the crew,",
+                        "not the hull, because a guard can actually shoot a crewman.")
+                .define("minecoloniesVehicleRetaliation", true);
+        MINECOLONIES_RAID_CHANCE = builder.comment(
+                        "Chance (0-1) that a MineColonies raid night fields an armored raid from this mod instead",
+                        "of barbarians/pirates/norsemen. 0 disables it. The raid rides MineColonies' own schedule,",
+                        "difficulty scaling and spawn-point search, so raid frequency is still MineColonies' to set.")
+                .defineInRange("minecoloniesRaidChance", 0.25, 0.0, 1.0);
+        MINECOLONIES_RAID_MAX_VEHICLES = builder.comment(
+                        "Hard cap on hulls fielded by one armored colony raid, before crew. Colony raid level",
+                        "decides the actual number below this.")
+                .defineInRange("minecoloniesRaidMaxVehicles", 3, 1, 12);
+        builder.pop();
+
+        builder.push("balancing");
+        EASY_MODE = builder.comment(
+                        "Master switch for Easy Mode: an arcade difficulty pitched at young players. Off = unchanged.",
+                        "On = enemy crews and infantry are slower, less accurate and more timid, while the player and",
+                        "their own PMC army are much tougher. Never applies while an invasion match is running.",
+                        "The child toggles below switch each area off individually; the numbers live in EasyTuning.")
+                .define("easyMode", false);
+        EASY_DISABLE_SHELLING = builder.comment("Easy Mode: disable mortar batteries that shell the player's bed/base.")
+                .define("easyDisableShelling", true);
+        EASY_DISABLE_LARGE_COMBAT = builder.comment("Easy Mode: disable large multi-vehicle battles.")
+                .define("easyDisableLargeCombat", true);
+        EASY_NO_FAR_COMBAT_VEHICLES = builder.comment(
+                        "Easy Mode: no ground vehicles, helicopters or planes injected into SEM far_combat events.")
+                .define("easyNoFarCombatVehicles", true);
+        EASY_NO_WORLD_ARMOR = builder.comment(
+                        "Easy Mode: no village garrison tanks and no Berezka structure vehicles.")
+                .define("easyNoWorldArmor", true);
+        EASY_LOWER_EVENT_ESCALATION = builder.comment(
+                        "Easy Mode: SEWV event failure multipliers escalate half as fast.")
+                .define("easyLowerEventEscalation", true);
+        EASY_SOFT_AI_AIM = builder.comment(
+                        "Easy Mode: hostile vehicle crews scatter shots ~3x wider (aircraft included) and wait ~3 s",
+                        "after spotting a new target before the first shot.")
+                .define("easySoftAiAim", true);
+        EASY_SOFT_AI_ROF = builder.comment(
+                        "Easy Mode: hostile vehicle weapons fire at a third of their rate (a tank gun every ~15 s);",
+                        "mortars, Type-63s, TOWs, missile systems and artillery reload ~2.5x slower and scatter wider.")
+                .define("easySoftAiRoF", true);
+        EASY_FINITE_ENEMY_LOGISTICS = builder.comment(
+                        "Easy Mode: RU/US hulls use finite fuel and ammo; dry hulls bail like a write-off.")
+                .define("easyFiniteEnemyLogistics", true);
+        EASY_SOFT_AT_DISMOUNTS = builder.comment(
+                        "Easy Mode: at most one AT gunner per dismount, shorter AT range, launcher spread, long aim time.")
+                .define("easySoftAtDismounts", true);
+        EASY_NO_RECON_DRONES = builder.comment("Easy Mode: RU/US engineers deploy no recon drones.")
+                .define("easyNoReconDrones", true);
+        EASY_SOFT_SUPPORT_CALLS = builder.comment(
+                        "Easy Mode: no organic RU/US radio calls; longer gaps and shorter mortar radio range.")
+                .define("easySoftSupportCalls", true);
+        EASY_TIGHTER_ENGAGE_RINGS = builder.comment("Easy Mode: tacticalScale 1.0 (closer engage rings / command distances).")
+                .define("easyTighterEngageRings", true);
+        EASY_KEEP_LOS_GATES = builder.comment("Easy Mode: force vehicle LoS locks and a larger smoke block radius.")
+                .define("easyKeepLosGates", true);
+        EASY_PLAYER_DAMAGE_SCALE_ENABLED = builder.comment(
+                        "Easy Mode: scale hostile vehicle/unit/mortar damage dealt to the player.")
+                .define("easyPlayerDamageScaleEnabled", true);
+        // Renamed from easyPlayerDamageScale WITHOUT a ConfigKeyMigration entry, on purpose: the old
+        // 0.5 default would otherwise be carried into every existing toml and v2's default never seen.
+        EASY_PLAYER_DAMAGE_SCALE = builder.comment(
+                        "Easy Mode: multiplier for hostile damage the player takes (1.0 = full). Explosions are halved",
+                        "again on top of this.")
+                .defineInRange("easyPlayerDamageTaken", 0.25, 0.1, 1.0);
+        EASY_PLAYER_PRIORITY_SOFT = builder.comment(
+                        "Easy Mode: AI prefers non-player targets and grants a one-minute post-respawn acquire grace",
+                        "(vehicle crews and infantry alike; shooting at them ends it).")
+                .define("easyPlayerPrioritySoft", true);
+        EASY_SLOW_AI = builder.comment(
+                        "Easy Mode: hostile turrets traverse at ~1/3 speed, hulls drive at ~2/3 power, and crews",
+                        "repath and scan for targets half as often over a shorter radius.")
+                .define("easySlowAi", true);
+        EASY_TIMID_AI = builder.comment(
+                        "Easy Mode: hostile crews and groups are less confident: they retreat, smoke and hold more,",
+                        "flank and advance less, and SEM infantry falls back to cover at 60% health.")
+                .define("easyTimidAi", true);
+        EASY_SOFT_INFANTRY = builder.comment(
+                        "Easy Mode: hostile SEM riflemen fire short slow bursts with wide spread after a reaction",
+                        "delay, throw grenades rarely and loosely, have 70% health and deal 60% bullet damage.")
+                .define("easySoftInfantry", true);
+        EASY_PLAYER_SUSTAIN = builder.comment(
+                        "Easy Mode: explosions from hostile SBW/SEM fire (and the player's own SBW/TaCZ ordnance)",
+                        "hurt the player half as much again. Never touches vanilla health, healing or knockback.")
+                .define("easyPlayerSustain", true);
+        EASY_PROTECT_VEHICLES = builder.comment(
+                        "Easy Mode: hulls crewed by a player or their own PMC take half damage from hostiles.")
+                .define("easyProtectVehicles", true);
+        EASY_SOFT_TRIPOD_HEAT_RAY = builder.comment(
+                        "Easy Mode: a Tripod Invasion heat ray burns vehicles at a fifth of its normal damage.")
+                .define("easySoftTripodHeatRay", true);
+        EASY_BUFF_PMC = builder.comment(
+                        "Easy Mode: the player's own PMC units get 50% more health and take 60% hostile damage.",
+                        "They are never slowed by any Easy Mode nerf either way.")
+                .define("easyBuffPmc", true);
+        EASY_FEWER_EVENTS = builder.comment(
+                        "Easy Mode: dynamic events come half as often and field ~40% fewer infantry.")
+                .define("easyFewerEvents", true);
+        EASY_HIGHLIGHT_THREATS = builder.comment(
+                        "Easy Mode: hostile units and vehicle crews targeting a player glow so they are easy to spot.")
+                .define("easyHighlightThreats", true);
+        builder.pop();
+
+        builder.push("limitless_vehicles");
+        LV_AI_ENABLED = builder.comment(
+                        "Crews drive, fly and gun Limitless Vehicles hulls (ground, boats, rotorcraft). Needs ywzj_vehicle.",
+                        "LV vehicle ids go in the ordinary ground / surface / rotor pools (pool editor preset: Limitless Vehicles).")
+                .define("lvAiEnabled", true);
+        builder.pop();
+
+        builder.push("diplomacy");
+        DIPLOMACY_REQUIRES_OP = builder.comment(
+                        "When true, /sewv diplomacy requires operator (permission level 2).",
+                        "When false, any player can set and list diplomacy.")
+                .define("diplomacyRequiresOp", false);
+        builder.pop();
+
+        SPEC = builder.build();
+    }
+
+    private SewvConfig() {}
+
+    private static boolean isValidResourceId(Object o) {
+        return o instanceof String s && ResourceLocation.tryParse(s) != null;
+    }
+}

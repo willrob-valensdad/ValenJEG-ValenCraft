@@ -1,0 +1,20 @@
+{
+  "type": "hbm:crystallizer",
+  "duration": 600,
+  "input_fluids": [
+    {
+      "type": "hbm:peroxide",
+      "amount": 500
+    }
+  ],
+  "input_items": [
+    {
+      "ingredient": "#c:ores/cinnabar"
+    }
+  ],
+  "order": 68864,
+  "output_items": [
+    "hbm:crystal_cinnabar"
+  ],
+  "productivity": 0.05
+}

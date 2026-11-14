@@ -1,0 +1,56 @@
+{
+  "type": "create:sequenced_assembly",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredient": "scguns:medium_diamond_steel_casing",
+  "loops": 1,
+  "results": [
+    {
+      "id": "scguns:gibbs_round"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_gibbs_round",
+        "#scguns:gunpowder_dust"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_gibbs_round"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_gibbs_round",
+        "#scguns:advanced_bullet_tips"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_gibbs_round"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        "scguns:unfinished_gibbs_round"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_gibbs_round"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "scguns:unfinished_gibbs_round"
+  }
+}

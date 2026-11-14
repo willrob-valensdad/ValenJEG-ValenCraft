@@ -1,0 +1,141 @@
+package com.neoalive.tacz_sewv.procedural.events;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import net.nekoyuni.SimpleEnemyMod.spawn.utils.SpawnHelper;
+
+import com.neoalive.tacz_sewv.config.EasyMode;
+import com.neoalive.tacz_sewv.entity.ai.support.InfantrySquads;
+import com.neoalive.tacz_sewv.init.ModGameRules;
+import com.neoalive.tacz_sewv.spawn.AmbientSpawnGate;
+import com.neoalive.tacz_sewv.spawn.InfantrySpawner;
+import com.neoalive.tacz_sewv.spawn.SpawnDeny;
+import com.neoalive.tacz_sewv.spawn.TankSpawner;
+
+/**
+ * The two things every event in this package was writing out for itself: dropping a rifleman on
+ * the ground ({@link InfantrySpawner}, behind the spawn toggles), and choosing which of RU/US an
+ * event happens to be about.
+ */
+final class EventSpawns {
+
+    private EventSpawns() {}
+
+    /**
+     * Whether an event may set up here: SEM's universal placement gate (solid block, low block
+     * light) plus the ground this mod refuses to fight on.
+     *
+     * <p>Returning false from an {@code execute} burns the roll <b>without</b> resetting the
+     * event's accumulated chance, so a rejected location costs nothing and the event simply tries
+     * again later — which is why every caller declines rather than searching for a second spot.
+     *
+     * <p>{@code NavalBattleEvent} deliberately does not use this: {@code isValidSpawn} wants a
+     * solid block to stand on, so open water fails it by definition. It calls
+     * {@link AmbientSpawnGate#allowsAt} on its own alongside its biome and navigability checks.
+     */
+    static boolean placeable(ServerLevel level, BlockPos pos) {
+        if (!AmbientSpawnGate.allowsAt(level, pos)) return false;
+        if (!SpawnHelper.isValidSpawn(level, pos)) {
+            SpawnDeny.set(SpawnDeny.Why.SPOT);
+            return false;
+        }
+        return true;
+    }
+
+    /** One rifleman of {@code faction}, scattered up to {@code scatter} blocks around {@code anchor}. */
+    @Nullable
+    static AbstractUnit infantry(ServerLevel level, BlockPos anchor, TankSpawner.TankFaction faction, int scatter) {
+        if (!TankSpawner.spawnsEnabled(level, faction)) return null;
+        if (faction == TankSpawner.TankFaction.PMC
+                && !level.getGameRules().getBoolean(ModGameRules.PMC_AMBIENT_SPAWNS)) {
+            return null;
+        }
+        return InfantrySpawner.spawn(level, anchor, faction, null, scatter);
+    }
+
+    /**
+     * {@code count} riflemen around {@code anchor}, stamped into squads ({@link InfantrySquads}) so they move
+     * as units rather than drifting apart. Returns whoever actually spawned.
+     */
+    static List<AbstractUnit> squad(ServerLevel level, BlockPos anchor, TankSpawner.TankFaction faction,
+                                    int scatter, int count) {
+        // Easy Mode fields smaller squads; every event's infantry comes through here.
+        count = EasyMode.squadSize(count);
+        List<AbstractUnit> spawned = new ArrayList<>(Math.max(0, count));
+        for (int i = 0; i < count; i++) {
+            AbstractUnit unit = infantry(level, anchor, faction, scatter);
+            if (unit != null) spawned.add(unit);
+        }
+        InfantrySquads.stamp(spawned);
+        return spawned;
+    }
+
+    /**
+     * RU or US at random, restricted to a faction whose ground vehicles events may field
+     * ({@link TankSpawner#groundEventsAllowed}), or null when neither may. PMC is never a candidate:
+     * these events are world events, and a PMC crew without an owner is friendly scenery rather
+     * than a fight. Ground only — the convoy and the invasion both arrive by road.
+     */
+    @Nullable
+    static TankSpawner.TankFaction pickVehicleFaction(ServerLevel level) {
+        return coinFlip(level,
+                TankSpawner.groundEventsAllowed(level, TankSpawner.TankFaction.RU),
+                TankSpawner.groundEventsAllowed(level, TankSpawner.TankFaction.US));
+    }
+
+    /**
+     * Derelict-only: RU/US with a ground pool, plus ownerless PMC when ambient PMC spawns are on.
+     * Uses {@link TankSpawner#hasSpawnableGround} (ground) because derelicts come from
+     * {@link TankSpawner#spawnBareVehicle}, not a crewed spawn.
+     */
+    @Nullable
+    static TankSpawner.TankFaction pickDerelictFaction(ServerLevel level) {
+        List<TankSpawner.TankFaction> candidates = new ArrayList<>(3);
+        if (TankSpawner.hasSpawnableGround(level, TankSpawner.TankFaction.RU)) {
+            candidates.add(TankSpawner.TankFaction.RU);
+        }
+        if (TankSpawner.hasSpawnableGround(level, TankSpawner.TankFaction.US)) {
+            candidates.add(TankSpawner.TankFaction.US);
+        }
+        if (level.getGameRules().getBoolean(ModGameRules.PMC_AMBIENT_SPAWNS)
+                && TankSpawner.hasSpawnableGround(level, TankSpawner.TankFaction.PMC)) {
+            candidates.add(TankSpawner.TankFaction.PMC);
+        }
+        if (candidates.isEmpty()) return null;
+        return candidates.get(level.random.nextInt(candidates.size()));
+    }
+
+    /** RU or US with a non-empty plane pool — never PMC (overflights must spawn airborne). */
+    @Nullable
+    static TankSpawner.TankFaction pickPlaneFaction(ServerLevel level) {
+        return coinFlip(level,
+                TankSpawner.hasSpawnablePlane(level, TankSpawner.TankFaction.RU),
+                TankSpawner.hasSpawnablePlane(level, TankSpawner.TankFaction.US));
+    }
+
+    @Nullable
+    static TankSpawner.TankFaction pickAmbientFaction(ServerLevel level) {
+        return coinFlip(level,
+                TankSpawner.spawnsEnabled(level, TankSpawner.TankFaction.RU),
+                TankSpawner.spawnsEnabled(level, TankSpawner.TankFaction.US));
+    }
+
+    /** RU if only it is eligible, US if only it is, a fair coin if both, null if neither. */
+    @Nullable
+    private static TankSpawner.TankFaction coinFlip(ServerLevel level, boolean ru, boolean us) {
+        if (ru && us) return level.random.nextBoolean() ? TankSpawner.TankFaction.RU : TankSpawner.TankFaction.US;
+        if (ru) return TankSpawner.TankFaction.RU;
+        return us ? TankSpawner.TankFaction.US : null;
+    }
+
+    static TankSpawner.TankFaction opposite(TankSpawner.TankFaction faction) {
+        return faction == TankSpawner.TankFaction.RU
+                ? TankSpawner.TankFaction.US : TankSpawner.TankFaction.RU;
+    }
+}

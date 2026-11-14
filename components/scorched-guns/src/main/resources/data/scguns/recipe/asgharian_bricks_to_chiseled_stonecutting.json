@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "scguns:asgharian_bricks",
+  "result": {
+    "count": 1,
+    "id": "scguns:chiseled_asgharian_bricks"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "E": "minecraft:gunpowder",
+    "W": "scguns:peal",
+    "Q": "scguns:sheol",
+    "#": "scguns:netherite_scrap_chunk",
+    "M": "#c:dusts/saltpeter",
+    "L": "#c:dusts/phosphorus"
+  },
+  "pattern": [
+    "###",
+    "E#Q",
+    "LWM"
+  ],
+  "result": {
+    "id": "scguns:nitro_powder",
+    "count": 7
+  }
+}

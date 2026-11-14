@@ -1,0 +1,12 @@
+{
+  "type": "scguns:powered_macerating",
+  "processingTime": 50,
+  "energyUse": 1000,
+  "ingredients": [
+    "scguns:brass_mask"
+  ],
+  "result": {
+    "id": "scguns:treated_brass_blend",
+    "count": 2
+  }
+}

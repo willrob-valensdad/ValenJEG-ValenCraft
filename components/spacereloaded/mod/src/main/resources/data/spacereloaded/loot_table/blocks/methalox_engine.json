@@ -1,0 +1,28 @@
+{
+	"type": "minecraft:block",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "spacereloaded:methalox_engine",
+					"functions": [
+						{
+							"function": "minecraft:copy_state",
+							"block": "spacereloaded:methalox_engine",
+							"properties": [
+								"quality"
+							]
+						}
+					]
+				}
+			],
+			"conditions": [
+				{
+					"condition": "minecraft:survives_explosion"
+				}
+			]
+		}
+	]
+}

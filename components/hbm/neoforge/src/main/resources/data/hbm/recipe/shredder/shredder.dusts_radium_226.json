@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/radium_226"
+    }
+  ],
+  "order": 84736,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "a_schrab_radius": 20,
+  "boy_radius": 120,
+  "crater_biomes": true,
+  "disable_nuclear": false,
+  "fallout_range": 100,
+  "fatman_radius": 35,
+  "fleija_radius": 50,
+  "gadget_radius": 150,
+  "man_radius": 175,
+  "mike_radius": 250,
+  "missile_radius": 100,
+  "n2_radius": 200,
+  "prototype_radius": 150,
+  "schrab_ore_rate": 20,
+  "solinium_radius": 150,
+  "tsar_radius": 500
+}

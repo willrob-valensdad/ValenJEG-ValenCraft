@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "scguns:anthralite_nugget",
+    "X": "scguns:copper_disc",
+    "M": "minecraft:tnt"
+  },
+  "pattern": [
+    "QXQ",
+    "QMQ",
+    "QQQ"
+  ],
+  "result": {
+    "id": "scguns:penetrator"
+  }
+}

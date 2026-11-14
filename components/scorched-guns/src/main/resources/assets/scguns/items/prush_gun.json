@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/prush_gun",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/super_shotgun",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

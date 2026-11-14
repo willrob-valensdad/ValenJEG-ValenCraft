@@ -1,0 +1,15 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 200,
+  "energyUse": 500,
+  "ingredients": [
+    "minecraft:slime_ball",
+    "minecraft:charcoal",
+    "minecraft:porkchop"
+  ],
+  "mold": "scguns:disc_mold",
+  "result": {
+    "id": "minecraft:music_disc_pigstep",
+    "count": 1
+  }
+}

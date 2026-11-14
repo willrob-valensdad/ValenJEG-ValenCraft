@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "scguns:sheol",
+    "minecraft:blaze_powder",
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "minecraft:coal",
+        "minecraft:charcoal"
+      ]
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:fire_charge"
+  }
+}

@@ -1,0 +1,155 @@
+package earth.terrarium.adastra.client.screens.player;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import earth.terrarium.adastra.AdAstra;
+import earth.terrarium.adastra.api.systems.PlanetData;
+import earth.terrarium.adastra.client.config.AdAstraConfigClient;
+import earth.terrarium.adastra.client.utils.ClientData;
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.entities.vehicles.Lander;
+import earth.terrarium.adastra.common.entities.vehicles.Rocket;
+import earth.terrarium.adastra.common.items.armor.JetSuitItem;
+import earth.terrarium.adastra.common.items.armor.SpaceSuitItem;
+import earth.terrarium.common_storage_lib.context.impl.ModifyOnlyContext;
+import earth.terrarium.common_storage_lib.energy.EnergyApi;
+import earth.terrarium.common_storage_lib.fluid.FluidApi;
+import earth.terrarium.common_storage_lib.resources.fluid.FluidResource;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.Heightmap;
+
+import java.util.Locale;
+
+public class OverlayScreen {
+
+    public static final Identifier BATTERY_EMPTY = Identifier.fromNamespaceAndPath(AdAstra.MOD_ID, "overlay/battery_empty");
+    public static final Identifier BATTERY = Identifier.fromNamespaceAndPath(AdAstra.MOD_ID, "textures/gui/sprites/overlay/battery.png");
+    public static final Identifier OXYGEN_TANK_EMPTY = Identifier.fromNamespaceAndPath(AdAstra.MOD_ID, "overlay/oxygen_tank_empty");
+    public static final Identifier OXYGEN_TANK = Identifier.fromNamespaceAndPath(AdAstra.MOD_ID, "textures/gui/sprites/overlay/oxygen_tank.png");
+    public static final Identifier ROCKET_BAR = Identifier.fromNamespaceAndPath(AdAstra.MOD_ID, "overlay/rocket_bar");
+    public static final Identifier ROCKET = Identifier.fromNamespaceAndPath(AdAstra.MOD_ID, "overlay/rocket");
+
+    public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+        var player = Minecraft.getInstance().player;
+        if (player == null || player.isSpectator()) return;
+        var level = player.level();
+
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.getDebugOverlay().showDebugScreen()) return;
+        var font = minecraft.font;
+        int width = minecraft.getWindow().getGuiScaledWidth();
+        int height = minecraft.getWindow().getGuiScaledHeight();
+        PoseStack poseStack = graphics.pose();
+
+        // Rocket overlay
+        if (player.getVehicle() instanceof Rocket rocket) {
+            int countdown = Mth.ceil(rocket.launchTicks() / 20f);
+            if (rocket.isLaunching()) {
+                poseStack.pushPose();
+                poseStack.translate(width / 2f, height / 2f, 0);
+                poseStack.scale(4, 4, 4);
+                graphics.drawCenteredString(font, String.valueOf(countdown), 0, -10, 0xe53253);
+                poseStack.popPose();
+            }
+
+            graphics.blitSprite(ROCKET_BAR, 0, height / 2, 16, 128);
+
+            poseStack.pushPose();
+            double y = Mth.clamp(rocket.getY(), 100, AdAstraConfig.atmosphereLeave);
+            poseStack.translate(0.3f, (AdAstraConfig.atmosphereLeave - y - 500) / 4.5, 0);
+            graphics.blitSprite(ROCKET, 3, height / 2 + 113, 8, 11);
+            poseStack.popPose();
+        }
+
+        // Oxygen overlay
+        var chestStack = player.getInventory().getArmor(2);
+        if (SpaceSuitItem.hasFullSet(player) && chestStack.getItem() instanceof SpaceSuitItem spaceSuit) {
+            long amount = SpaceSuitItem.getOxygenAmount(player);
+            ModifyOnlyContext itemContext = new ModifyOnlyContext(chestStack);
+            var fluidContainer = itemContext.find(FluidApi.ITEM);
+            long capacity = fluidContainer.getLimit(0, FluidResource.BLANK);
+            double ratio = (double) amount / capacity;
+            int barHeight = (int) (ratio * 52);
+
+            int x = AdAstraConfigClient.oxygenBarX;
+            int y = AdAstraConfigClient.oxygenBarY;
+            float scale = AdAstraConfigClient.oxygenBarScale;
+
+            poseStack.pushPose();
+            poseStack.scale(scale, scale, scale);
+            graphics.blitSprite(OXYGEN_TANK_EMPTY, x, y, 62, 52);
+            graphics.blit(OXYGEN_TANK, x, y + 52 - barHeight, 0, 52 - barHeight, 62, barHeight, 62, 52);
+
+            var text = String.format("%.1f%%", ratio * 100);
+            int textWidth = font.width(text);
+            int color = ratio <= 0 ? 0xDC143C : 0xFFFFFF;
+            PlanetData localData = ClientData.getLocalData();
+            if (localData != null && localData.oxygen()) {
+                color = 0x55ff55;
+            }
+            graphics.drawString(font, text, (int) (x + (62 - textWidth) / 2f), y + 52 + 3, color);
+            poseStack.popPose();
+        }
+
+        // Battery overlay
+        if (JetSuitItem.hasFullSet(player) && chestStack.getItem() instanceof JetSuitItem jetSuit) {
+            ModifyOnlyContext itemContext = new ModifyOnlyContext(chestStack);
+            var energyStorage = itemContext.find(EnergyApi.ITEM);
+
+            long amount = energyStorage.getStoredAmount();
+            long capacity = energyStorage.getCapacity();
+            double ratio = (double) amount / capacity;
+            int barWidth = (int) (ratio * 49);
+
+            int x = AdAstraConfigClient.energyBarX;
+            int y = AdAstraConfigClient.energyBarY;
+            float scale = AdAstraConfigClient.energyBarScale;
+
+            poseStack.pushPose();
+            poseStack.scale(scale, scale, scale);
+            graphics.blitSprite(BATTERY_EMPTY, x, y, 49, 27);
+            graphics.blit(BATTERY, x, y, 0, 27, barWidth, 27, 49, 27);
+
+            var text = String.format("%.1f%%", ratio * 100);
+            int textWidth = font.width(text);
+            int color = ratio <= 0 ? 0xDC143C : 0x55ffff;
+            graphics.drawString(font, text, (int) (x + (49 - textWidth) / 2f), y + 27 + 3, color);
+            poseStack.popPose();
+        }
+
+        if (player.getVehicle() instanceof Lander lander && level.getBlockState(lander.getOnPos().below(2)).isAir()) {
+            int ground = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, lander.blockPosition()).getY();
+            int distance = Math.max(0, lander.blockPosition().getY() - ground);
+
+            poseStack.pushPose();
+            poseStack.translate(width / 2f, height / 2f, 0);
+            poseStack.scale(1.4f, 1.4f, 1.4f);
+
+            float alpha = Mth.clamp(0.1f - (float) (lander.getDeltaMovement().y() + 0.5), 0, 1);
+            RenderSystem.enableBlend();
+            RenderSystem.setShaderColor(1, 1, 1, alpha);
+            graphics.drawCenteredString(font,
+                Component.translatable("message.ad_astra.lander.onboard", minecraft.options.keyJump.getTranslatedKeyMessage().getString().toUpperCase(Locale.ROOT)),
+                0, 60, 0xe53253);
+            RenderSystem.disableBlend();
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+
+            int distanceColor = 0x55ff55;
+            if (distance < 100) {
+                distanceColor = 0xff5555;
+            } else if (distance < 300) {
+                distanceColor = 0xffff55;
+            }
+            graphics.drawCenteredString(font,
+                String.valueOf(distance),
+                0, 30, distanceColor);
+
+            poseStack.popPose();
+        }
+    }
+}

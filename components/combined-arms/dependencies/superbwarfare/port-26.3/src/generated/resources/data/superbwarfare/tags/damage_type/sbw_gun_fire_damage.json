@@ -1,0 +1,20 @@
+{
+  "values": [
+    {
+      "id": "superbwarfare:gunfire",
+      "required": false
+    },
+    {
+      "id": "superbwarfare:gunfire_headshot",
+      "required": false
+    },
+    {
+      "id": "superbwarfare:gunfire_absolute",
+      "required": false
+    },
+    {
+      "id": "superbwarfare:gunfire_headshot_absolute",
+      "required": false
+    }
+  ]
+}

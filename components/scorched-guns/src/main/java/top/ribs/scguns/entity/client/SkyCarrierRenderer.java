@@ -1,0 +1,42 @@
+package top.ribs.scguns.entity.client;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.resources.Identifier;
+import top.ribs.scguns.Reference;
+import top.ribs.scguns.client.render.entity.state.ScgunsMobRenderState;
+import top.ribs.scguns.entity.monster.SkyCarrierEntity;
+
+public class SkyCarrierRenderer extends MobRenderer<SkyCarrierEntity, ScgunsMobRenderState, SkyCarrierModel> {
+    public SkyCarrierRenderer(EntityRendererProvider.Context context) {
+        super(context, new SkyCarrierModel(context.bakeLayer(ModModelLayers.SKY_CARRIER_LAYER)), 0.4F);
+    }
+
+    @Override
+    public Identifier getTextureLocation(ScgunsMobRenderState state) {
+        return Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/entity/sky_carrier.png");
+    }
+
+    @Override
+    public ScgunsMobRenderState createRenderState() {
+        return new ScgunsMobRenderState();
+    }
+
+    @Override
+    public void extractRenderState(SkyCarrierEntity entity, ScgunsMobRenderState state, float partialTicks) {
+        super.extractRenderState(entity, state, partialTicks);
+        state.idleAnimationState.copyFrom(entity.idleAnimationState);
+        state.muzzleFlashVisible = entity.isMuzzleFlashVisible();
+    }
+
+    @Override
+    public void submit(ScgunsMobRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+        poseStack.pushPose();
+        poseStack.scale(1.1F, 1.1F, 1.1F);
+        super.submit(state, poseStack, collector, camera);
+        poseStack.popPose();
+    }
+}

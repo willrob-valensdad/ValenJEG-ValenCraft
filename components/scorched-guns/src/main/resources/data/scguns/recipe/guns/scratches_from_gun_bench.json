@@ -1,0 +1,20 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:scratches",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:treated_brass_blueprint",
+    "gun_internal_1": "scguns:rapid_firing_unit",
+    "gun_internal_2": "scguns:heavy_gun_parts",
+    "gun_top_internal_1": "scguns:treated_brass_gun_frame",
+    "gun_top_internal_2": "scguns:treated_brass_gun_frame",
+    "gun_barrel_2": "scguns:gun_barrel",
+    "gun_barrel_1": "scguns:gun_barrel",
+    "gun_top_barrel_2": "scguns:gun_barrel",
+    "gun_top_barrel_1": "scguns:gun_barrel",
+    "gun_grip": "scguns:gun_grip",
+    "gun_magazine": "scguns:empty_tank"
+  }
+}

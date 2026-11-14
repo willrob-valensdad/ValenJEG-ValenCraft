@@ -1,0 +1,102 @@
+package com.neoalive.tacz_sewv.network;
+
+import java.util.List;
+import java.util.function.Supplier;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
+import net.nekoyuni.SimpleEnemyMod.entity.ai.orders.OrderType;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+
+import com.neoalive.tacz_sewv.bridge.IEscort;
+import com.neoalive.tacz_sewv.bridge.IVehicleBoarder;
+import com.neoalive.tacz_sewv.entity.ai.support.MortarSupport;
+import com.neoalive.tacz_sewv.order.OrderFailure;
+import com.neoalive.tacz_sewv.order.OrderGuard;
+import com.neoalive.tacz_sewv.order.OrderReport;
+
+/**
+ * "Escort that entity." Carries the owned units to order and the network id of the entity they
+ * should stick beside — worked server-side by {@code EscortGoal}. Modelled on
+ * {@link PacketBoardVehicle} (a unit-id list plus one target entity id).
+ */
+public class PacketEscort {
+
+    private final List<Integer> unitIds;
+    private final int targetEntityId;
+
+    public PacketEscort(List<Integer> unitIds, int targetEntityId) {
+        this.unitIds = unitIds;
+        this.targetEntityId = targetEntityId;
+    }
+
+    public PacketEscort(FriendlyByteBuf buf) {
+        this.unitIds = PacketLists.readUnitIds(buf);
+        this.targetEntityId = buf.readVarInt();
+    }
+
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeCollection(this.unitIds, FriendlyByteBuf::writeVarInt);
+        buf.writeVarInt(this.targetEntityId);
+    }
+
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() -> {
+            Player player = ctx.get().getSender();
+            if (!(player instanceof net.minecraft.server.level.ServerPlayer sp)) return;
+            if (com.neoalive.tacz_sewv.command.quick.OrderQueue.capture(sp, () -> handle(ctx))) return;
+
+            Entity vip = player.level().getEntity(this.targetEntityId);
+            if (vip == null || !vip.isAlive()) {
+                OrderReport.fail(player, OrderFailure.TARGET_GONE);
+                return;
+            }
+
+            int ordered = 0;
+            for (int unitId : this.unitIds) {
+                Entity e = player.level().getEntity(unitId);
+                // Ownership-check each unit so a spoofed packet can't command another player's units.
+                if (!(e instanceof PmcUnitEntity pmc)) {
+                    OrderReport.fail(player, OrderFailure.NOT_A_UNIT);
+                    continue;
+                }
+                if (!com.neoalive.tacz_sewv.crew.OrderAuth.owns(player, pmc, "PacketEscort")) {
+                    OrderReport.fail(player, OrderFailure.NOT_OWNED);
+                    continue;
+                }
+                if (OrderGuard.rejectIfDowned(player, pmc)) continue;
+                if (OrderGuard.rejectIfTerritory(player, pmc, "escort")) continue;
+                // Leave a crew committed to a mortar on its tube, exactly as the board order does.
+                if (MortarSupport.hasMortarClaim(pmc)) {
+                    OrderReport.fail(player, OrderFailure.BUSY_MORTAR, pmc);
+                    continue;
+                }
+                // EscortGoal only walks a unit on foot; a rider would be counted and then never move.
+                if (pmc.getVehicle() != null) {
+                    OrderReport.fail(player, OrderFailure.MUST_BE_ON_FOOT, pmc);
+                    continue;
+                }
+                if (com.neoalive.tacz_sewv.command.quick.QuickCommandUnits.refuseFobOrRoute(sp, pmc)) continue;
+
+                com.neoalive.tacz_sewv.entity.ai.support.OrderStandDown.clearForNewOrder(pmc, "PacketEscort");
+                ((IEscort) pmc).tacz_sewv$setEscortTargetId(this.targetEntityId);
+                // Escort and board both drive the unit on foot at goal priority 1 — mutually
+                // exclusive. Escort wins the moment it's ordered.
+                IVehicleBoarder boarder = (IVehicleBoarder) pmc;
+                boarder.tacz_sewv$setBoarding(false);
+                boarder.tacz_sewv$setMountTargetId(-1);
+                // A CEASE_FIRE escort would trail the VIP without defending it — free fire so it
+                // fights threats it can reach from the VIP's side.
+                pmc.setOrder(OrderType.FREE_FIRE);
+                ordered++;
+            }
+
+            NetworkHandler.orderFeedback(player, "escort", "message.tacz_sewv.escort.ordered", ordered,
+                    ChatFormatting.GREEN, ordered);
+        });
+        ctx.get().setPacketHandled(true);
+    }
+}

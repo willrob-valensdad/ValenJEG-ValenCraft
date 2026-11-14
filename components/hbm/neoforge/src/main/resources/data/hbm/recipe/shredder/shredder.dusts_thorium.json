@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/thorium"
+    }
+  ],
+  "order": 79616,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

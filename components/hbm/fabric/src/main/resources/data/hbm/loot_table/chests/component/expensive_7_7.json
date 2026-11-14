@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:chest",
+  "hbm:random_slots": true,
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "hbm:chests/expensive"
+        }
+      ],
+      "rolls": {
+        "type": "hbm:config_scaled",
+        "value": 7.0
+      }
+    }
+  ],
+  "random_sequence": "hbm:chests/component/expensive_7_7"
+}

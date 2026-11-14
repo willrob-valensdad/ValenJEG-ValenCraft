@@ -1,0 +1,32 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+version = project.mod_version
+group = project.maven_group
+base { archivesName = project.archives_base_name }
+repositories { mavenCentral() }
+loom { accessWidenerPath = file('src/main/resources/scguns.accesswidener') }
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation files('compile-inputs/geckolib-fabric-26.3-5.5.7.jar')
+    implementation files('compile-inputs/trinkets-4.2.1+26.3.jar')
+    implementation files('compile-inputs/entity_model_features-3.3.12-26.3-fabric.jar')
+    implementation files('compile-inputs/entity_texture_features-7.2.6-26.3-fabric.jar')
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly 'org.jetbrains:annotations:26.0.2'
+
+    compileOnly files('compile-inputs/jei-26.3-common-api-31.17.0.93.jar')
+    compileOnly files('compile-inputs/jei-26.3-common-31.17.0.93.jar')
+    compileOnly files('compile-inputs/jei-26.3-gui-31.17.0.93.jar')
+    compileOnly files('compile-inputs/jei-26.3-lib-31.17.0.93.jar')
+}
+sourceSets.main.java.srcDir '../src/main/java'
+sourceSets.main.resources.srcDir '../src/main/resources'
+java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.addAll(['-Xmaxerrs', '4000'])
+}

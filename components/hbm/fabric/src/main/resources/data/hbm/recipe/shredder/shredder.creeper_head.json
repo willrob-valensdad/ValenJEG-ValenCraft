@@ -1,0 +1,15 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "minecraft:creeper_head"
+    }
+  ],
+  "order": 24320,
+  "output_items": [
+    {
+      "count": 4,
+      "id": "hbm:biomass"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:empty_cell",
+    "scguns:plasma_nugget",
+    "#scguns:stan_bullet_tips"
+  ],
+  "result": {
+    "id": "scguns:energy_cell",
+    "count": 1
+  }
+}

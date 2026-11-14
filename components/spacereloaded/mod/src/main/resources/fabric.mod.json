@@ -1,0 +1,44 @@
+{
+	"schemaVersion": 1,
+	"id": "spacereloaded",
+	"version": "${version}",
+	"name": "SpaceReloaded",
+	"description": "A space program on real physics: rockets built from blocks with honest Δv, sealed bases that breathe, orbital stations with spin gravity, interplanetary transfers by celestial mechanics, heavy industry from sand to a Kilopower reactor, and kinetic orbital strikes.",
+	"authors": [
+		"Alex Melan"
+	],
+	"contact": {
+		"homepage": "https://github.com/AlexMelanFromRingo/SpaceReloaded",
+		"sources": "https://github.com/AlexMelanFromRingo/SpaceReloaded",
+		"issues": "https://github.com/AlexMelanFromRingo/SpaceReloaded/issues"
+	},
+	"icon": "assets/spacereloaded/icon.png",
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"org.alex_melan.spacereloaded.SpaceReloaded"
+		],
+		"client": [
+			"org.alex_melan.spacereloaded.client.SpaceReloadedClient"
+		],
+		"jade": [
+			"org.alex_melan.spacereloaded.compat.JadePlugin",
+			"org.alex_melan.spacereloaded.compat.JadeClientPlugin"
+		]
+	},
+	"accessWidener": "spacereloaded.classtweaker",
+	"mixins": [
+		"spacereloaded.mixins.json",
+		{
+			"config": "spacereloaded.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": ">=0.165.0+26.3"
+	}
+}

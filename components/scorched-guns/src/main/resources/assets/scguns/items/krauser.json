@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/krauser",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

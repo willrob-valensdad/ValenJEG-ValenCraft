@@ -1,0 +1,20 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    {
+      "fabric:type": "hbm:fluid_content",
+      "amount": 16000,
+      "fluid": "hbm:heatingoil"
+    },
+    "#hbm:tools/chemistry_set"
+  ],
+  "input_state": {
+    "1": {
+      "preserve": "remainder"
+    }
+  },
+  "result": {
+    "count": 3,
+    "id": "hbm:solid_fuel"
+  }
+}

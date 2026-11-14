@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/doublet",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

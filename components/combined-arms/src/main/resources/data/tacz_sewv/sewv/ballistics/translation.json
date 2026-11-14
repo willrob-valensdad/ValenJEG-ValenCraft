@@ -1,0 +1,20 @@
+{
+  "light_automatic": {
+    "taczBaselineDamage": 9.0,
+    "sbwReferenceDamage": 8.5
+  },
+  "heavy_machine_gun": {
+    "taczBaselineDamage": 42.0,
+    "sbwReferenceDamage": 38.0
+  },
+  "anti_materiel": {
+    "taczBaselineDamage": 75.0,
+    "sbwReferenceDamage": 140.0
+  },
+  "explosive": {
+    "taczBaselineDamage": 20.0,
+    "sbwReferenceDamage": 340.0,
+    "taczAoeBaselineDamage": 120.0,
+    "sbwAoeReferenceDamage": 80.0
+  }
+}

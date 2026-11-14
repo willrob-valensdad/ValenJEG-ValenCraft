@@ -1,0 +1,13 @@
+{
+  "type": "scguns:mechanical_pressing",
+  "processingTime": 15,
+  "ingredients": [
+    "scguns:large_brass_casing",
+    "scguns:gunpowder_dust",
+    "scguns:diamond_steel_ingot"
+  ],
+  "result": {
+    "id": "scguns:diamond_steel_flare",
+    "count": 1
+  }
+}

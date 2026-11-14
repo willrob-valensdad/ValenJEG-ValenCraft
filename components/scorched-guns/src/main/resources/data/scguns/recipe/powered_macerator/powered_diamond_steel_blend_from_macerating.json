@@ -1,0 +1,27 @@
+{
+  "type": "scguns:powered_macerating",
+  "processingTime": 100,
+  "energyUse": 1000,
+  "ingredients": [
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "scguns:raw_anthralite",
+        "scguns:anthralite_ingot"
+      ]
+    },
+    "minecraft:diamond",
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        "scguns:treated_iron_blend",
+        "scguns:treated_iron_ingot"
+      ]
+    },
+    "minecraft:lapis_lazuli"
+  ],
+  "result": {
+    "id": "scguns:diamond_steel_blend",
+    "count": 5
+  }
+}

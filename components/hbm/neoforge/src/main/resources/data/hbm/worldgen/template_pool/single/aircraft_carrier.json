@@ -1,0 +1,17 @@
+{
+  "elements": [
+    {
+      "element": {
+        "conductors": [
+          4947802447884
+        ],
+        "element_type": "hbm:conductor_template",
+        "location": "hbm:aircraft_carrier",
+        "processors": "hbm:no_rules",
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
+}

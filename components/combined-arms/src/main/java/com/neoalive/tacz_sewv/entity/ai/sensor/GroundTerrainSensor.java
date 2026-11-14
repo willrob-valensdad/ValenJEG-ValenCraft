@@ -1,0 +1,944 @@
+package com.neoalive.tacz_sewv.entity.ai.sensor;
+
+import java.util.List;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import org.joml.Vector3f;
+
+import com.neoalive.tacz_sewv.compat.EnhancedFallingTreesCompat;
+import com.neoalive.tacz_sewv.compat.EnhancedFallingTreesFeller;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.debug.PathingPerf;
+import com.neoalive.tacz_sewv.debug.SewvDiag;
+import com.neoalive.tacz_sewv.entity.ai.core.VehicleTargeting;
+import com.neoalive.tacz_sewv.entity.ai.formation.DrivableGround;
+import com.neoalive.tacz_sewv.entity.ai.navigation.GroundMobility;
+import com.neoalive.tacz_sewv.entity.ai.navigation.VehicleOrca;
+import com.neoalive.tacz_sewv.entity.ai.navigation.VehiclePeerSpacing;
+import com.neoalive.tacz_sewv.entity.ai.utility.TacticalPosture;
+
+/**
+ * Terrain sensing for a ground hull: context maps over the same 7-slot fan the old
+ * boolean whiskers used. Each slot gets an interest vote (toward the waypoint) and a
+ * danger vote (terrain / hull / ally); merge is strongest-wins per slot, never summed.
+ * The heading is interpolated around the winner, then beam-validated.
+ *
+ * <p>The {@code amphibious} flag only ever RELAXES the water hazard. Land is never a
+ * hazard here — an amphibious APC still drives on land.
+ *
+ * <p>Peer hulls use Optimal Reciprocal Collision Avoidance (not a frozen AABB along the heading):
+ * each crew's half-plane construction assumes the other takes half the dodge, which is what
+ * stops two tanks swapping sides every tick. Hard vetoes use the contact disc only; soft
+ * clearance is graded skirt. Infantry on foot stay an AABB. Terrain stays on the maps.
+ *
+ * <p>Any water at all is a hard cap for a non-amphibious hull, unconditionally — no grading, no
+ * already-wet exception. SBW gives a zero-buoyancy hull no way to recover once it loses ground
+ * contact over water (gravity keeps pulling it down, thrust and turn rate are both cut to a
+ * fraction), so steering can never be trusted to out-fight that after the fact — the only
+ * reliable answer is to never let the hull get close enough to leave the ground in the first
+ * place.
+ */
+public final class GroundTerrainSensor extends TerrainSensor {
+
+    private static final double LOOKAHEAD_DISTANCE = 5.0;
+    /** How far down probeColumn's floor-scan looks before giving up. Doubles as the reach of the
+     * water-below-a-drop check folded into that same loop — an 8-block cap missed lakes sitting
+     * 10-12 blocks below a bank (verified live: hulls nosed over the edge with the shallow scan
+     * reporting NO_FLOOR — an ordinary, non-hazardous "crossed a drop" — instead of ever reaching
+     * the water). 32 comfortably covers realistic lake/cliff drops without paying for it on the
+     * common case, since the loop still exits the instant it finds solid ground. */
+    private static final int FLUID_PROBE_DEPTH = 32;
+    private static final int N = GroundMobility.SLOT_COUNT;
+    /** Preferred speed used when the hull is nearly stopped, so ORCA still sees incoming traffic. */
+    private static final double MIN_PREF_SPEED = 0.2;
+
+    /** ORCA time horizon in ticks — collisions beyond this are not anticipated. Matches the old
+     * GroundRvo.TAU value this replaces (behavior-parity seed, not re-derived). */
+    private static final double ORCA_TAU = 30.0;
+    /** Ticks-to-impact under the reciprocal relative velocity at or below which a candidate is
+     * hard-blocked outright — the decisive stop {@link VehicleOrca#margin} cannot provide on its
+     * own (penetration depth saturates rather than diverging as contact nears; verified
+     * numerically that continuing straight at a stationary wreck 6 blocks away, barely more than
+     * a tank pair's combined radius, never crossed a 0.2 hard-margin threshold at all). Matches
+     * the old GroundRvo.IMMINENT value this restores. */
+    private static final double ORCA_IMMINENT_TICKS = 8.0;
+    /** Scale (blocks/tick) for the graded skirt ramp: skirt = penetration / this, clamped under
+     * HARD_CAP. Not a hard threshold — {@link #ORCA_IMMINENT_TICKS} (plus overlap-and-closing) is
+     * the sole hard trigger; half-plane penetration only ever produces graded PREFERENCE here.
+     * Verified numerically this split matters: penetration depth saturates around ±0.3 blocks/tick
+     * even at long range for a wide-angle turn away from a peer 40+ blocks distant, so using it as
+     * a hard threshold too produced false "must stop" blocks nowhere near an actual collision.
+     * Seeded to roughly the old TAU=30-tick RVO ramp feel at cruise speed — tune live. */
+    private static final double ORCA_SKIRT_SCALE = 0.2;
+    /** Tiny bias to deterministically and reciprocally break the one real degeneracy in the
+     * half-plane construction: a perfectly symmetric head-on approach has no basis to prefer a
+     * side. See VehicleOrca#halfPlane. */
+    private static final double ORCA_TIE_EPS = 1.0E-6;
+    /** A moving peer is also tested where it will be this many ticks on, so a plan is not laid into its path. */
+    private static final double SWEEP_PEER_LOOKAHEAD_TICKS = 20.0;
+    /** Slower than this (blocks/tick) a peer is treated as parked: no lookahead, and it is always yielded to. */
+    private static final double PEER_MOVING_SPEED = 0.02;
+    /** Skip the full 7-slot map when the desired bearing is nearly ahead and already clear. */
+    private static final double FAN_SHORTCIRCUIT_YAW_RAD = Math.toRadians(25.0);
+    /** Reuse a computed fan heading while desired has not swung more than this. */
+    private static final double FAN_REUSE_DESIRED_RAD = Math.toRadians(15.0);
+    /** Slot index of 0° relative to desired ({@link GroundMobility#SLOTS_DEG}). */
+    private static final int CENTER_SLOT = 3;
+
+    private boolean amphibious;
+    private float maxUpStep = 1.0F;
+    private int gradeHalfSpan = 1;
+    private int hullTop = 1;
+
+    private long lastBlockedDiagTick = Long.MIN_VALUE;
+    private long lastSteerDiagTick = Long.MIN_VALUE;
+
+    private long centerCacheTick = Long.MIN_VALUE;
+    private int centerCacheColX;
+    private int centerCacheColZ;
+    private int centerCacheBaseY;
+    private double cachedCenterFloor = GroundMobility.NO_FLOOR;
+    private int cachedCenterWater;
+
+    /**
+     * Game time the column / grade maps below were last cleared. They live for {@code sensorColumnTtlTicks}
+     * (1 = cleared every tick, the old behaviour): terrain rarely changes within a few ticks, while a moving
+     * hull re-probes most of the same columns every tick. Column keys include the hull's base Y, because a
+     * probe is measured from it.
+     */
+    private long columnCacheTick = Long.MIN_VALUE;
+    /** Idle and far from every player ({@code groundFarLodBlocks}): the column TTL is doubled. */
+    private boolean farIdle;
+    private final Long2ObjectOpenHashMap<Column> columnCache = new Long2ObjectOpenHashMap<>();
+    private final Long2DoubleOpenHashMap gradeCache = new Long2DoubleOpenHashMap();
+    /** Centerline probes from the last {@link #fillMaps} — beam validate reuses the winner's. */
+    private final Probe[] slotCenterProbes = new Probe[N];
+
+    private final float[] interest = new float[N];
+    private final float[] hardDanger = new float[N];
+    private final float[] peerSkirt = new float[N];
+    private final float[] prevInterest = new float[N];
+    private final float[] prevHard = new float[N];
+    private final float[] prevSkirt = new float[N];
+    private final String[] slotReason = new String[N];
+    private boolean mapsPrimed;
+
+    private boolean lastFanHullDominated;
+    private String lastFanReasons = "";
+    private int lastSlot = Integer.MIN_VALUE;
+    private double lastStepDelta;
+    private int lastWaterDepth;
+
+    /** Last full-map (or short-circuit) result, reused on the following tick when not stuck. */
+    private long lastFanTick = Long.MIN_VALUE;
+    private Vec3 lastFanDesired;
+    private Vec3 lastFanResult;
+
+    private List<AABB> allyFootObstacles = List.of();
+    private List<VehicleOrca.Peer> peers = List.of();
+    /** Peer/ally entity scan cadence — block probes stay per whisker; this only gates AABB fills. */
+    private static final int PEER_SCAN_INTERVAL = 5;
+    private long peerScanTick = Long.MIN_VALUE;
+
+    public GroundTerrainSensor(AbstractUnit unit) {
+        super(unit);
+        this.gradeCache.defaultReturnValue(Double.NaN);
+    }
+
+    @Override
+    protected void onAttach(VehicleEntity v) {
+        resetForHull(GroundMobility.isAmphibious(v), GroundMobility.maxUpStepOf(v), v.getBbWidth(), v.getBbHeight());
+    }
+
+    @Override
+    protected void onAttachProfile(net.minecraft.world.entity.Entity hull,
+                                   com.neoalive.tacz_sewv.entity.ai.core.HullProfile p) {
+        resetForHull(p.amphibious(), Math.max(1.0F, p.maxUpStep()), p.width(), p.height());
+    }
+
+    private void resetForHull(boolean amphibious, float maxUpStep, double width, double height) {
+        this.amphibious = amphibious;
+        this.maxUpStep = maxUpStep;
+        this.gradeHalfSpan = Math.max(1, Mth.floor(width * 0.5));
+        this.hullTop = Math.max(1, Mth.ceil(height) - 1);
+        this.centerCacheTick = Long.MIN_VALUE;
+        this.columnCacheTick = Long.MIN_VALUE;
+        this.columnCache.clear();
+        this.gradeCache.clear();
+        this.mapsPrimed = false;
+        this.lastFanHullDominated = false;
+        this.lastFanReasons = "";
+        this.lastSlot = Integer.MIN_VALUE;
+        this.lastFanTick = Long.MIN_VALUE;
+        this.lastFanDesired = null;
+        this.lastFanResult = null;
+        this.allyFootObstacles = List.of();
+        this.peers = List.of();
+        this.peerScanTick = Long.MIN_VALUE;
+        for (int i = 0; i < N; i++) this.slotCenterProbes[i] = null;
+    }
+
+    /**
+     * Center column is water while SBW still says dry — the bank-overhang case. Map blend
+     * covers heading flicker; reverse recovery still wants this boolean.
+     */
+    public boolean isDryBankLipHazard() {
+        return this.vehicle != null
+                && !this.amphibious
+                && !this.vehicle.isInWater()
+                && this.cachedCenterWater > 0;
+    }
+
+    public boolean isLastFanHullDominated() {
+        return this.lastFanHullDominated;
+    }
+
+    public String lastFanReasons() {
+        return this.lastFanReasons;
+    }
+
+    public boolean enabled() {
+        return SewvConfig.VEHICLE_TERRAIN_AVOIDANCE.get();
+    }
+
+    public double lookahead() {
+        return LOOKAHEAD_DISTANCE;
+    }
+
+    public Vec3 chooseClearBearing(Vec3 desired) {
+        return chooseClearBearing(desired, lookahead());
+    }
+
+    @Override
+    public Vec3 chooseClearBearing(Vec3 desired, double probeDistance) {
+        return chooseClearBearing(desired, probeDistance, false);
+    }
+
+    @Override
+    public Vec3 chooseClearBearing(Vec3 desired, double probeDistance, boolean stuck) {
+        if (desired.lengthSqr() < 1.0E-8) return desired;
+        long now = gameTime();
+
+        // Every other tick: reuse last heading when not stuck and the ask has not swung. Stuck
+        // recovery and hard turns still recompute every tick so the whiskers stay responsive.
+        if (!stuck && this.lastFanResult != null && this.lastFanDesired != null
+                && now == this.lastFanTick + 1
+                && horizontalAngleAbs(this.lastFanDesired, desired) <= FAN_REUSE_DESIRED_RAD) {
+            PathingPerf.fanCalls++;
+            return this.lastFanResult;
+        }
+
+        long t0 = System.nanoTime();
+        Vec3 result;
+        if (!stuck && canShortCircuit(desired, probeDistance)) {
+            result = desired;
+            this.lastSlot = 3; // center slot of the 7-slot fan
+            this.lastFanHullDominated = false;
+            this.lastFanReasons = "";
+        } else {
+            result = pickFromMaps(desired, probeDistance);
+        }
+        PathingPerf.fanNanos += System.nanoTime() - t0;
+        PathingPerf.fanCalls++;
+        this.lastFanTick = now;
+        this.lastFanDesired = desired;
+        this.lastFanResult = result;
+        return result;
+    }
+
+    /** Desired is nearly ahead and a single beam probe says the hull fits — skip the 7-slot map. */
+    private boolean canShortCircuit(Vec3 desired, double probeDistance) {
+        Vector3f forward = this.input.forwardDirection().normalize();
+        if (Math.abs(VehicleTargeting.signedAngleTo(forward, desired)) > FAN_SHORTCIRCUIT_YAW_RAD) {
+            return false;
+        }
+        return headingClear(desired, probeDistance);
+    }
+
+    private static double horizontalAngleAbs(Vec3 a, Vec3 b) {
+        double cross = a.x * b.z - a.z * b.x;
+        double dot = a.x * b.x + a.z * b.z;
+        return Math.abs(Math.atan2(cross, dot));
+    }
+
+    private Vec3 pickFromMaps(Vec3 desired, double probeDistance) {
+        this.lastFanHullDominated = false;
+        this.lastFanReasons = "";
+        ensureCenter();
+
+        boolean[] reachable = fillMaps(desired, probeDistance);
+        int winner = GroundMobility.pickWinner(this.interest, this.hardDanger, this.peerSkirt, reachable);
+        while (winner >= 0) {
+            Vec3 candidate = VehicleTargeting.rotateY(desired, Math.toRadians(GroundMobility.SLOTS_DEG[winner]));
+            Probe sample = probeHeadingBeam(candidate, probeDistance, this.slotCenterProbes[winner]);
+            if (sample.hard < GroundMobility.HARD_CAP) {
+                double offset = GroundMobility.interpolateOffsetDeg(
+                        winner, this.interest, this.hardDanger, this.peerSkirt);
+                Vec3 heading = VehicleTargeting.rotateY(desired, Math.toRadians(offset));
+                noteWinner(winner, sample);
+                logSteerTick(desired, winner, offset, sample, heading);
+                return heading;
+            }
+            reachable[winner] = false;
+            winner = GroundMobility.pickWinner(this.interest, this.hardDanger, this.peerSkirt, reachable);
+        }
+        noteFullBlock();
+        return null;
+    }
+
+    private boolean[] fillMaps(Vec3 desired, double probeDistance) {
+        var forward = this.input.forwardDirection().normalize();
+        // Desired-center first: when open and no ORCA peers, skip the six flank centerlines.
+        Vec3 centerDir = VehicleTargeting.rotateY(desired, Math.toRadians(GroundMobility.SLOTS_DEG[CENTER_SLOT]));
+        Probe center = probeHeading(centerDir, probeDistance, false);
+        this.slotCenterProbes[CENTER_SLOT] = center;
+        this.hardDanger[CENTER_SLOT] = center.hard;
+        this.peerSkirt[CENTER_SLOT] = center.skirt;
+        this.slotReason[CENTER_SLOT] = center.reason;
+        this.interest[CENTER_SLOT] = GroundMobility.goalInterest(GroundMobility.SLOTS_DEG[CENTER_SLOT]);
+
+        boolean centerClear = this.peers.isEmpty()
+                && center.hard < GroundMobility.HARD_CAP
+                && center.skirt <= 0.0F;
+        int facingSlot = CENTER_SLOT;
+        double bestFacing = Math.abs(VehicleTargeting.signedAngleTo(forward, centerDir));
+
+        if (centerClear) {
+            for (int i = 0; i < N; i++) {
+                if (i == CENTER_SLOT) continue;
+                this.hardDanger[i] = 1.0F;
+                this.peerSkirt[i] = 0.0F;
+                this.slotReason[i] = "skipped";
+                this.interest[i] = GroundMobility.goalInterest(GroundMobility.SLOTS_DEG[i]);
+                this.slotCenterProbes[i] = null;
+            }
+        } else {
+            for (int i = 0; i < N; i++) {
+                if (i == CENTER_SLOT) continue;
+                Vec3 dir = VehicleTargeting.rotateY(desired, Math.toRadians(GroundMobility.SLOTS_DEG[i]));
+                Probe p = probeHeading(dir, probeDistance, false);
+                this.slotCenterProbes[i] = p;
+                this.hardDanger[i] = p.hard;
+                this.peerSkirt[i] = p.skirt;
+                this.slotReason[i] = p.reason;
+                this.interest[i] = GroundMobility.goalInterest(GroundMobility.SLOTS_DEG[i]);
+                double facingErr = Math.abs(VehicleTargeting.signedAngleTo(forward, dir));
+                if (facingErr < bestFacing) {
+                    bestFacing = facingErr;
+                    facingSlot = i;
+                }
+            }
+        }
+
+        this.interest[facingSlot] = Math.max(this.interest[facingSlot], GroundMobility.FACING_INTEREST);
+        TacticalPosture.applyPublishedFanBias(this.unit.getId(), this.interest);
+        if (this.mapsPrimed) {
+            GroundMobility.blendMaps(this.prevInterest, this.interest);
+            if (!centerClear) {
+                GroundMobility.blendMaps(this.prevHard, this.hardDanger);
+                GroundMobility.blendMaps(this.prevSkirt, this.peerSkirt);
+            }
+        }
+        this.mapsPrimed = true;
+        System.arraycopy(this.interest, 0, this.prevInterest, 0, N);
+        System.arraycopy(this.hardDanger, 0, this.prevHard, 0, N);
+        System.arraycopy(this.peerSkirt, 0, this.prevSkirt, 0, N);
+        return GroundMobility.reachableMask(this.hardDanger, facingSlot);
+    }
+
+    private void noteWinner(int slot, Probe sample) {
+        if (this.lastSlot != Integer.MIN_VALUE && slot != this.lastSlot) PathingPerf.slotFlips++;
+        this.lastSlot = slot;
+        this.lastStepDelta = sample.stepDelta;
+        this.lastWaterDepth = sample.waterDepth;
+        this.lastFanHullDominated = false;
+        this.lastFanReasons = "";
+    }
+
+    private void noteFullBlock() {
+        int n = 0;
+        int hull = 0;
+        StringBuilder reasons = new StringBuilder();
+        for (int i = 0; i < N; i++) {
+            if (this.hardDanger[i] < GroundMobility.HARD_CAP) continue;
+            if (n > 0) reasons.append(',');
+            reasons.append(this.slotReason[i]);
+            if ("hull".equals(this.slotReason[i])) hull++;
+            n++;
+        }
+        this.lastFanHullDominated = n > 0 && hull * 2 > n;
+        this.lastFanReasons = reasons.toString();
+        if (this.lastSlot != Integer.MIN_VALUE) PathingPerf.slotFlips++;
+        this.lastSlot = -1;
+        SewvDiag.pathingEvent(
+                "fan BLOCKED unit={}#{} vehicle={}#{} offsets={} reasons=[{}] "
+                        + "hull={}/{} hullDominated={} rule=hullCount*2>n",
+                this.unit.getClass().getSimpleName(), this.unit.getId(),
+                this.vehicle.getName().getString(), this.vehicle.getId(),
+                n, this.lastFanReasons, hull, n, this.lastFanHullDominated);
+    }
+
+    @Override
+    public boolean headingClear(Vec3 dir, double distance) {
+        ensureCenter();
+        // Width-validated (beam), not a bare centerline probe: this answers "is it safe to move
+        // the FULL HULL this way" for retreat/reverse and the forward-translate gate alike, and a
+        // centerline-only check let a hull back along a narrow shoreline where the middle line
+        // reads dry while either side of the hull's actual width is over water — verified live,
+        // a boxed-in T-90A picked a "clear" retreat via this check and backed itself down a bank
+        // it would have rejected outright had the retreat probe seen its own width.
+        Probe p = probeHeading(dir, distance, true);
+        this.lastStepDelta = p.stepDelta;
+        this.lastWaterDepth = p.waterDepth;
+        if (p.hard >= GroundMobility.HARD_CAP) {
+            logBlockedHeading(dir, distance, p.reason);
+            return false;
+        }
+        return true;
+    }
+
+    private Probe probeHeading(Vec3 dir, double distance, boolean beam) {
+        if (!beam) {
+            return finishProbe(dir, probeLine(dir, 0.0, distance, sideOf(dir)));
+        }
+        return probeHeadingBeam(dir, distance, null);
+    }
+
+    /**
+     * Width-validated probe. When {@code centerline} is the fillMaps sample for this heading,
+     * only the ±halfWidth lines are walked — the centerline is not recomputed.
+     */
+    private Probe probeHeadingBeam(Vec3 dir, double distance, Probe centerline) {
+        double half = halfWidth();
+        Vec3 side = sideOf(dir);
+        Probe p = centerline != null ? copyProbe(centerline) : new Probe();
+        if (centerline == null) {
+            p = probeLine(dir, 0.0, distance, side);
+            if (p.hard >= GroundMobility.HARD_CAP) return finishProbe(dir, p);
+        } else if (p.hard >= GroundMobility.HARD_CAP) {
+            return finishProbe(dir, p);
+        }
+        for (int k = -1; k <= 1; k += 2) {
+            Probe sample = probeLine(dir, k * half, distance, side);
+            if (sample.hard >= GroundMobility.HARD_CAP) {
+                return finishProbe(dir, sample);
+            }
+            if (sample.hard > p.hard) {
+                float skirt = Math.max(p.skirt, sample.skirt);
+                p = sample;
+                p.skirt = Math.max(p.skirt, skirt);
+            } else {
+                p.skirt = Math.max(p.skirt, sample.skirt);
+            }
+        }
+        return finishProbe(dir, p);
+    }
+
+    private Probe finishProbe(Vec3 dir, Probe p) {
+        if (p.hard < GroundMobility.HARD_CAP) applyRvo(dir, p);
+        return p;
+    }
+
+    private static Vec3 sideOf(Vec3 dir) {
+        return new Vec3(-dir.z, 0.0, dir.x);
+    }
+
+    private static Probe copyProbe(Probe src) {
+        Probe p = new Probe();
+        p.hard = src.hard;
+        p.skirt = src.skirt;
+        p.reason = src.reason;
+        p.stepDelta = src.stepDelta;
+        p.waterDepth = src.waterDepth;
+        return p;
+    }
+
+    private Probe probeLine(Vec3 dir, double lateral, double distance, Vec3 side) {
+        Level level = this.unit.level();
+        double startX = this.vehicle.getX();
+        double startZ = this.vehicle.getZ();
+        double half = halfWidth();
+        obstacles(distance);
+        Walk w = new Walk(this.cachedCenterFloor);
+
+        for (double d = half + 0.5; d <= half + distance; d += 1.0) {
+            double sampleX = startX + dir.x * d + side.x * lateral;
+            double sampleZ = startZ + dir.z * d + side.z * lateral;
+            if (sampleStep(w, level, sampleX, sampleZ)) return w.out;
+        }
+        return w.out;
+    }
+
+    /** State of one walk along consecutive samples: the result so far and the footing it last stood on. */
+    private static final class Walk {
+        final Probe out = new Probe();
+        final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        double floor;
+        boolean crossedDrop;
+
+        Walk(double startFloor) {
+            this.floor = startFloor;
+        }
+    }
+
+    /**
+     * One sample of a walk — ally feet, fluid, the STEP from the previous sample's footing, grade.
+     * The one copy of the step test: {@link #probeLine} and {@link #sweepClear} both walk through
+     * here. True when the walk is hard-blocked ({@code w.out} then says why).
+     */
+    private boolean sampleStep(Walk w, Level level, double sampleX, double sampleZ) {
+        Probe out = w.out;
+        if (isBlockedByHull(this.allyFootObstacles, sampleX, sampleZ)) {
+            out.hard = 1.0F;
+            out.reason = "ally";
+            return true;
+        }
+
+        int colX = Mth.floor(sampleX);
+        int colZ = Mth.floor(sampleZ);
+        Column col = cachedColumn(level, w.pos, colX, colZ);
+        out.waterDepth = Math.max(out.waterDepth, col.waterDepth);
+        if (col.lava) {
+            out.hard = 1.0F;
+            out.reason = "fluid";
+            return true;
+        }
+        float water = GroundMobility.waterDanger(col.waterDepth, this.amphibious);
+        if (water >= GroundMobility.HARD_CAP) {
+            out.hard = 1.0F;
+            out.reason = "fluid";
+            return true;
+        }
+        out.hard = Math.max(out.hard, water);
+
+        if (col.treeWall) {
+            out.hard = 1.0F;
+            out.reason = "tree";
+            return true;
+        }
+        if (col.floorY == GroundMobility.NO_FLOOR) {
+            w.crossedDrop = true;
+            return false;
+        }
+        if (w.crossedDrop) {
+            w.floor = col.floorY;
+            w.crossedDrop = false;
+            return false;
+        }
+        if (w.floor != GroundMobility.NO_FLOOR) {
+            double step = col.floorY - w.floor;
+            out.stepDelta = step;
+            if (col.tree) {
+                // Prefer around it, never hard-block: TreeFellingSupport clears it on real
+                // contact, so a whisker treating it as an ordinary wall would steer the hull
+                // away before it ever touches the tree it is meant to drive through.
+                float treeDanger = SewvConfig.VEHICLE_TREE_SENSOR_DANGER.get().floatValue();
+                if (treeDanger > out.hard) {
+                    out.hard = treeDanger;
+                    out.reason = "tree";
+                }
+            } else {
+                float stepD = GroundMobility.stepDanger(step, this.maxUpStep);
+                if (stepD >= GroundMobility.HARD_CAP) {
+                    out.hard = 1.0F;
+                    out.reason = "step";
+                    return true;
+                }
+                if (stepD > out.hard) {
+                    out.hard = stepD;
+                    out.reason = "step";
+                }
+            }
+        }
+        if (col.floorY != GroundMobility.NO_FLOOR
+                && out.hard < GroundMobility.GRADE_FAN_MAX) {
+            float gradeD = GroundMobility.gradeDanger(cachedLocalGrade(level, colX, colZ));
+            if (gradeD > out.hard) {
+                out.hard = gradeD;
+                out.reason = "grade";
+            }
+        } else if (col.floorY != GroundMobility.NO_FLOOR) {
+            PathingPerf.gradeSkipped++;
+        }
+        w.floor = col.floorY;
+        return false;
+    }
+
+    /**
+     * Is a planned swept segment drivable? {@code x/z} are hull-centre positions in travel order,
+     * {@code hx/hz} the facing at each. Walks the leading edge (bow, or stern when {@code reverse})
+     * at the centreline and at +-halfWidth across each sample's own heading — the curved analogue of
+     * {@link #probeHeadingBeam} — through {@link #sampleStep}, and tests each centre against the
+     * peer hulls already cached by {@link #buildObstacles}. Adds no entity query of its own.
+     *
+     * <p>DEFERRED(sensor-entity-scan): {@code buildObstacles} itself still uses
+     * {@code getEntitiesOfClass}; moving it onto {@code CombatantIndex} is a separate change
+     * (staler peers, wrecks under 1.5 blocks drop out).
+     */
+    public boolean sweepClear(double[] x, double[] z, double[] hx, double[] hz, boolean reverse) {
+        if (x.length == 0) return true;
+        ensureCenter();
+        Level level = this.unit.level();
+        double half = halfWidth();
+        double reach = 0.0;
+        for (int i = 0; i < x.length; i++) {
+            double dx = x[i] - this.vehicle.getX();
+            double dz = z[i] - this.vehicle.getZ();
+            reach = Math.max(reach, Math.sqrt(dx * dx + dz * dz));
+        }
+        obstacles(reach + half);
+        double lead = reverse ? -(half + 0.5) : half + 0.5;
+        for (int k = -1; k <= 1; k++) {
+            Walk w = new Walk(this.cachedCenterFloor);
+            for (int i = 0; i < x.length; i++) {
+                // side = (-hz, hx), as sideOf
+                double sx = x[i] + hx[i] * lead - hz[i] * k * half;
+                double sz = z[i] + hz[i] * lead + hx[i] * k * half;
+                if (sampleStep(w, level, sx, sz)) {
+                    logBlockedHeading(new Vec3(hx[i], 0.0, hz[i]), i, "sweep-" + w.out.reason);
+                    return false;
+                }
+            }
+        }
+        double selfX = this.vehicle.getX();
+        double selfZ = this.vehicle.getZ();
+        for (VehicleOrca.Peer peer : this.peers) {
+            double clearance = VehicleOrca.sweepRadius(half, peer.half());
+            if (!VehicleOrca.sweepKeepsClear(selfX, selfZ, x, z, peer.x(), peer.z(), clearance)) {
+                logBlockedHeading(new Vec3(hx[0], 0.0, hz[0]), 0, "sweep-hull");
+                return false;
+            }
+            if (peer.vx() * peer.vx() + peer.vz() * peer.vz() >= PEER_MOVING_SPEED * PEER_MOVING_SPEED) {
+                double ax = peer.x() + peer.vx() * SWEEP_PEER_LOOKAHEAD_TICKS;
+                double az = peer.z() + peer.vz() * SWEEP_PEER_LOOKAHEAD_TICKS;
+                if (!VehicleOrca.sweepKeepsClear(selfX, selfZ, x, z, ax, az, clearance)) {
+                    logBlockedHeading(new Vec3(hx[0], 0.0, hz[0]), 0, "sweep-hull-ahead");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Should a running planned maneuver give way? True when a peer this hull yields to
+     * ({@link VehicleOrca#yieldsTo}) is on a contact course within {@code ticks}, measured on both
+     * hulls' current velocities. Reads only the peers {@link #buildObstacles} already cached.
+     */
+    public boolean maneuverMustYield(double ticks) {
+        if (this.peers.isEmpty()) return false;
+        Vec3 v = this.vehicle.getDeltaMovement();
+        double half = halfWidth();
+        int selfId = this.vehicle.getId();
+        for (VehicleOrca.Peer peer : this.peers) {
+            if (!VehicleOrca.yieldsTo(selfId, peer, PEER_MOVING_SPEED)) continue;
+            double px = peer.x() - this.vehicle.getX();
+            double pz = peer.z() - this.vehicle.getZ();
+            double contactR = VehicleOrca.contactRadius(half, peer.half());
+            // Already touching: TTC is 0 for every velocity there, separating ones included, so ask
+            // only whether it is getting deeper — the same split applyRvo makes.
+            boolean hit = px * px + pz * pz <= contactR * contactR
+                    ? VehicleOrca.overlappingAndClosing(px, pz, v.x, v.z, v.x, v.z, peer.vx(), peer.vz(), contactR)
+                    : VehicleOrca.imminent(px, pz, v.x, v.z, v.x, v.z, peer.vx(), peer.vz(), contactR, ticks);
+            if (hit) return true;
+        }
+        return false;
+    }
+
+    private void applyRvo(Vec3 dir, Probe p) {
+        if (this.peers.isEmpty()) return;
+        double speed = Math.max(MIN_PREF_SPEED, this.vehicle.getDeltaMovement().horizontalDistance());
+        double candX = dir.x * speed;
+        double candZ = dir.z * speed;
+        Vec3 v = this.vehicle.getDeltaMovement();
+        double ax = v.x;
+        double az = v.z;
+        double half = halfWidth();
+        double selfX = this.vehicle.getX();
+        double selfZ = this.vehicle.getZ();
+        int selfId = this.vehicle.getId();
+        double dirLen = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
+        double ndx = dirLen > 1.0E-8 ? dir.x / dirLen : 0.0;
+        double ndz = dirLen > 1.0E-8 ? dir.z / dirLen : 0.0;
+        for (VehicleOrca.Peer peer : this.peers) {
+            // Soft disc → skirt only. Hard vetoes → contact disc. imminent/overlappingAndClosing
+            // short-circuit to TTC=0 whenever dist≤radius, so feeding CLEARANCE_SCALE there locked
+            // every heading for a packed pair (verified: only a player shove freed them).
+            double softR = VehicleOrca.radius(half, peer.half());
+            double contactR = VehicleOrca.contactRadius(half, peer.half());
+            double px = peer.x() - selfX;
+            double pz = peer.z() - selfZ;
+            double distSq = px * px + pz * pz;
+            double along = (ndx != 0.0 || ndz != 0.0) ? px * ndx + pz * ndz : 0.0;
+            if (distSq <= contactR * contactR) {
+                // Already clipping: veto only candidates that deepen it. Do NOT call imminent here
+                // — TTC is 0 for every heading while overlapping, including backs/tangents.
+                if (VehicleOrca.overlappingAndClosing(
+                        px, pz, candX, candZ, ax, az, peer.vx(), peer.vz(), contactR)) {
+                    p.hard = 1.0F;
+                    p.reason = "hull";
+                    return;
+                }
+            } else {
+                if (along > 0.0 && along < LOOKAHEAD_DISTANCE + contactR) {
+                    // Geometric occupancy on this heading within whisker reach.
+                    double cross = px * ndz - pz * ndx;
+                    if (cross * cross < contactR * contactR) {
+                        p.hard = 1.0F;
+                        p.reason = "hull";
+                        return;
+                    }
+                }
+                if (VehicleOrca.overlappingAndClosing(
+                                px, pz, candX, candZ, ax, az, peer.vx(), peer.vz(), contactR)
+                        || VehicleOrca.imminent(
+                                px, pz, candX, candZ, ax, az, peer.vx(), peer.vz(), contactR,
+                                ORCA_IMMINENT_TICKS)) {
+                    p.hard = 1.0F;
+                    p.reason = "hull";
+                    return;
+                }
+            }
+            double sideBias = ORCA_TIE_EPS * Integer.signum(selfId - peer.id());
+            VehicleOrca.HalfPlane hp = VehicleOrca.halfPlane(
+                    px, pz, ax, az, peer.vx(), peer.vz(), softR, ORCA_TAU, sideBias);
+            double margin = VehicleOrca.margin(candX, candZ, ax, az, hp);
+            if (margin < 0.0) {
+                float skirt = Math.min(0.99F, (float) (-margin / ORCA_SKIRT_SCALE));
+                p.skirt = Math.max(p.skirt, skirt);
+            }
+        }
+    }
+
+    private void ensureCenter() {
+        Level level = this.unit.level();
+        long now = level.getGameTime();
+        int colX = Mth.floor(this.vehicle.getX());
+        int colZ = Mth.floor(this.vehicle.getZ());
+        int baseY = this.vehicle.getBlockY();
+        if (now == this.centerCacheTick
+                && colX == this.centerCacheColX
+                && colZ == this.centerCacheColZ
+                && baseY == this.centerCacheBaseY) {
+            return;
+        }
+        Column col = cachedColumn(level, new BlockPos.MutableBlockPos(), colX, colZ);
+        this.centerCacheTick = now;
+        this.centerCacheColX = colX;
+        this.centerCacheColZ = colZ;
+        this.centerCacheBaseY = baseY;
+        this.cachedCenterFloor = col.floorY;
+        this.cachedCenterWater = col.waterDepth;
+    }
+
+    public void setFarIdle(boolean farIdle) {
+        this.farIdle = farIdle;
+    }
+
+    private static int columnTtl() {
+        try {
+            return SewvConfig.SENSOR_COLUMN_TTL_TICKS.get();
+        } catch (Throwable unbaked) {
+            return 1;
+        }
+    }
+
+    private void ensureColumnCacheTick(long now) {
+        int ttl = this.farIdle ? columnTtl() * 2 : columnTtl();
+        // now < columnCacheTick: game time went backwards (reload, /time) — treat as expired.
+        if (this.columnCacheTick != Long.MIN_VALUE && now >= this.columnCacheTick
+                && now - this.columnCacheTick < ttl) {
+            return;
+        }
+        this.columnCacheTick = now;
+        this.columnCache.clear();
+        this.gradeCache.clear();
+    }
+
+    private Column cachedColumn(Level level, BlockPos.MutableBlockPos pos, int x, int z) {
+        ensureColumnCacheTick(level.getGameTime());
+        long key = BlockPos.asLong(x, this.vehicle.getBlockY(), z);
+        Column hit = this.columnCache.get(key);
+        if (hit != null) {
+            PathingPerf.columnCacheHits++;
+            return hit;
+        }
+        PathingPerf.columnCacheMisses++;
+        Column fresh = probeColumn(level, pos, x, z);
+        this.columnCache.put(key, fresh);
+        return fresh;
+    }
+
+    private double cachedLocalGrade(Level level, int x, int z) {
+        ensureColumnCacheTick(level.getGameTime());
+        long key = BlockPos.asLong(x, 0, z);
+        double hit = this.gradeCache.get(key);
+        if (!Double.isNaN(hit)) {
+            PathingPerf.gradeCacheHits++;
+            return hit;
+        }
+        PathingPerf.gradeCacheMisses++;
+        double grade = GroundMobility.localGrade(level, x, z, this.gradeHalfSpan);
+        this.gradeCache.put(key, grade);
+        return grade;
+    }
+
+    private Column probeColumn(Level level, BlockPos.MutableBlockPos pos, int x, int z) {
+        Column col = new Column();
+        int baseY = this.vehicle.getBlockY();
+        col.waterDepth = GroundMobility.waterDepth(level, pos, x, baseY, z);
+        for (int dy = 0; dy >= -1; dy--) {
+            FluidState fluid = level.getFluidState(pos.set(x, baseY + dy, z));
+            if (fluid.is(FluidTags.LAVA)) {
+                col.lava = true;
+                return col;
+            }
+        }
+        boolean sawWaterBelow = false;
+        for (int y = baseY + this.hullTop; y >= baseY - FLUID_PROBE_DEPTH; y--) {
+            var state = level.getBlockState(pos.set(x, y, z));
+            if (state.getFluidState().is(FluidTags.LAVA)) {
+                col.lava = true;
+                return col;
+            }
+            var shape = state.getCollisionShape(level, pos);
+            if (!shape.isEmpty()) {
+                col.floorY = y + shape.max(Direction.Axis.Y);
+                if (EnhancedFallingTreesCompat.available() && SewvConfig.VEHICLE_TREE_FELLING_ENABLED.get()) {
+                    if (EnhancedFallingTreesFeller.isFellable(level, pos, state)) {
+                        // Logs only — leaves must keep normal stepDanger. Soft-treating foliage let
+                        // hulls climb the canopy (leaf collision as stairs) instead of felling the
+                        // trunk; pathing used to remap leaves to WALKABLE for the same reason.
+                        col.tree = true;
+                    }
+                } else if (DrivableGround.treeBlock(state, false)) {
+                    // Nothing fells it, so it is a wall. A canopy a block or two up read as a climbable
+                    // step, and a hull that took it ended up perched on the tree with no way down.
+                    col.treeWall = true;
+                }
+                return col;
+            }
+            if (this.amphibious && state.getFluidState().is(FluidTags.WATER)) {
+                col.floorY = y + 1.0;
+                return col;
+            }
+            if (!this.amphibious && !sawWaterBelow && state.getFluidState().is(FluidTags.WATER)) {
+                // A ledge can put water several blocks below the vehicle's OWN elevation — past
+                // where the baseY-anchored waterDepth above ever looks (3 blocks down from baseY).
+                // Fluid has no collision, so this floor search would otherwise walk straight
+                // through it looking for the lakebed and never notice. Fold in whatever water this
+                // column's own floor search finds, at the depth it actually sits.
+                sawWaterBelow = true;
+                col.waterDepth = Math.max(col.waterDepth, GroundMobility.waterDepth(level, pos, x, y, z));
+            }
+        }
+        return col;
+    }
+
+    private void logSteerTick(Vec3 desired, int slot, double offset, Probe sample, Vec3 heading) {
+        if (!SewvDiag.groundPathingVerbose()) return;
+        long now = this.unit.level().getGameTime();
+        if (now == this.lastSteerDiagTick) return;
+        this.lastSteerDiagTick = now;
+        SewvDiag.pathing(
+                "steerTick unit={}#{} vehicle={}#{} slot={} offsetDeg={} hard={} stepDelta={} "
+                        + "waterDepth={} blockY={} pitch={} centerWater={} desired={}",
+                this.unit.getClass().getSimpleName(), this.unit.getId(),
+                this.vehicle.getName().getString(), this.vehicle.getId(),
+                slot, offset, sample.hard, sample.stepDelta, sample.waterDepth,
+                this.vehicle.getBlockY(), this.vehicle.getXRot(),
+                this.cachedCenterWater, desired);
+    }
+
+    private void logBlockedHeading(Vec3 dir, double distance, String reason) {
+        if (!SewvDiag.groundPathingVerbose()) return;
+        long now = this.unit.level().getGameTime();
+        if (now == this.lastBlockedDiagTick) return;
+        this.lastBlockedDiagTick = now;
+        SewvDiag.pathing(
+                "headingClear BLOCKED unit={}#{} vehicle={}#{} reason={} dir={} distance={} "
+                        + "stepDelta={} waterDepth={} blockY={} maxUpStep={} amphibious={} inWater={}",
+                this.unit.getClass().getSimpleName(), this.unit.getId(),
+                this.vehicle.getName().getString(), this.vehicle.getId(),
+                reason, dir, distance, this.lastStepDelta, this.lastWaterDepth,
+                this.vehicle.getBlockY(), this.maxUpStep, this.amphibious, this.vehicle.isInWater());
+    }
+
+    @Override
+    protected List<AABB> buildObstacles(double reach) {
+        long now = this.unit.level().getGameTime();
+        if (this.peerScanTick != Long.MIN_VALUE && now - this.peerScanTick < PEER_SCAN_INTERVAL) {
+            return List.of();
+        }
+        this.peerScanTick = now;
+
+        double half = halfWidth();
+        // ORCA's own culling guidance (paper §5.1): a peer farther than (selfSpeed+peerSpeed)*tau
+        // can never collide within the horizon, so it's safe to leave out of the search — but
+        // that reach is a DIFFERENT quantity from the terrain-whisker lookahead this method is
+        // normally called with, and coupling the two meant a genuine 20-30-tick collision course
+        // starting a few blocks past LOOKAHEAD_DISTANCE was invisible until the peer was nearly
+        // on top of the hull. Peer speed is approximated as self speed absent a reliable per-hull
+        // max-speed source.
+        double selfSpeed = this.vehicle.getDeltaMovement().horizontalDistance();
+        double orcaReach = Math.max(LOOKAHEAD_DISTANCE, 2.0 * selfSpeed * ORCA_TAU);
+        double range = Math.max(reach, orcaReach) + half + 1.0;
+        AABB search = this.vehicle.getBoundingBox().inflate(range, 2.0, range);
+        this.peers = this.unit.level().getEntitiesOfClass(VehicleEntity.class, search,
+                        v -> VehiclePeerSpacing.isCollisionPeer(this.vehicle, this.unit, v)).stream()
+                .map(v -> {
+                    Vec3 vel = v.getDeltaMovement();
+                    return new VehicleOrca.Peer(v.getId(), v.getX(), v.getZ(), vel.x, vel.z, v.getBbWidth() * 0.5);
+                })
+                .toList();
+        this.allyFootObstacles = this.unit.level().getEntitiesOfClass(AbstractUnit.class, search,
+                        this::isAllyFootObstacle).stream()
+                .map(u -> u.getBoundingBox().inflate(half, 0.0, half))
+                .toList();
+        return List.of();
+    }
+
+    private boolean isAllyFootObstacle(AbstractUnit other) {
+        if (other == this.unit || !other.isAlive()) return false;
+        if (other.getVehicle() != null) return false;
+        return VehicleTargeting.isSameFaction(this.unit, other);
+    }
+
+    private static boolean isBlockedByHull(List<AABB> obstacles, double x, double z) {
+        for (AABB box : obstacles) {
+            if (x >= box.minX && x <= box.maxX && z >= box.minZ && z <= box.maxZ) return true;
+        }
+        return false;
+    }
+
+    private static final class Probe {
+        float hard;
+        float skirt;
+        String reason = "ok";
+        double stepDelta;
+        int waterDepth;
+    }
+
+    private static final class Column {
+        double floorY = GroundMobility.NO_FLOOR;
+        int waterDepth;
+        boolean lava;
+        /** Wall block is a fellable tree log — probeLine treats it as a soft hazard, not a hard
+         * step block. See {@link #probeColumn}. */
+        boolean tree;
+        /** Wall block is a log or leaves with no felling to clear it: a hard hazard. */
+        boolean treeWall;
+    }
+
+}

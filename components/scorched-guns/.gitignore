@@ -1,0 +1,39 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Minecraft development environment
+run/
+runs/
+logs/
+crash-reports/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Other IDEs
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Port development leftovers
+.hotfix*/
+*.backup
+*.bak
+APPLY_HOTFIX*.bat
+ScorchedGuns-26.2-Hotfix*.zip
+
+# Python
+__pycache__/
+*.pyc

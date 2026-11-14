@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "top.ribs.scguns.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "minVersion": "0.8",
+  "client": [
+    "client.ArmedEntityRenderStateMixin",
+    "client.ItemInHandLayerMixin",
+    "client.PlayerModelMixin",
+    "client.HumanoidModelMixin",
+    "client.compat.guardvillagers.GuardModelGunPoseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "plugin": "top.ribs.scguns.mixin.MixinPlugin",
+  "mixins": [
+    "common.compat.guardvillagers.GuardGunnerEquipmentMixin"
+  ]
+}

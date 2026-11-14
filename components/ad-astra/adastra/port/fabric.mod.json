@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "ad_astra",
+  "version": "1.16.26+fabric26.3-valen.1",
+  "name": "ValenJEG - Ad Astra",
+  "description": "Live long and prosper, Ad Astra! Fabric 26.3 port for the private owner pack. Terrarium License retained. Not an upstream release and not a redistribution license for All Rights Reserved assets.",
+  "authors": [
+    "Alex Nijjar"
+  ],
+  "contributors": [
+    "CodexAdrian",
+    "Facu",
+    "Fizz",
+    "MsRandom",
+    "ThatGravyBoat",
+    "Mrbysco"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/ad-astra",
+    "issues": "https://github.com/terrarium-earth/Ad-Astra/issues",
+    "sources": "https://github.com/terrarium-earth/Ad-Astra"
+  },
+  "license": "Terrarium License",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "earth.terrarium.adastra.fabric.AdAstraFabric::init",
+      "earth.terrarium.adastra.AdAstra::postInit"
+    ],
+    "client": [
+      "earth.terrarium.adastra.client.fabric.AdAstraClientFabric::init"
+    ]
+  },
+  "mixins": [
+    "adastra-common.mixins.json",
+    "adastra.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "fabric-api": ">=0.165.0+26.3",
+    "minecraft": ">=26.3 <26.4",
+    "resourcefullib": ">=6.0.0",
+    "resourcefulconfig": ">=6.0.0",
+    "common_storage_lib": ">=0.0.10+fabric26.3-valen.1"
+  }
+}

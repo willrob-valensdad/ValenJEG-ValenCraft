@@ -1,0 +1,18 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "count": 1,
+    "id": "scguns:railworker"
+  },
+  "ingredients": {
+    "blueprint": "scguns:wrecker_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:gun_parts",
+    "gun_top_internal_2": "scguns:treated_iron_ingot",
+    "gun_top_internal_1": "scguns:treated_iron_ingot",
+    "gun_barrel_1": "scguns:gun_barrel",
+    "gun_top_barrel_1": "scguns:gun_magazine",
+    "gun_grip": "scguns:gun_grip",
+    "gun_magazine": "scguns:empty_tank"
+  }
+}

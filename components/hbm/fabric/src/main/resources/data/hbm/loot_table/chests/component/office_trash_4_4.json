@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:chest",
+  "hbm:random_slots": true,
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "hbm:chests/office_trash"
+        }
+      ],
+      "rolls": {
+        "type": "hbm:config_scaled",
+        "value": 4.0
+      }
+    }
+  ],
+  "random_sequence": "hbm:chests/component/office_trash_4_4"
+}

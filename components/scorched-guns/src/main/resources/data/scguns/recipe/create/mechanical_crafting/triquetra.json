@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "C": "minecraft:iron_ingot",
+    "R": "scguns:firing_unit",
+    "K": "scguns:heavy_gun_parts",
+    "S": "scguns:heavy_gun_barrel",
+    "X": "scguns:empty_tank",
+    "V": "scguns:iron_gun_frame",
+    "P": "scguns:iron_blueprint",
+    "L": "#minecraft:planks"
+  },
+  "pattern": [
+    "CVKP",
+    "LRSS",
+    "Q X "
+  ],
+  "result": {
+    "id": "scguns:triquetra"
+  }
+}

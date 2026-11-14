@@ -1,0 +1,167 @@
+// SPDX-FileCopyrightText: 2026 movblock <admin@movblock.mov>
+// SPDX-License-Identifier: LGPL-3.0-only
+
+package com.hbm.world.feature;
+
+import com.mojang.serialization.MapCodec;
+
+import com.hbm.blockentity.BlockEntityBedrockOre;
+import com.hbm.blocks.ModBlocks;
+import com.hbm.inventory.fluid.FluidStackNTM;
+import com.hbm.inventory.fluid.NTMFluids;
+import com.hbm.items.ModItems;
+import com.hbm.items.special.BedrockOreSet;
+import com.hbm.lib.Library;
+import com.hbm.registration.OverridePoint;
+import com.hbm.world.NtmWorldgenFields;
+import java.util.List;
+import java.util.function.Function;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
+import org.jspecify.annotations.Nullable;
+
+public class BedrockOreFeature extends HbmFeature<BedrockOreConfig> {
+
+    public static final MapCodec<BedrockOreFeature> CODEC =
+            HbmFeature.mapCodec(BedrockOreConfig.CODEC, BedrockOreFeature::new);
+
+    public BedrockOreFeature(BedrockOreConfig config) {
+        super(config);
+    }
+
+        public MapCodec<BedrockOreFeature> codec() {
+        return CODEC;
+    }
+
+    public static int getTier(double density) {
+        if (density > 1.5) return 4;
+        if (density > 1) return 3;
+        if (density > 0.75) return 2;
+        return 1;
+    }
+
+    public static final OverridePoint<Function<Level, @Nullable FluidStackNTM>> BORE_FLUID =
+            OverridePoint.of(Library.id("bedrock_bore_fluid"), level -> null);
+
+    public static @Nullable FluidStackNTM getBoreFluid(int tier) {
+        return switch (tier) {
+            case 2 -> BoreFluids.WATER;
+            case 3 -> BoreFluids.SULFURIC_ACID;
+            case 4 -> BoreFluids.SOLVENT;
+            default -> null;
+        };
+    }
+
+    private static final class BoreFluids {
+        private static final FluidStackNTM WATER = new FluidStackNTM(Fluids.WATER, 1_000);
+        private static final FluidStackNTM SULFURIC_ACID =
+                new FluidStackNTM(NTMFluids.SULFURIC_ACID, 1_000);
+        private static final FluidStackNTM SOLVENT = new FluidStackNTM(NTMFluids.SOLVENT, 2_000);
+    }
+
+    private static BedrockOreConfig.@Nullable Entry pickWeighted(
+            List<BedrockOreConfig.Entry> entries, RandomSource rand) {
+        int total = 0;
+        for (BedrockOreConfig.Entry e : entries) total += e.weight();
+        if (total <= 0) return null;
+        int r = rand.nextInt(total);
+        for (BedrockOreConfig.Entry e : entries) {
+            r -= e.weight();
+            if (r < 0) return e;
+        }
+        return entries.getLast();
+    }
+
+    @Override
+    protected boolean placeConfigured(HbmPlace<BedrockOreConfig> ctx) {
+        WorldGenLevel level = ctx.level();
+        BedrockOreConfig cfg = ctx.config();
+        RandomSource rand = ctx.random();
+        int x = ctx.origin().getX();
+        int z = ctx.origin().getZ();
+
+        ItemStack resource;
+        FluidStackNTM acid;
+        int color;
+        int tier;
+
+        if (cfg.auto()) {
+            BedrockOreField field = NtmWorldgenFields.get(level).bedrock();
+            tier =
+                    getTier(
+                            field.averageOreLevel(
+                                    BedrockOreSet.OF.get().apply(level.getLevel()), x, z));
+            acid = BORE_FLUID.get().apply(level.getLevel());
+            if (acid == null) acid = getBoreFluid(tier);
+            color = 0xD78A16;
+            resource = new ItemStack(ModItems.BEDROCK_ORE_BASE);
+        } else {
+            BedrockOreConfig.Entry entry = pickWeighted(cfg.entries(), rand);
+            if (entry == null) return false;
+            resource = new ItemStack(entry.item(), entry.count());
+            color = entry.color();
+            tier = entry.tier();
+            acid = null;
+        }
+
+        generate(
+                level,
+                x,
+                z,
+                resource,
+                acid,
+                color,
+                tier,
+                cfg.depthRock(),
+                cfg.host(),
+                rand);
+        return true;
+    }
+
+    public static void generate(
+            WorldGenLevel level,
+            int x,
+            int z,
+            ItemStack resource,
+            @Nullable FluidStackNTM acid,
+            int color,
+            int tier,
+            BlockState depth,
+            RuleTest host,
+            RandomSource rand) {
+        int floor = level.getMinY();
+        BlockState ore = ModBlocks.ORE_BEDROCK.get().defaultBlockState();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+
+        for (int ix = x - 1; ix <= x + 1; ix++) {
+            for (int iz = z - 1; iz <= z + 1; iz++) {
+                pos.set(ix, floor, iz);
+                if (!level.getBlockState(pos).is(Blocks.BEDROCK)) continue;
+                if ((ix == x && iz == z) || rand.nextBoolean()) {
+                    level.setBlock(pos, ore, 2);
+                    if (level.getBlockEntity(pos) instanceof BlockEntityBedrockOre be) {
+                        be.setData(resource.copy(), acid, color, tier, rand.nextInt(10));
+                    }
+                }
+            }
+        }
+
+        for (int ix = x - 3; ix <= x + 3; ix++) {
+            for (int iz = z - 3; iz <= z + 3; iz++) {
+                for (int dy = 1; dy < 7; dy++) {
+                    pos.set(ix, floor + dy, iz);
+                    BlockState cur = level.getBlockState(pos);
+                    if (dy >= 3 && !cur.is(Blocks.BEDROCK)) continue;
+                    if (host.test(cur, pos, rand) || cur.is(Blocks.BEDROCK)) level.setBlock(pos, depth, 2);
+                }
+            }
+        }
+    }
+}

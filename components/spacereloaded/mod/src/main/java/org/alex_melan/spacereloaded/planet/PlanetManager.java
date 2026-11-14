@@ -1,0 +1,108 @@
+package org.alex_melan.spacereloaded.planet;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import org.alex_melan.spacereloaded.registry.ModBlocks;
+import org.alex_melan.spacereloaded.registry.ModRegistries;
+
+import java.util.Optional;
+
+/**
+ * Доступ к профилям небесных тел (FR-030): гравитация, дыхание, солнце,
+ * переходы. Профили — датапак-реестр; без записи применяются земные дефолты.
+ */
+public final class PlanetManager {
+
+    public static final double EARTH_GRAVITY = 9.81;
+    /** Высота платформы прибытия на орбиту. */
+    public static final int ORBIT_PLATFORM_Y = 100;
+
+    private PlanetManager() {
+    }
+
+    private static Registry<ModRegistries.PlanetProfile> registry(ServerLevel level) {
+        return level.registryAccess().lookupOrThrow(ModRegistries.PLANETS);
+    }
+
+    /** Профиль измерения либо empty (обычный мир — земные условия). */
+    public static Optional<ModRegistries.PlanetProfile> profileFor(ServerLevel level) {
+        Identifier dimensionId = level.dimension().identifier();
+        for (ModRegistries.PlanetProfile profile : registry(level)) {
+            if (profile.dimension().equals(dimensionId)) {
+                return Optional.of(profile);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /** Профиль по id записи реестра (для transition_target). */
+    public static Optional<ModRegistries.PlanetProfile> profileById(ServerLevel level, Identifier id) {
+        return profileById(level.registryAccess(), id);
+    }
+
+    /**
+     * То же, но по голому реестру: реестр планет синхронизируется на клиент,
+     * поэтому карта полёта считается там же, без единого лишнего пакета.
+     */
+    public static Optional<ModRegistries.PlanetProfile> profileById(
+            net.minecraft.core.RegistryAccess access, Identifier id) {
+        return Optional.ofNullable(access.lookupOrThrow(ModRegistries.PLANETS).getValue(id));
+    }
+
+    public static double gravity(ServerLevel level) {
+        return profileFor(level).map(ModRegistries.PlanetProfile::gravity).orElse(EARTH_GRAVITY);
+    }
+
+    public static boolean isBreathable(ServerLevel level) {
+        return profileFor(level).map(ModRegistries.PlanetProfile::breathable).orElse(true);
+    }
+
+    /** Состав атмосферы измерения: "air", "co2", "none" (вакуум). */
+    public static String atmosphere(ServerLevel level) {
+        return profileFor(level).map(ModRegistries.PlanetProfile::atmosphere).orElse("air");
+    }
+
+    public static double solarEfficiency(ServerLevel level) {
+        return profileFor(level).map(ModRegistries.PlanetProfile::solarEfficiency).orElse(1.0);
+    }
+
+    /**
+     * Аэродинамический профиль атмосферы измерения (Полёт 2.0, плотность/высота шкалы);
+     * без профиля или без плотности — вакуум. Состав газа — {@link #atmosphere(ServerLevel)}.
+     */
+    public static org.alex_melan.spacereloaded.core.atmosphere.AtmosphereProfile aero(ServerLevel level) {
+        return profileFor(level)
+                .map(profile -> profile.aero().toCore())
+                .orElse(org.alex_melan.spacereloaded.core.atmosphere.AtmosphereProfile.VACUUM);
+    }
+
+    /** Среда полёта ядра: гравитация + атмосфера измерения. */
+    public static org.alex_melan.spacereloaded.core.rocketry.FlightEnvironment environment(ServerLevel level) {
+        return new org.alex_melan.spacereloaded.core.rocketry.FlightEnvironment(gravity(level), aero(level));
+    }
+
+    /**
+     * Стартовая платформа на орбите (механика Galacticraft): первое прибытие
+     * на участок создаёт площадку 9×9, дальше игрок достраивает станцию сам.
+     *
+     * @return Y верха платформы (куда ставить ракету)
+     */
+    public static int ensureOrbitPlatform(ServerLevel level, double x, double z) {
+        BlockPos center = BlockPos.containing(x, ORBIT_PLATFORM_Y - 1, z);
+        BlockState existing = level.getBlockState(center);
+        if (existing.isAir()) {
+            for (int dx = -4; dx <= 4; dx++) {
+                for (int dz = -4; dz <= 4; dz++) {
+                    BlockPos pos = center.offset(dx, 0, dz);
+                    if (level.getBlockState(pos).isAir()) {
+                        level.setBlock(pos, ModBlocks.HULL_PLATING.defaultBlockState(), 3);
+                    }
+                }
+            }
+        }
+        return ORBIT_PLATFORM_Y;
+    }
+}

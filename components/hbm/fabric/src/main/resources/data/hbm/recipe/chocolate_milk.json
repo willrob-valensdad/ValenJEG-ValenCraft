@@ -1,0 +1,21 @@
+{
+  "type": "hbm:crafting_shapeless",
+  "ingredients": [
+    "#c:glass_panes",
+    "minecraft:cocoa_beans",
+    "minecraft:milk_bucket",
+    {
+      "fabric:type": "hbm:fluid_content",
+      "amount": 1000,
+      "fluid": "hbm:nitroglycerin"
+    }
+  ],
+  "input_state": {
+    "2": {
+      "preserve": "remainder"
+    }
+  },
+  "result": {
+    "id": "hbm:chocolate_milk"
+  }
+}

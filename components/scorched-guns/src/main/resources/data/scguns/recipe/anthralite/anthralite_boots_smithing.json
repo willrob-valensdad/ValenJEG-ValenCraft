@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "scguns:anthralite_ingot",
+  "base": "minecraft:iron_boots",
+  "result": {
+    "id": "scguns:anthralite_boots"
+  },
+  "template": "minecraft:leather"
+}

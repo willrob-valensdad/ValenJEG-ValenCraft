@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:chest",
+  "hbm:random_slots": true,
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "hbm:chests/expensive"
+        }
+      ],
+      "rolls": {
+        "type": "minecraft:uniform",
+        "max": 23.0,
+        "min": 16.0
+      }
+    }
+  ],
+  "random_sequence": "hbm:chests/expensive_16_23"
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "scguns:peal"
+  ],
+  "result": {
+    "count": 6,
+    "id": "scguns:peal_dust"
+  }
+}

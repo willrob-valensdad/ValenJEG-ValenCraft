@@ -1,0 +1,17 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:mak_mkii",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:wrecker_blueprint",
+    "gun_internal_1": "scguns:rapid_firing_unit",
+    "gun_internal_2": "scguns:gun_parts",
+    "gun_top_internal_1": "minecraft:iron_ingot",
+    "gun_top_internal_2": "scguns:treated_iron_gun_frame",
+    "gun_grip": "scguns:gun_grip",
+    "gun_barrel_1": "scguns:gun_barrel",
+    "gun_magazine": "scguns:gun_magazine"
+  }
+}

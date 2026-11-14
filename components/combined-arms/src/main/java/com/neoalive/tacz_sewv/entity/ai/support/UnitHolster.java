@@ -1,0 +1,344 @@
+package com.neoalive.tacz_sewv.entity.ai.support;
+
+import java.util.EnumSet;
+import java.util.List;
+
+import com.atsuishio.superbwarfare.entity.vehicle.TowEntity;
+import com.atsuishio.superbwarfare.init.ModItems;
+import com.tacz.guns.api.item.IGun;
+import com.tacz.guns.api.item.builder.GunItemBuilder;
+import com.tacz.guns.api.item.gun.FireMode;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.item.ItemStack;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+
+import com.neoalive.tacz_sewv.bridge.IPmcDowned;
+import com.neoalive.tacz_sewv.config.SewvConfig;
+import com.neoalive.tacz_sewv.entity.ai.core.VehicleWeapons;
+
+/**
+ * Unit held-item presentation: engineer MAIN↔OFF switching, emplacement in-hand hide, and the
+ * stack chosen for TACZ body-holster rendering ({@code HolsterLayer}).
+ *
+ * <p>HolsterGoal is the sole continuous {@code setItemInHand} writer for engineers. Emplacement
+ * hide is render-only (TOW passenger sync / mortar manning flag). Body holster draw takes an
+ * <b>explicit</b> stack from {@link #holsteredGun} — it does not call TACZ's offhand
+ * {@code HumanoidOffhandRender} pipeline.
+ */
+public final class UnitHolster {
+
+    /** Synched from {@code MixinAbstractUnit}; false until a mortar crew is at the tube. */
+    public static final EntityDataAccessor<Boolean> MANNING_MORTAR =
+            SynchedEntityData.defineId(AbstractUnit.class, EntityDataSerializers.BOOLEAN);
+
+    /** Synched: main hand is a grenade mid-throw; rifle is stashed for body-holster draw. */
+    public static final EntityDataAccessor<Boolean> THROWING_GRENADE =
+            SynchedEntityData.defineId(AbstractUnit.class, EntityDataSerializers.BOOLEAN);
+
+    private static final String TAG_THROW_DEADLINE = "sewv:grenade_throw_deadline";
+    private static final int THROW_STALE_TICKS = 80;
+
+    private static final int SIDEARM_MAGAZINE = 15;
+    private static final int DUMMY_AMMO_RESERVE = 9999;
+
+    private UnitHolster() {}
+
+    // --- Emplacement in-hand hide -----------------------------------------------------------
+
+    /**
+     * When held items should not draw in-hand: driver or armed seat, crewing a TOW, standing at a
+     * mortar tube, administering aid ({@code IMedicTreat.isTreating} — MedicGoal's ally healing and
+     * PlayerReviveGoal/PmcReviveGoal's revive channel all set it: a unit working on someone should
+     * not be seen with a rifle up), or downed ({@code IPmcDowned.isDownedSynced} — a unit lying
+     * prone is not holding anything up either). Commander / Climb seats keep the rifle visible.
+     * Approach / path failure / overrun / dead tube clear the mortar flag so the rifle shows again.
+     *
+     * <p>Grenade throws are <b>not</b> covered here — {@link SmallArmsLayer} draws the grenade
+     * while {@link #holsteredGun} draws the stashed rifle on the body.
+     */
+    public static boolean hideHeldItems(LivingEntity entity) {
+        if (entity instanceof Mob mob && VehicleWeapons.controlsVehicleWeapon(mob)) return true;
+        if (entity.getVehicle() instanceof TowEntity tow && tow.isAlive() && !tow.isWreck()) {
+            return true;
+        }
+        if (!(entity instanceof AbstractUnit unit)) return false;
+        if (MedicControl.isTreating(unit)) return true;
+        if (unit instanceof IPmcDowned downed && downed.sewv$isDownedSynced()) return true;
+        return entity.getEntityData().get(MANNING_MORTAR);
+    }
+
+    public static boolean isThrowingGrenade(LivingEntity entity) {
+        if (!(entity instanceof AbstractUnit)) return false;
+        return entity.getEntityData().get(THROWING_GRENADE);
+    }
+
+    public static void setManningMortar(AbstractUnit unit, boolean manning) {
+        if (unit.level().isClientSide()) return;
+        Boolean cur = unit.getEntityData().get(MANNING_MORTAR);
+        if (cur == manning) return;
+        unit.getEntityData().set(MANNING_MORTAR, manning);
+    }
+
+    // --- Grenade throw holster ---------------------------------------------------------------
+
+    /**
+     * Stash both hands to NBT, put the prior main-hand weapon in OFF (client-synced for body
+     * holster), and put {@code grenade} in MAIN.
+     */
+    public static void beginGrenadeThrow(AbstractUnit unit, ItemStack grenade) {
+        if (unit.level().isClientSide() || grenade.isEmpty()) return;
+        if (isThrowingGrenade(unit)) return;
+
+        CompoundTag data = unit.getPersistentData();
+        ItemStack main = unit.getMainHandItem();
+        ItemStack off = unit.getOffhandItem();
+        data.put(GrenadeSupport.TAG_STASH_MAIN, main.save(new CompoundTag()));
+        data.put(GrenadeSupport.TAG_STASH_OFF, off.save(new CompoundTag()));
+        data.putBoolean(GrenadeSupport.TAG_STASH_PRESENT, true);
+        data.putLong(TAG_THROW_DEADLINE, unit.level().getGameTime() + THROW_STALE_TICKS);
+        // Offhand carries the rifle for client-synced HolsterLayer / body draw.
+        unit.setItemInHand(InteractionHand.OFF_HAND, main.copy());
+        unit.setItemInHand(InteractionHand.MAIN_HAND, grenade);
+        unit.getEntityData().set(THROWING_GRENADE, true);
+    }
+
+    /** Restore both hands from stash and clear throwing state. Always safe to call. */
+    public static void endGrenadeThrow(AbstractUnit unit) {
+        if (unit.level().isClientSide()) return;
+        CompoundTag data = unit.getPersistentData();
+        boolean hadStash = data.getBoolean(GrenadeSupport.TAG_STASH_PRESENT);
+        if (hadStash) {
+            ItemStack main = ItemStack.of(data.getCompound(GrenadeSupport.TAG_STASH_MAIN));
+            ItemStack off = ItemStack.of(data.getCompound(GrenadeSupport.TAG_STASH_OFF));
+            unit.setItemInHand(InteractionHand.MAIN_HAND, main);
+            unit.setItemInHand(InteractionHand.OFF_HAND, off);
+        } else if (GrenadeSupport.isGrenadeItem(unit.getMainHandItem())) {
+            unit.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }
+        clearGrenadeThrowState(unit);
+    }
+
+    /**
+     * If a throw left a stash without a live goal (chunk edge, timeout), put the rifle back.
+     * Called from {@link com.neoalive.tacz_sewv.entity.ai.goal.GrenadeThrowGoal#canUse} so it
+     * runs even when the goal declines.
+     */
+    public static void sweepGrenadeStashIfStale(AbstractUnit unit) {
+        if (unit.level().isClientSide()) return;
+        CompoundTag data = unit.getPersistentData();
+        boolean stash = data.getBoolean(GrenadeSupport.TAG_STASH_PRESENT);
+        boolean throwing = isThrowingGrenade(unit);
+        if (!stash && !throwing) return;
+
+        long deadline = data.getLong(TAG_THROW_DEADLINE);
+        boolean expired = deadline > 0 && unit.level().getGameTime() >= deadline;
+        // Stash with throwing cleared, or throw past its safety deadline.
+        if ((stash && !throwing) || expired) {
+            endGrenadeThrow(unit);
+        }
+    }
+
+    private static void clearGrenadeThrowState(AbstractUnit unit) {
+        CompoundTag data = unit.getPersistentData();
+        data.remove(GrenadeSupport.TAG_STASH_PRESENT);
+        data.remove(GrenadeSupport.TAG_STASH_MAIN);
+        data.remove(GrenadeSupport.TAG_STASH_OFF);
+        data.remove(TAG_THROW_DEADLINE);
+        if (isThrowingGrenade(unit)) {
+            unit.getEntityData().set(THROWING_GRENADE, false);
+        }
+    }
+
+    // --- TACZ body-holster stack ------------------------------------------------------------
+
+    /**
+     * TACZ gun to draw on the body, or {@link ItemStack#EMPTY}. Never the stack already drawn
+     * in MAIN as a held weapon (avoids double-draw while fighting).
+     *
+     * <p>Downed and captured are checked before {@link #hideHeldItems} rather than falling
+     * through to its generic "not in hand" branch below: that branch's whole point is drawing the gun
+     * <b>body-holstered</b> instead of in-hand (mortar/TOW crew, a medic mid-treat) — a fixed
+     * attachment point built for a standing rig, which a downed unit's collapsed pose has no
+     * sensible relationship to (misaligned/floating). A downed or captured unit gets no gun drawn at all,
+     * in-hand or holstered, same as {@link com.neoalive.tacz_sewv.client.SmallArmsLayer}'s SBW
+     * equivalent already does with a plain early return.
+     */
+    public static ItemStack holsteredGun(LivingEntity entity) {
+        if (entity.isDeadOrDying()) return ItemStack.EMPTY;
+        if (entity instanceof IPmcDowned downed && downed.sewv$isDownedSynced()) return ItemStack.EMPTY;
+
+        ItemStack main = entity.getMainHandItem();
+        ItemStack off = entity.getOffhandItem();
+
+        // Mid-grenade-throw: rifle is in OFF (synced) for body-holster draw; MAIN is the grenade.
+        if (entity instanceof AbstractUnit unit && isThrowingGrenade(unit)) {
+            if (IGun.getIGunOrNull(off) != null) return off;
+            CompoundTag data = unit.getPersistentData();
+            if (data.getBoolean(GrenadeSupport.TAG_STASH_PRESENT)) {
+                ItemStack stashed = ItemStack.of(data.getCompound(GrenadeSupport.TAG_STASH_MAIN));
+                if (IGun.getIGunOrNull(stashed) != null) return stashed;
+            }
+            return ItemStack.EMPTY;
+        }
+
+        if (hideHeldItems(entity)) {
+            if (IGun.getIGunOrNull(main) != null) return main;
+            if (IGun.getIGunOrNull(off) != null) return off;
+            return ItemStack.EMPTY;
+        }
+
+        // Engineer idle: tool MAIN, sidearm OFF — body-draw the OFF gun.
+        if (isWorkTool(main) && IGun.getIGunOrNull(off) != null) {
+            return off;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    // --- Engineer kit -----------------------------------------------------------------------
+
+    public static final class HolsterGoal extends Goal {
+
+        private final AbstractUnit unit;
+
+        public HolsterGoal(AbstractUnit unit) {
+            this.unit = unit;
+            this.setFlags(EnumSet.noneOf(Flag.class));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (this.unit.level().isClientSide) return false;
+            SupportRole role = SupportRole.of(this.unit);
+            return role == SupportRole.ENGINEER || role == SupportRole.COMBAT_ENGINEER;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return canUse();
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            // Vanilla's in-between tick runs a goal without re-checking canContinueToUse, so a unit
+            // that just stopped being an engineer would get one more hand swap.
+            if (!canUse()) return;
+            updateHolster(this.unit);
+        }
+    }
+
+    public static void equip(AbstractUnit unit) {
+        unit.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.REPAIR_TOOL.get()));
+        ItemStack sidearm = buildSidearm(unit.getRandom());
+        if (!sidearm.isEmpty()) {
+            unit.setItemInHand(InteractionHand.OFF_HAND, sidearm);
+        }
+    }
+
+    /** Combat engineer kit: military shovel MAIN, TACZ sidearm OFF (same swap path as mechanic). */
+    public static void equipCombatEngineer(AbstractUnit unit) {
+        unit.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.MILITARY_SHOVEL.get()));
+        ItemStack sidearm = buildSidearm(unit.getRandom());
+        if (!sidearm.isEmpty()) {
+            unit.setItemInHand(InteractionHand.OFF_HAND, sidearm);
+        }
+    }
+
+    private static boolean isWorkTool(ItemStack stack) {
+        return stack.is(ModItems.REPAIR_TOOL.get()) || stack.is(ModItems.MILITARY_SHOVEL.get());
+    }
+
+    private static ItemStack buildSidearm(RandomSource random) {
+        List<? extends String> pool = SewvConfig.ENGINEER_SIDEARM_POOL.get();
+        if (pool.isEmpty()) return ItemStack.EMPTY;
+
+        ResourceLocation id = ResourceLocation.tryParse(pool.get(random.nextInt(pool.size())));
+        if (id == null) return ItemStack.EMPTY;
+
+        ItemStack stack = GunItemBuilder.create()
+                .setId(id)
+                .setAmmoCount(SIDEARM_MAGAZINE)
+                .setFireMode(FireMode.SEMI)
+                .setCount(1)
+                .build();
+
+        IGun gun = IGun.getIGunOrNull(stack);
+        if (gun == null) return ItemStack.EMPTY;
+        gun.setMaxDummyAmmoAmount(stack, Integer.MAX_VALUE);
+        gun.setDummyAmmoAmount(stack, DUMMY_AMMO_RESERVE);
+        return stack;
+    }
+
+    /**
+     * Edge-triggered stash on lock false→true; Monitor while locked; restore on unlock edge;
+     * otherwise repair ↔ sidearm swap.
+     */
+    public static void updateHolster(AbstractUnit unit) {
+        if (isThrowingGrenade(unit)) return;
+
+        boolean locked = DroneControl.isLocked(unit);
+        CompoundTag data = unit.getPersistentData();
+        boolean stashPresent = data.getBoolean(DroneControl.STASH_PRESENT);
+
+        if (locked && !stashPresent) {
+            data.put(DroneControl.STASH_MAIN, unit.getMainHandItem().save(new CompoundTag()));
+            data.put(DroneControl.STASH_OFF, unit.getOffhandItem().save(new CompoundTag()));
+            data.putBoolean(DroneControl.STASH_PRESENT, true);
+            stashPresent = true;
+        }
+
+        if (locked) {
+            ItemStack monitor = new ItemStack(ModItems.MONITOR.get());
+            if (!unit.getMainHandItem().is(ModItems.MONITOR.get())) {
+                unit.setItemInHand(InteractionHand.MAIN_HAND, monitor);
+            }
+            if (!unit.getOffhandItem().is(ModItems.REPAIR_TOOL.get())
+                    && !unit.getOffhandItem().is(ModItems.MILITARY_SHOVEL.get())
+                    && stashPresent) {
+                ItemStack stashedMain = ItemStack.of(data.getCompound(DroneControl.STASH_MAIN));
+                ItemStack stashedOff = ItemStack.of(data.getCompound(DroneControl.STASH_OFF));
+                ItemStack tool = isWorkTool(stashedMain) ? stashedMain
+                        : isWorkTool(stashedOff) ? stashedOff : ItemStack.EMPTY;
+                if (!tool.isEmpty()) {
+                    unit.setItemInHand(InteractionHand.OFF_HAND, tool.copy());
+                }
+            }
+            return;
+        }
+
+        if (stashPresent) {
+            ItemStack main = ItemStack.of(data.getCompound(DroneControl.STASH_MAIN));
+            ItemStack off = ItemStack.of(data.getCompound(DroneControl.STASH_OFF));
+            unit.setItemInHand(InteractionHand.MAIN_HAND, main);
+            unit.setItemInHand(InteractionHand.OFF_HAND, off);
+            data.remove(DroneControl.STASH_PRESENT);
+            data.remove(DroneControl.STASH_MAIN);
+            data.remove(DroneControl.STASH_OFF);
+            return;
+        }
+
+        ItemStack main = unit.getMainHandItem();
+        ItemStack off = unit.getOffhandItem();
+        boolean fighting = unit.getTarget() != null;
+        boolean gunInMain = IGun.getIGunOrNull(main) != null;
+        boolean gunInOff = IGun.getIGunOrNull(off) != null;
+
+        if ((fighting && gunInOff) || (!fighting && gunInMain)) {
+            unit.setItemInHand(InteractionHand.MAIN_HAND, off);
+            unit.setItemInHand(InteractionHand.OFF_HAND, main);
+        }
+    }
+}

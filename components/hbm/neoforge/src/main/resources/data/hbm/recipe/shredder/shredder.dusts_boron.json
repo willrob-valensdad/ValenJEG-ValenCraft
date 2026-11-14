@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/boron"
+    }
+  ],
+  "order": 94720,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

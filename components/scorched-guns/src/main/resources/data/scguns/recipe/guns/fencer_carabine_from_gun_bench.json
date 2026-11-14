@@ -1,0 +1,16 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:fencer_carabine",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:antique_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:gun_parts",
+    "gun_barrel_2": "scguns:stone_gun_barrel",
+    "gun_barrel_1": "scguns:stone_gun_barrel",
+    "gun_grip": "scguns:wooden_stock",
+    "gun_magazine": "#minecraft:planks"
+  }
+}

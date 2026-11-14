@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "scguns:sheol"
+  ],
+  "result": {
+    "count": 6,
+    "id": "scguns:sheol_dust"
+  }
+}

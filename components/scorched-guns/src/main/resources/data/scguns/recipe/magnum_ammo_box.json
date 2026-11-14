@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "minecraft:paper",
+    "R": "minecraft:black_dye",
+    "N": [
+      "minecraft:iron_ingot",
+      "scguns:treated_iron_ingot"
+    ]
+  },
+  "pattern": [
+    "QQQ",
+    "QRQ",
+    "QNQ"
+  ],
+  "result": {
+    "id": "scguns:magnum_ammo_box"
+  }
+}

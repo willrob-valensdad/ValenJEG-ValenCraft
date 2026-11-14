@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust",
+    "scguns:nitro_powder_dust"
+  ],
+  "result": {
+    "count": 1,
+    "id": "scguns:nitro_powder"
+  }
+}

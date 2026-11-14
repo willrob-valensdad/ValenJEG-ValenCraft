@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/callwell_terminal",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

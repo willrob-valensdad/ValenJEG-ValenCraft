@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "valen_nero_energy",
+  "version": "0.1.0",
+  "name": "Valen Nero Energy Compatibility",
+  "environment": "*",
+  "license": "MIT",
+  "entrypoints": {
+    "main": [
+      "dev.valen.compat.energy.EnergyBridge",
+      "dev.valen.compat.energy.GravityBridge"
+    ]
+  },
+  "depends": {
+    "minecraft": "26.3",
+    "java": ">=25",
+    "fabricloader": ">=0.20.1",
+    "fabric-api": "*",
+    "team_reborn_energy": "5.0.0",
+    "nerospace": "1.6.0",
+    "nerolandcore": "1.15.0"
+  },
+  "mixins": [
+    "valen_nero_gravity.mixins.json",
+    "valen_nero_oxygen.mixins.json"
+  ]
+}

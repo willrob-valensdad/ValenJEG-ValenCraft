@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:small_iron_casing",
+    "minecraft:gunpowder",
+    "#scguns:stan_bullet_tips"
+  ],
+  "result": {
+    "id": "scguns:microjet",
+    "count": 1
+  }
+}

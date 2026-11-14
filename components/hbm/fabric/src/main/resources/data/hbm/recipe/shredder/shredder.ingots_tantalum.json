@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:ingots/tantalum"
+    }
+  ],
+  "order": 89088,
+  "output_items": [
+    "hbm:powder_tantalium"
+  ]
+}

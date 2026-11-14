@@ -1,0 +1,27 @@
+{
+  "type": "create:mechanical_crafting",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "accept_mirrored": true,
+  "key": {
+    "Q": "scguns:gun_grip",
+    "L": "scguns:energy_core",
+    "R": "scguns:heavy_gun_parts",
+    "S": "scguns:gun_barrel",
+    "X": "scguns:diamond_steel_blueprint",
+    "K": "scguns:diamond_steel_gun_frame",
+    "J": "minecraft:amethyst_shard"
+  },
+  "pattern": [
+    "QKJX",
+    "LRSS",
+    "K K "
+  ],
+  "result": {
+    "id": "scguns:shard_culler"
+  }
+}

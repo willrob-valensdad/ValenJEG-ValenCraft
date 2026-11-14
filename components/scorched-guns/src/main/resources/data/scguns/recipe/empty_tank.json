@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "minecraft:iron_ingot",
+    "Q": "minecraft:bucket"
+  },
+  "pattern": [
+    " # ",
+    " Q "
+  ],
+  "result": {
+    "id": "scguns:empty_tank",
+    "count": 2
+  }
+}

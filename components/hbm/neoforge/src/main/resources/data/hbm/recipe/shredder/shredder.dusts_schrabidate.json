@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/schrabidate"
+    }
+  ],
+  "order": 87552,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:glass_bottle",
+    "X": "minecraft:iron_nugget",
+    "Q": "minecraft:blaze_powder",
+    "M": "minecraft:string",
+    "L": [
+      "minecraft:soul_sand",
+      "minecraft:soul_soil"
+    ]
+  },
+  "pattern": [
+    "   ",
+    " MX",
+    "LQ#"
+  ],
+  "result": {
+    "id": "scguns:hellfire_bomb",
+    "count": 2
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "hbm:crafting_shaped",
+  "input_state": {
+    "C": {
+      "preserve": "result"
+    }
+  },
+  "key": {
+    "C": "hbm:crate_steel",
+    "S": "minecraft:minecart"
+  },
+  "pattern": [
+    "C",
+    "S"
+  ],
+  "result": {
+    "components": {
+      "hbm:cart_base": "vanilla"
+    },
+    "id": "hbm:cart_crate"
+  }
+}

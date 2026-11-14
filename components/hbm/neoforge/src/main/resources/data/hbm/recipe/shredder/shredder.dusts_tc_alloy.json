@@ -1,0 +1,12 @@
+{
+  "type": "hbm:shredder",
+  "input_items": [
+    {
+      "ingredient": "#c:dusts/tc_alloy"
+    }
+  ],
+  "order": 58368,
+  "output_items": [
+    "hbm:dust"
+  ]
+}

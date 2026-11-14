@@ -1,5 +1,7 @@
-# Place in Valen Craft
+# ValenCraft and ValenJEG
 
-Valen Craft is both a complete integrated Minecraft modpack and a modular project family. The family includes standalone mini-modpacks, modified mods, shaders, resource packs, compatibility components, runtime/JVM work and related tools.
+ValenCraft is a modular Minecraft modpack. ValenJEG is a mini-modpack/module within it, developed toward standalone distribution as well as composition into the larger pack.
 
-ValenJEG is the first standalone mini-modpack in that family. It can be used as its own project and can also become a component of the full Valen Craft modpack. This repository holds the ValenJEG component; shared runtime and unrelated projects retain their own source ownership.
+The ValenJEG repository root owns the module definition, dependency lock, pack configuration, branding and assembly. Its `components/` directory contains the gun fork and related implementation projects with scoped upstream licenses. A component's license does not replace the pack root MIT license, and the root MIT license does not replace component licenses.
+
+Adding a ValenCraft module must resolve duplicate top-level mod IDs, version requirements and conflicting configuration values before assembly. The current assembler creates a separate ValenJEG instance; a general multi-module merger is not implemented here.

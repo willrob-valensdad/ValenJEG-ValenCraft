@@ -1,0 +1,278 @@
+package com.neoalive.tacz_sewv.entity.ai.support;
+
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.function.BiPredicate;
+
+import javax.annotation.Nullable;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.utils.VehicleMotionUtils;
+import com.atsuishio.superbwarfare.init.ModItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.AbstractUnit;
+import net.nekoyuni.SimpleEnemyMod.entity.unit.PmcUnitEntity;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
+
+import com.neoalive.tacz_sewv.bridge.IHelicopterPilot;
+import com.neoalive.tacz_sewv.bridge.IVehicleBoarder;
+import com.neoalive.tacz_sewv.crew.CrewRadio;
+import com.neoalive.tacz_sewv.crew.OrderAuth;
+import com.neoalive.tacz_sewv.entity.ai.core.HullFacts;
+import com.neoalive.tacz_sewv.entity.ai.goal.BailOutVehicleGoal;
+import com.neoalive.tacz_sewv.order.OrderGuard;
+
+/**
+ * Shared vehicle bail execution for auto-bail ({@link BailOutVehicleGoal}) and player-triggered
+ * bail ({@link com.neoalive.tacz_sewv.network.PacketBailOutVehicle}).
+ */
+public final class BailOutSupport {
+
+    /** Player-requested bail — {@link BailOutVehicleGoal} picks this up on the next tick. */
+    public static final String TAG_MANUAL_BAIL = "sewv:manual_bail";
+
+    private static final String PARACHUTE_SLOT = "back";
+    private static final int PARACHUTE_MIN_HEIGHT = 8;
+
+    /** Blocks past the hull half-extent — obvious clear of the wreck, still a short scramble. */
+    private static final double FLEE_CLEARANCE = 14.0;
+    /** Angle offsets (radians) tried when the primary flee column is not standable. */
+    private static final float[] FLEE_ANGLE_FALLBACKS = {
+            0.0F, Mth.PI / 4.0F, -Mth.PI / 4.0F, Mth.HALF_PI, -Mth.HALF_PI
+    };
+    private static final int MAX_ESCAPE_ELEVATION = 8;
+
+    private BailOutSupport() {}
+
+    public static void requestManualBail(AbstractUnit unit) {
+        unit.getPersistentData().putBoolean(TAG_MANUAL_BAIL, true);
+    }
+
+    public static boolean hasManualBail(AbstractUnit unit) {
+        return unit.getPersistentData().getBoolean(TAG_MANUAL_BAIL);
+    }
+
+    public static void clearManualBail(AbstractUnit unit) {
+        unit.getPersistentData().remove(TAG_MANUAL_BAIL);
+    }
+
+    /**
+     * Expand seed unit ids to every owned PMC passenger on those hulls that pass {@code who},
+     * and queue a manual bail for each. Returns how many units were queued.
+     *
+     * <p>{@code who} is the seat filter: bail-out passes everyone; paratroop reuses
+     * {@link RappelSupport#isRappelEligible} (weaponless cargo only).
+     */
+    public static int requestManualBailExpanded(ServerPlayer player, Collection<Integer> seedIds,
+                                                BiPredicate<VehicleEntity, Entity> who) {
+        Set<VehicleEntity> hulls = new LinkedHashSet<>();
+        for (int unitId : seedIds) {
+            Entity e = player.level().getEntity(unitId);
+            if (!(e instanceof PmcUnitEntity pmc)) continue;
+            if (!OrderAuth.check(player, pmc, "BailOutSupport.expand")) continue;
+            if (!(pmc.getVehicle() instanceof VehicleEntity hull)) continue;
+            hulls.add(hull);
+        }
+
+        int queued = 0;
+        for (VehicleEntity hull : hulls) {
+            for (Entity passenger : hull.getPassengers()) {
+                if (!(passenger instanceof PmcUnitEntity pmc)) continue;
+                if (!OrderAuth.check(player, pmc, "BailOutSupport.expand")) continue;
+                if (OrderGuard.rejectIfDowned(player, pmc)) continue;
+                if (!who.test(hull, passenger)) continue;
+                requestManualBail(pmc);
+                queued++;
+            }
+        }
+        return queued;
+    }
+
+    /** Whole-crew bail — every owned PMC passenger on the hull. */
+    public static BiPredicate<VehicleEntity, Entity> everyone() {
+        return (hull, passenger) -> true;
+    }
+
+    /** Paratroop / rappel seat filter — weaponless cargo only. */
+    public static BiPredicate<VehicleEntity, Entity> rappelEligible() {
+        return RappelSupport::isRappelEligible;
+    }
+
+    /**
+     * Radio, parachute, dismount (SBW ejection out of an aircraft), and full stand-down. Returns
+     * the scramble point when one was found — the caller issues movement (PMC order or direct
+     * navigation).
+     */
+    @Nullable
+    public static BlockPos triggerVehicleBail(AbstractUnit unit, VehicleEntity vehicle) {
+        CrewRadio.speak(vehicle, unit, CrewRadio.Line.VEHICLE_BAIL);
+
+        BlockPos escape = findEscapePos(unit, vehicle);
+        issueParachute(unit);
+        TowRecoverySupport.clearOrder(unit, vehicle);
+        // Aircraft go out through SBW's own ejection (seat-data gated; it falls back to a plain
+        // dismount on a seat that declares none) — see VehicleEject.
+        if (HullFacts.isPlaneHull(vehicle) || HullFacts.isHelicopterHull(vehicle)) {
+            VehicleEject.eject(unit, vehicle);
+        } else {
+            unit.stopRiding();
+        }
+
+        IVehicleBoarder boarder = (IVehicleBoarder) unit;
+        boarder.tacz_sewv$setBoarding(false);
+        boarder.tacz_sewv$setMountTargetId(-1);
+        MortarSupport.releaseClaim(unit);
+        EntrenchSupport.clear(unit);
+        CoverHoldOrders.clear(unit);
+        com.neoalive.tacz_sewv.fpas.SignalTasks.clear(unit);
+        unit.getPersistentData().remove(BailOutVehicleGoal.TAG_SANDBAG_SCRAMBLE);
+
+        IHelicopterPilot pilot = (IHelicopterPilot) unit;
+        pilot.sewv$setHeliCommand(IHelicopterPilot.HELI_CMD_NONE);
+        pilot.sewv$setHeliLandPos(null);
+
+        if (unit instanceof PmcUnitEntity pmc) {
+            OrderStandDown.clearForVehicleBail(pmc);
+            if (escape != null) {
+                pmc.setMoveToTarget(Vec3.atBottomCenterOf(escape));
+            }
+        }
+        return escape;
+    }
+
+    /** A parachute in the unit's back slot when it is high enough to need one. Public for the LV bail-out. */
+    public static void issueParachute(AbstractUnit unit) {
+        Level level = unit.level();
+        BlockPos ground = level.getHeightmapPos(
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, unit.blockPosition());
+        if (unit.getY() - ground.getY() < PARACHUTE_MIN_HEIGHT) return;
+        equipParachute(unit);
+    }
+
+    /**
+     * A parachute in the back slot whatever the height — for an ejection, which throws the unit
+     * high enough to need one even off a parked aircraft. The canopy still only arms on a real
+     * fall ({@code ParachuteItem.curioTick}: falling fast and {@code fallDistance > 4}).
+     */
+    public static void equipParachute(AbstractUnit unit) {
+        CuriosApi.getCuriosInventory(unit).ifPresent(curios -> {
+            ICurioStacksHandler back = curios.getStacksHandler(PARACHUTE_SLOT).orElse(null);
+            if (back == null || back.getSlots() < 1) return;
+            if (!back.getStacks().getStackInSlot(0).isEmpty()) return;
+            back.getStacks().setStackInSlot(0, new ItemStack(ModItems.PARACHUTE.get()));
+        });
+    }
+
+    /**
+     * Radial flee: one point along {@code unit - hull} at {@code halfW + FLEE_CLEARANCE},
+     * snapped to standable ground. Angle fallbacks only when that column fails.
+     */
+    @Nullable
+    private static BlockPos findEscapePos(AbstractUnit unit, VehicleEntity vehicle) {
+        AABB hullBox = VehicleMotionUtils.INSTANCE.calculateCombinedAABBOptimized(vehicle);
+        double halfW = Math.max(hullBox.getXsize(), hullBox.getZsize()) * 0.5;
+        double radius = halfW + FLEE_CLEARANCE;
+
+        double cx = vehicle.getX();
+        double cy = vehicle.getY();
+        double cz = vehicle.getZ();
+        double dx = unit.getX() - cx;
+        double dz = unit.getZ() - cz;
+        if (dx * dx + dz * dz < 1.0e-4) {
+            float yaw = unit.getRandom().nextFloat() * Mth.TWO_PI;
+            dx = Mth.cos(yaw);
+            dz = Mth.sin(yaw);
+        }
+        double len = Math.sqrt(dx * dx + dz * dz);
+        dx /= len;
+        dz /= len;
+
+        Level level = unit.level();
+        int refY = Mth.floor(cy);
+        float base = (float) Math.atan2(dz, dx);
+        for (float offset : FLEE_ANGLE_FALLBACKS) {
+            float angle = base + offset;
+            int x = Mth.floor(cx + Mth.cos(angle) * radius);
+            int z = Mth.floor(cz + Mth.sin(angle) * radius);
+            BlockPos candidate = standableGroundAt(level, x, z, refY);
+            if (candidate == null) continue;
+            if (hullBox.intersects(candidate.getX(), candidate.getY(), candidate.getZ(),
+                    candidate.getX() + 1.0, candidate.getY() + 2.0, candidate.getZ() + 1.0)) {
+                continue;
+            }
+            return candidate;
+        }
+        return null;
+    }
+
+    /**
+     * Standable ground {@code clearance} blocks from {@code threat}, on the unit's side of it.
+     * Same angle fallbacks as the hull flee.
+     */
+    @Nullable
+    public static BlockPos escapeFrom(AbstractUnit unit, Vec3 threat, double clearance) {
+        double dx = unit.getX() - threat.x;
+        double dz = unit.getZ() - threat.z;
+        if (dx * dx + dz * dz < 1.0e-4) {
+            float yaw = unit.getYRot() * Mth.DEG_TO_RAD;
+            dx = -Mth.sin(yaw);
+            dz = Mth.cos(yaw);
+        }
+        double len = Math.sqrt(dx * dx + dz * dz);
+        dx /= len;
+        dz /= len;
+
+        Level level = unit.level();
+        int refY = Mth.floor(unit.getY());
+        float base = (float) Math.atan2(dz, dx);
+        for (float offset : FLEE_ANGLE_FALLBACKS) {
+            float angle = base + offset;
+            int x = Mth.floor(threat.x + Mth.cos(angle) * clearance);
+            int z = Mth.floor(threat.z + Mth.sin(angle) * clearance);
+            BlockPos candidate = standableGroundAt(level, x, z, refY);
+            if (candidate != null) return candidate;
+        }
+        return null;
+    }
+
+    @Nullable
+    private static BlockPos standableGroundAt(Level level, int x, int z, int hullY) {
+        BlockPos column = new BlockPos(x, hullY, z);
+        if (!level.isLoaded(column)) return null;
+
+        BlockPos pos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column);
+        if (Math.abs(pos.getY() - hullY) > MAX_ESCAPE_ELEVATION) return null;
+        return isStandable(level, pos) ? pos : null;
+    }
+
+    /**
+     * A unit can stand with its feet in {@code feet}: a sturdy, non-lava top under it and two
+     * passable blocks for the body. Shared with {@link DismountSequence}'s exit probe.
+     */
+    public static boolean isStandable(Level level, BlockPos feet) {
+        BlockPos below = feet.below();
+        BlockState ground = level.getBlockState(below);
+        if (!ground.isFaceSturdy(level, below, Direction.UP)) return false;
+        if (ground.getFluidState().is(FluidTags.LAVA)) return false;
+        return isPassable(level, feet) && isPassable(level, feet.above());
+    }
+
+    public static boolean isPassable(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        return state.getCollisionShape(level, pos).isEmpty()
+                && !state.getFluidState().is(FluidTags.LAVA);
+    }
+}

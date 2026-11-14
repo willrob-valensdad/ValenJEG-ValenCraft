@@ -1,0 +1,6 @@
+{
+	"parent": "create:block/gearshift/item",
+	"textures": {
+		"side": "create:block/clutch_off"
+	}
+}

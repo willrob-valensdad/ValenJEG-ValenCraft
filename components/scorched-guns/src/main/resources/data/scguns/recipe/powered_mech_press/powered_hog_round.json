@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:small_iron_casing",
+    "scguns:sheol_dust",
+    "minecraft:gold_nugget"
+  ],
+  "result": {
+    "id": "scguns:hog_round",
+    "count": 1
+  }
+}

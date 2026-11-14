@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/blooper",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

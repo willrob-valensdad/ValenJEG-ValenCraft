@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/choke_bomb_3d",
+  "textures": {
+    "0": "scguns:item/choke_bomb",
+    "particle": "scguns:item/choke_bomb"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "scguns:powered_mechanical_pressing",
+  "processingTime": 10,
+  "energyUse": 500,
+  "ingredients": [
+    "scguns:large_brass_casing",
+    "minecraft:blaze_powder",
+    "#scguns:advanced_bullet_tips"
+  ],
+  "result": {
+    "count": 1,
+    "id": "scguns:fire_grenade_round"
+  }
+}

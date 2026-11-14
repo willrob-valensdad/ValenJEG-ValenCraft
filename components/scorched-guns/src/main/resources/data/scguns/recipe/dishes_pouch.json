@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": "minecraft:leather",
+    "R": "minecraft:gold_nugget",
+    "X": "minecraft:paper",
+    "M": "minecraft:bowl",
+    "Y": "minecraft:glass_bottle"
+  },
+  "pattern": [
+    "QYQ",
+    "RXR",
+    "QMQ"
+  ],
+  "result": {
+    "id": "scguns:dishes_pouch"
+  }
+}

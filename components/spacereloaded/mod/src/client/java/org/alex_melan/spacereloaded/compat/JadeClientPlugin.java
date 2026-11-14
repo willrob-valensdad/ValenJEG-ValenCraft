@@ -1,0 +1,144 @@
+package org.alex_melan.spacereloaded.compat;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Block;
+import snownee.jade.api.BlockAccessor;
+import snownee.jade.api.IBlockComponentProvider;
+import snownee.jade.api.ITooltip;
+import snownee.jade.api.IWailaClientRegistration;
+import snownee.jade.api.IWailaPlugin;
+import snownee.jade.api.config.IPluginConfig;
+
+import java.util.Locale;
+
+/**
+ * Клиентская половина Jade: рисует то, что положила серверная.
+ *
+ * <p>Провайдеры создаются внутри {@code registerClient}, а не в статических
+ * полях: на выделенном сервере Jade всё равно загрузит этот класс, и трогать
+ * клиентские классы в его инициализаторе нельзя.
+ */
+public class JadeClientPlugin implements IWailaPlugin {
+
+    @Override
+    public void registerClient(IWailaClientRegistration registration) {
+        registration.registerBlockComponent(new IBlockComponentProvider() {
+            @Override
+            public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+                CompoundTag data = accessor.getServerData();
+                if (!data.contains("sr_energy")) {
+                    return;
+                }
+                tooltip.add(Component.translatable("jade.spacereloaded.energy",
+                        data.getLongOr("sr_energy", 0), data.getLongOr("sr_energy_max", 0)));
+            }
+
+            @Override
+            public Identifier getUid() {
+                return JadePlugin.ENERGY;
+            }
+        }, Block.class);
+
+        registration.registerBlockComponent(new IBlockComponentProvider() {
+            @Override
+            public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+                CompoundTag data = accessor.getServerData();
+                if (!data.contains("sr_fuel")) {
+                    return;
+                }
+                String fuelType = data.getStringOr("sr_fuel_type", "");
+                Component fuel = fuelType.isEmpty()
+                        ? Component.translatable("fuel.spacereloaded.empty")
+                        : Component.translatable("fuel.spacereloaded."
+                                + fuelType.substring(fuelType.indexOf(':') + 1));
+                tooltip.add(Component.translatable("jade.spacereloaded.fuel",
+                        String.format(Locale.ROOT, "%.0f", data.getDoubleOr("sr_fuel", 0)),
+                        String.format(Locale.ROOT, "%.0f", data.getDoubleOr("sr_fuel_max", 0)),
+                        fuel));
+            }
+
+            @Override
+            public Identifier getUid() {
+                return JadePlugin.FUEL;
+            }
+        }, Block.class);
+
+        registration.registerBlockComponent(new IBlockComponentProvider() {
+            @Override
+            public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+                CompoundTag data = accessor.getServerData();
+                if (!data.contains("sr_terminal_state")) {
+                    return;
+                }
+                tooltip.add(Component.translatable("jade.spacereloaded.terminal",
+                        Component.translatable("message.spacereloaded.terminal.mode."
+                                + data.getStringOr("sr_terminal_mode", "hold")),
+                        Component.translatable(data.getStringOr("sr_terminal_state",
+                                "message.spacereloaded.terminal.state.no_program")),
+                        data.getStringOr("sr_terminal_detail", "")));
+                tooltip.add(Component.translatable("jade.spacereloaded.terminal_counters",
+                        data.getIntOr("sr_terminal_departures", 0), data.getIntOr("sr_terminal_arrivals", 0)));
+            }
+
+            @Override
+            public Identifier getUid() {
+                return JadePlugin.TERMINAL;
+            }
+        }, Block.class);
+
+        registration.registerBlockComponent(new IBlockComponentProvider() {
+            @Override
+            public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+                CompoundTag data = accessor.getServerData();
+                if (!data.contains("sr_rods")) {
+                    return;
+                }
+                tooltip.add(Component.translatable("jade.spacereloaded.rods",
+                        data.getIntOr("sr_rods", 0), data.getIntOr("sr_max_rods", 0)));
+                String target = data.getStringOr("sr_target", "");
+                tooltip.add(target.isEmpty()
+                        ? Component.translatable("screen.spacereloaded.cannon.no_target")
+                        : Component.translatable("jade.spacereloaded.target", target));
+            }
+
+            @Override
+            public Identifier getUid() {
+                return JadePlugin.CANNON;
+            }
+        }, Block.class);
+
+        registration.registerBlockComponent(new IBlockComponentProvider() {
+            @Override
+            public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+                CompoundTag data = accessor.getServerData();
+                if (data.contains("sr_md_rail")) {
+                    tooltip.add(Component.translatable("jade.spacereloaded.mass_driver",
+                            data.getIntOr("sr_md_rail", 0), data.getLongOr("sr_md_speed", 0),
+                            Component.translatable("jade.spacereloaded.mass_driver.state."
+                                    + data.getStringOr("sr_md_reason", "no_rail"))));
+                    tooltip.add(Component.translatable("jade.spacereloaded.mass_driver.charge",
+                            data.getLongOr("sr_md_charge", 0), data.getLongOr("sr_md_need", 0)));
+                } else if (data.contains("sr_mc_radius")) {
+                    tooltip.add(Component.translatable("jade.spacereloaded.mass_catcher",
+                            String.format(Locale.ROOT, "%.1f", data.getDoubleOr("sr_mc_radius", 0)),
+                            data.getIntOr("sr_mc_net", 0)));
+                    tooltip.add(Component.translatable("jade.spacereloaded.mass_catcher.counters",
+                            data.getIntOr("sr_mc_caught", 0), data.getIntOr("sr_mc_lost", 0)));
+                } else if (data.contains("sr_rr_formed")) {
+                    tooltip.add(Component.translatable("jade.spacereloaded.regolith_reactor",
+                            Component.translatable(data.getBooleanOr("sr_rr_formed", false)
+                                    ? "gui.spacereloaded.regolith_reactor.formed"
+                                    : "gui.spacereloaded.regolith_reactor.not_formed"),
+                            data.getIntOr("sr_rr_o2", 0), data.getIntOr("sr_rr_o2_max", 0)));
+                }
+            }
+
+            @Override
+            public Identifier getUid() {
+                return JadePlugin.INDUSTRY;
+            }
+        }, Block.class);
+    }
+}

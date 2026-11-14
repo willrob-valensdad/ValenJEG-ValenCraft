@@ -1,0 +1,20 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:callwell",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:frontier_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:gun_parts",
+    "gun_barrel_2": "scguns:gun_barrel",
+    "gun_barrel_1": "scguns:gun_barrel",
+    "gun_top_internal_1": "#minecraft:planks",
+    "gun_top_internal_2": "minecraft:iron_ingot",
+    "gun_top_barrel_2": "scguns:gun_barrel",
+    "gun_top_barrel_1": "scguns:gun_barrel",
+    "gun_grip": "scguns:gun_grip",
+    "gun_magazine": "#minecraft:planks"
+  }
+}

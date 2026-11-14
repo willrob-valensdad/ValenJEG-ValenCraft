@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scguns:item/big_bore",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

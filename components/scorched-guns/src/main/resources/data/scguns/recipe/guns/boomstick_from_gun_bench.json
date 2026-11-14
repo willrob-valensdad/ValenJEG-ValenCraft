@@ -1,0 +1,18 @@
+{
+  "type": "scguns:gun_bench",
+  "result": {
+    "id": "scguns:boomstick",
+    "count": 1
+  },
+  "ingredients": {
+    "blueprint": "scguns:copper_blueprint",
+    "gun_internal_1": "scguns:firing_unit",
+    "gun_internal_2": "scguns:gun_parts",
+    "gun_top_internal_2": "minecraft:copper_ingot",
+    "gun_top_internal_1": "minecraft:copper_ingot",
+    "gun_barrel_1": "scguns:gun_barrel",
+    "gun_top_barrel_1": "scguns:gun_barrel",
+    "gun_grip": "scguns:gun_grip",
+    "gun_magazine": "#minecraft:planks"
+  }
+}

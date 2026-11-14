@@ -1,0 +1,56 @@
+{
+  "type": "create:sequenced_assembly",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "ingredient": "scguns:small_iron_casing",
+  "loops": 1,
+  "results": [
+    {
+      "id": "scguns:hog_round"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_hog_round",
+        "scguns:sheol_dust"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_hog_round"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        "scguns:unfinished_hog_round",
+        "minecraft:gold_nugget"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_hog_round"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        "scguns:unfinished_hog_round"
+      ],
+      "results": [
+        {
+          "id": "scguns:unfinished_hog_round"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "scguns:unfinished_hog_round"
+  }
+}

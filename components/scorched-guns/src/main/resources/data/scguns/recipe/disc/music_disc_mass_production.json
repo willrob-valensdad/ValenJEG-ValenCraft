@@ -1,0 +1,14 @@
+{
+  "type": "scguns:mechanical_pressing",
+  "processingTime": 400,
+  "ingredients": [
+    "minecraft:slime_ball",
+    "minecraft:charcoal",
+    "scguns:anthralite_ingot"
+  ],
+  "mold": "scguns:disc_mold",
+  "result": {
+    "id": "scguns:music_disc_mass_production",
+    "count": 1
+  }
+}

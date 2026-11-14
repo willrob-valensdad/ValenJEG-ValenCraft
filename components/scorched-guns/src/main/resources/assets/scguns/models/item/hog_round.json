@@ -1,0 +1,7 @@
+{
+  "parent": "scguns:item/hog_round_3d",
+  "textures": {
+    "0": "scguns:item/hog_round",
+    "particle": "scguns:item/hog_round"
+  }
+}
