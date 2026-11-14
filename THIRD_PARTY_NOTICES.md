@@ -8,6 +8,7 @@ ValenJEG is a mini-modpack within the modular ValenCraft modpack. The root MIT l
 * **Common Storage Lib:** upstream MIT license beside its source.
 * **Scorched Guns:** GPL-3.0-or-later metadata and original license in `components/scorched-guns/`.
 * **Combined Arms:** original upstream license and credits retained; its metadata declares GPL-3.0. The inherited `LICENSE.txt` also contains Forge notices, preserved rather than overwritten.
+* **Simple Enemy Mod:** original GNU GPL v3.0-or-later license, NekoYuni attribution and NeoAlive fork credits retained with its source.
 * **Superb Warfare Refabricated:** original COPYING/COPYING.LESSER notices retained with its source.
 * **Create Fly and SpaceReloaded:** their source licenses are retained beside the respective ports.
 * Unmodified dependencies retain their original author names, licenses and signed bytes; exact versions and source/download URLs appear in `mods.lock.json`.

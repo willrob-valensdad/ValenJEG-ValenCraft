@@ -67,6 +67,17 @@
       "bytes": 12969589,
       "tree_sha256": "bfc0663fe132cbb1e7b9fc2b48457e3625fd61d6f87622e64247a3f3119a2537",
       "code_files": 491
+    },
+    {
+      "id": "simple-enemy-mod",
+      "path": "components/combined-arms/dependencies/simpleenemymod",
+      "upstream": "https://github.com/NeoAlive/Simple-Enemy-Mod-Public",
+      "original_upstream": "https://github.com/NekoYuni/Simple-Enemy-Mod-Public",
+      "commit": "54df119975c09de896ff0df4577361de91d9931e",
+      "archive_url": "https://codeload.github.com/NeoAlive/Simple-Enemy-Mod-Public/zip/54df119975c09de896ff0df4577361de91d9931e",
+      "archive_sha256": "9ead4d4072c3cc0423bb38d4019819930b02f43adc4b45031f851277047b3777",
+      "files": 239,
+      "status": "upstream 1.21.1 source acquired; 26.3 Fabric migration pending"
     }
   ],
   "reserved_assets": [

@@ -1293,11 +1293,11 @@
     },
     {
       "id": "simpleenemymod",
-      "status": "required source/artifact not yet acquired",
+      "status": "source acquired; complete 26.3 Fabric migration pending",
       "contains": [
         "simpleenemymod"
       ],
-      "source": null,
+      "source": "components/combined-arms/dependencies/simpleenemymod",
       "sides": [
         "client",
         "server"
