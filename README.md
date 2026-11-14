@@ -44,3 +44,5 @@ Source presence, compilation, native gameplay qualification, installation and pl
 The pack definition retains the owner's [MIT license](LICENSE). That license does not replace component licenses. JEG's inherited GPL license, HBM's LGPL notices, the Terrarium License for Ad Astra, and other upstream notices remain with their components. Reserved upstream artwork is referenced through pinned source manifests rather than relicensed. See [third-party notices](THIRD_PARTY_NOTICES.md).
 
 Developed by **Valen Systems** as part of **ValenCraft**. Original creators retain their respective rights and attribution.
+
+For release delivery, see the [CurseForge upload file guide](docs/CURSEFORGE-UPLOAD.md).

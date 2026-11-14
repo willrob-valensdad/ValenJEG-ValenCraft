@@ -1,0 +1,19 @@
+{
+  "project_id": 1803139,
+  "version": "0.1.0",
+  "status": "planned; no release archive produced",
+  "files": [
+    {
+      "file": "ValenJEG-0.1.0-mc26.3-Fabric-client.zip",
+      "role": "main CurseForge modpack upload",
+      "method": "export qualified CurseForge App profile"
+    },
+    {
+      "file": "ValenJEG-0.1.0-mc26.3-Fabric-server.zip",
+      "role": "Additional File attached to client release",
+      "method": "matching qualified dedicated-server bundle"
+    }
+  ],
+  "source_repository": "https://github.com/willrob-valensdad/ValenJEG-ValenCraft",
+  "guide": "docs/CURSEFORGE-UPLOAD.md"
+}
